@@ -1,0 +1,26 @@
+html, body { 
+    margin: 0; padding: 0; overflow: hidden;
+}
+
+.positioned {
+    display: block; 
+    position: absolute; 
+    top: 0; left: 0;
+}
+
+.fullscreen {
+    width: 100%; height: 100%;
+}
+
+.ui-minimap {
+    width: 250px; height: 250px;
+    right: 0; left: auto;
+    background: rgba(0,0,0,.25);
+}
+
+.ui-title {
+    width: 100%; 
+    display: block;
+    text-align: center;
+    text-shadow: 1px 1px 1px #fff;
+}

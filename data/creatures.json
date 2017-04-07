@@ -1,0 +1,20 @@
+{
+    "betaVendorNpc": {
+        "name": "β Vendor", 
+        "faction": "neutral",
+        "asset": "betaVendor", 
+        "inventory": [
+            {
+                "name": "Weapons", 
+                "rows": 16, 
+                "cols": 10
+            }
+        ]
+    }, 
+    "hero": {
+        "name": "Hero", 
+        "faction": "heroes", 
+        "asset": "hero", 
+        "speed": 1
+    }   
+}
