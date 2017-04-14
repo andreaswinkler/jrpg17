@@ -9,12 +9,16 @@
                 "rows": 16, 
                 "cols": 10
             }
-        ]
+        ], 
+        "width": 40, 
+        "height": 100
     }, 
     "hero": {
         "name": "Hero", 
         "faction": "heroes", 
         "asset": "hero", 
-        "speed": 1
+        "speed": 0.1, 
+        "width": 40, 
+        "height": 100
     }   
 }

@@ -4,20 +4,43 @@
 
         moveTo: function(creature, x, y) {
 
+            var distance = Utils.distance(creature.x, creature.y, x, y);
+
             creature.movementTarget = {
                     x: x, 
                     y: y, 
-                    dx: 1, 
-                    dy: 1, 
+                    dx: (x - creature.x) / distance, 
+                    dy: (y - creature.y) / distance, 
                     infinite: false, 
+                    ignoreObstacles: false, 
                     creature: creature, 
-                    loop: function(ticks) {
-                        this.creature.x += this.dx;
-                        this.creature.y += this.dy;
+                    validatePosition: function(x, y) {
 
-                        if (this.creature.x == this.x && this.creature.y == this.y) {
+                        return this.creature.map.tile(x, y).walkable;
+
+                    }, 
+                    loop: function(ticks) {
+
+                        var targetX = this.creature.x + (this.dx * this.creature.speed * ticks), 
+                            targetY = this.creature.y + (this.dy * this.creature.speed * ticks);
+
+                        if (this.ignoreObstacles || this.validatePosition(targetX, targetY)) {
+
+                            this.creature.x = targetX;
+                            this.creature.y = targetY;
+
+                            if (Utils.distance(this.creature.x, this.creature.y, this.x, this.y) < 10) {
+
+                                this.creature.movementTarget = null;
+
+                            }
+
+                        } else {
+
                             this.creature.movementTarget = null;
+
                         }
+
                     }
                 };
 

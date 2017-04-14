@@ -2,69 +2,39 @@ var UI = {
 
     container: null,
     minimap: null,
+    renderer: null, 
 
     Minimap: function(container) {
 
         this.container = container;
         this.mapName = $('<span class="ui-title ui-minimap-mapName" />').appendTo(container);
+        this.staticLayer = new IsometricRenderLayer(250, 250);
+        this.dynamicLayer = new IsometricRenderLayer(250, 250);
+
+        container.append(this.dynamicLayer.canvas);
+        container.append(this.staticLayer.canvas);
 
         this.setMapName = function(mapName) {
 
             this.mapName.html(mapName);
 
-        }
+        };
+
+        this.updateStaticContent = function() {
+
+            this.staticLayer.clear();
+            this.staticLayer.drawCircle(125, 125, 5, 'rgba(0,0,200,1)');
+
+        };
+
+        this.update = function() {
+
+            this.dynamicLayer.clear();
+            UI.renderer.mapBuffer.drawTo(this.dynamicLayer, 0, 0, Game.hero.x - 250, Game.hero.y - 250, 500, 500, 250, 250);
+
+        };
 
     },  
-
-    Renderer: {
-
-        groundLayer: null, 
-
-        init: function(container) {
-
-            UI.Renderer.groundLayer = new UI.RenderLayer(container);
-
-        }, 
-
-        render: function(map) {
-
-            this.groundLayer.clear();
-
-            map.creatures.forEach(this.renderCreature, this);
-
-        }, 
-
-        renderCreature: function(creature) {
-            
-            this.groundLayer.draw(Assets.get(creature.asset), creature.x, creature.y);
-
-        }
-
-    },
-
-    RenderLayer: function(container) {
-
-        this.canvas = document.createElement('canvas');
-        this.ctx = this.canvas.getContext('2d');
-
-        this.canvas.width = $(container).width();
-        this.canvas.height = $(container).height();
-
-        container.append(this.canvas);
-
-        this.clear = function() {
-
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        };
-
-        this.draw = function(asset, x, y) {
-
-            this.ctx.drawImage(asset, x, y);
-
-        };
-
-    }, 
 
     init: function(container) {
 
@@ -72,7 +42,8 @@ var UI = {
 
         UI.minimap = new UI.Minimap($('<div class="ui-minimap positioned" />').appendTo(UI.container));
         
-        UI.Renderer.init($('<div class="ui-stage positioned fullscreen" />').appendTo(UI.container));
+        UI.renderer = IsometricRenderer;
+        UI.renderer.init($('<div class="ui-stage positioned fullscreen" />').appendTo(UI.container), $G.tileSize);
 
         Events.on('game.init', UI.loadingScreen);
         Events.on('game.start', UI.gameScreen);
@@ -84,7 +55,7 @@ var UI = {
     onMapLoaded: function(map) {
 
         UI.minimap.setMapName(map.name);
-        // upate map name in minimap
+        UI.minimap.updateStaticContent();
         // show map name accross screen
 
 

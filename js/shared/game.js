@@ -16,8 +16,6 @@
 
         start: function() {
 
-            Game.paused = false;
-
             Events.emit('game.start');
 
             Game.loadMap('village');
@@ -26,21 +24,25 @@
 
         update: function(ticks) {
 
-            Game.maps.village.creatures.forEach(function(creature) {
-         
-                if (creature.movementTarget) {
+            if (Game.maps.village) {
 
-                    creature.movementTarget.loop(ticks);
+                Game.maps.village.creatures.forEach(function(creature) {
+            
+                    if (creature.movementTarget) {
 
-                }
+                        creature.movementTarget.loop(ticks);
 
-            });
+                    }
+
+                });
+            
+            }
 
         }, 
 
         onInput: function(input) {
 
-            var hero = Game.maps.village.creatures[1];
+            var hero = Game.activeMap.hero;
 
             switch (input.key) {
 
@@ -67,39 +69,95 @@
                     }
 
                     break;
+                
+                case 'D': 
+
+                    $G.toggleDebug();
+
+                    break;
 
             }
 
         }, 
 
+        readMapData: function(input) {
+
+            var inputRows = input.split('\n'), 
+                grid = [], i, j, inputCols;
+
+            for (i = 0; i < inputRows.length; i++) {
+
+                inputCols = inputRows[i].split('\t');
+
+                grid.push([]);
+
+                for (j = 0; j < inputCols.length; j++) {
+
+                    grid[i].push({ t: inputCols[j], walkable: inputCols[j] == 'F', x: j * $G.tileSize, y: i * $G.tileSize });
+
+                }
+
+            }
+
+            return grid;
+
+        }, 
+
         loadMap: function(mapKey) {
 
-            var map = {
-                name: 'The Village', 
-                spawnPoints: [
-                    {
-                        x: 500, 
-                        y: 500, 
-                        spawns: 'betaVendorNpc'
-                    },
-                    {
-                        x: 1000, 
-                        y: 400, 
-                        spawns: 'hero'
-                    }
-                ], 
-                creatures: []
-            };
+            $.get('data/maps/' + mapKey + '.txt', function(data) {
 
-            map.spawnPoints.forEach(function(i) {
+                var grid = Game.readMapData(data), 
+                    map = {
+                        name: 'The Village', 
+                        spawnPoints: [
+                            {
+                                x: 32, 
+                                y: 1152, 
+                                spawns: 'betaVendorNpc'
+                            },
+                            {
+                                x: 32, 
+                                y: 992, 
+                                spawns: 'hero'
+                            }
+                        ], 
+                        creatures: [], 
+                        grid: grid, 
+                        rows: grid.length, 
+                        cols: grid[0].length, 
+                        tile: function(x, y) {
+                            
+                            return (this.grid[Math.floor(x / $G.tileSize)] || [])[Math.floor(y / $G.tileSize)] || { walkable: false };
 
-                map.creatures = [].concat(map.creatures, CreatureFactory.create(i));
+                        }
+                    };
+
+                map.spawnPoints.forEach(function(i) {
+
+                    map.creatures = [].concat(map.creatures, CreatureFactory.create(i));
+
+                });
+
+                map.creatures.forEach(function(creature) { 
+
+                    creature.map = map;
+
+                });
+
+                Game.hero = map.hero = map.creatures.filter(function(i) { return i.name == 'Hero'; }).shift();
+                map.hero.moved = true;
+
+                Game.maps[mapKey] = map;
+                Game.activeMap = map;
+
+                Game.paused = false;
+
+                UI.renderer.updateMap(map);
+
+                Events.emit('map.loaded', map);
 
             });
-
-            Game.maps[mapKey] = map;
-
-            Events.emit('map.loaded', map);
 
         }
 

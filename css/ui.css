@@ -1,5 +1,5 @@
 html, body { 
-    margin: 0; padding: 0; overflow: hidden;
+    margin: 0; padding: 0; overflow: hidden; background: #333;
 }
 
 .positioned {
@@ -13,9 +13,23 @@ html, body {
 }
 
 .ui-minimap {
-    width: 250px; height: 250px;
+    width: 250px; height: 275px;
     right: 0; left: auto;
     background: rgba(0,0,0,.25);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.ui-minimap canvas {
+    display: block; 
+    position: absolute; 
+}
+
+.ui-stage canvas {
+    display: block; 
+    position: absolute; 
+    top: 0; left: 0;
+    border: 1px solid #999;
 }
 
 .ui-title {
@@ -23,4 +37,26 @@ html, body {
     display: block;
     text-align: center;
     text-shadow: 1px 1px 1px #fff;
+}
+
+canvas {
+    background: transparent;
+}
+
+.debug {
+    z-index: 9999;
+}
+
+.debug-layers {
+    display: block;
+    width: 500px; height: 500px;
+    position: absolute;
+    top: 0; left: 0;
+    border: 1px solid green;
+    overflow-y: scroll;
+    display: none;
+}
+.debug-layers canvas {
+    border: 1px solid red;
+    width: 230px; height: 230px;
 }

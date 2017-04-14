@@ -31,6 +31,8 @@
 
                creature.moveTo = function(x, y) { 
 
+                   console.log(this.name + ' move to [' + x + ' / ' + y + ']');
+
                    MovementSystem.moveTo(this, x, y);
 
                };

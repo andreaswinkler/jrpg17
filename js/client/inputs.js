@@ -287,7 +287,10 @@ var Inputs = {
 
     onInput: function(event) {
 
-        var key;
+        var worldPosition = UI.renderer.isometricToCartesian(
+                (event.offsetX + UI.renderer.offset.x) * $G.scale, 
+                (event.offsetY + UI.renderer.offset.y) * $G.scale), 
+            key;
 
         switch (event.type) {
 
@@ -311,8 +314,8 @@ var Inputs = {
                 key: key, 
                 ctrl: event.ctrlKey, 
                 shift: event.shiftKey, 
-                x: event.offsetX, 
-                y: event.offsetY 
+                x: worldPosition.x, 
+                y: worldPosition.y
             });
         
         }

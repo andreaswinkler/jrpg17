@@ -1,14 +1,18 @@
 <!DOCTYPE HTML>
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
 <title>jrpg17</title>
 <script type="text/javascript" src="js/jquery-3.2.0.min.js"></script>
+<script type="text/javascript" src="js/stats.min.js"></script>
 <script type="text/javascript" src="js/client/client.js"></script>
 <script type="text/javascript" src="js/client/auth.js"></script>
 <script type="text/javascript" src="js/client/net.js"></script>
 <script type="text/javascript" src="js/client/ui.js"></script>
 <script type="text/javascript" src="js/client/assets.js"></script>
 <script type="text/javascript" src="js/client/inputs.js"></script>
+<script type="text/javascript" src="js/client/isometricRenderer.js"></script>
+<script type="text/javascript" src="js/shared/utils.js"></script>
 <script type="text/javascript" src="js/shared/events.js"></script>
 <script type="text/javascript" src="js/shared/game.js"></script>
 <script type="text/javascript" src="js/shared/creatureFactory.js"></script>
@@ -17,6 +21,8 @@
 </head>
 <body>
 <div id="jrpg17"></div>
+<div class="debug debug-layers"></div>
+<div class="debug debug-perf"></div>
 <script type="text/javascript">
 $(document).ready(function() {
     $G.init($('#jrpg17'), {
