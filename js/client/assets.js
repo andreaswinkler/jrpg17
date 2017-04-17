@@ -14,32 +14,31 @@ var Assets = {
         'betaVendor': {
             'width': 40, 
             'height': 100, 
-            'color': 'rgba(100,100,100,.5)'
+            'color': 'rgba(100,100,100,.5)',
+            'block': true
         },
         'hero': {
             'width': 40, 
             'height': 100, 
-            'color': 'rgba(100,0,55,.5)'
+            'color': 'rgba(100,0,55,1)', 
+            'block': true
         },
         'tile_F': {
-            'width': 64, 
-            'height': 32, 
             'color': 'rgba(200,200,200,1)', 
             'tile': true
         },  
         'tile_': {
-            'width': 64, 
-            'height': 32, 
             'color': 'rgba(0,0,0,0)', 
             'tile': true
         },  
+        'tile_DR': {
+            'color': 'rgba(0,0,99,1)', 
+            'tile': true
+        }, 
         'wall': {
-            'width': 64, 
-            'height': 256, 
-            'color': 'rgba(174,33,100,0.5)', 
+            'color': 'rgba(150,150,150,1)', 
             'block': true, 
-            'offsetX': -32, 
-            'offsetY': -256
+            'height': 400
         }
     }, 
 
@@ -56,7 +55,7 @@ var Assets = {
     }, 
 
     createDiamond: function(ctx, x, y, size, fillStyle) {
-
+      
         ctx.fillStyle = fillStyle;
 
         ctx.beginPath();
@@ -77,8 +76,8 @@ var Assets = {
             ctx = canvas.getContext('2d'), 
             blueprint = Assets.blueprints[asset] || Assets.blueprints.missing;
 
-        canvas.width = blueprint.width * Assets.scaleFactor;
-        canvas.height = blueprint.height * Assets.scaleFactor;
+        canvas.width = (blueprint.width || $G.tileSize * 2) * Assets.scaleFactor;
+        canvas.height = (blueprint.height || $G.tileSize) * Assets.scaleFactor;
         
         ctx.fillStyle = blueprint.color;
         ctx.strokeStyle = 'rgba(0,0,0,1)';
@@ -95,7 +94,7 @@ var Assets = {
             ctx.moveTo(0, canvas.width / 4);
             ctx.lineTo(0, canvas.height - canvas.width / 4);
             ctx.lineTo(canvas.width / 2, canvas.height);
-            ctx.lineTo(canvas.width / 2, canvas.width / 4);
+            ctx.lineTo(canvas.width / 2, canvas.width / 2);
             ctx.closePath();
             
             ctx.stroke();
@@ -105,7 +104,7 @@ var Assets = {
             ctx.moveTo(canvas.width, canvas.width / 4);
             ctx.lineTo(canvas.width, canvas.height - canvas.width / 4);
             ctx.lineTo(canvas.width / 2, canvas.height);
-            ctx.lineTo(canvas.width / 2, canvas.width / 4);
+            ctx.lineTo(canvas.width / 2, canvas.width / 2);
             ctx.closePath();
             
             ctx.stroke();

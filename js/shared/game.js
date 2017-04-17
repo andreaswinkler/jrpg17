@@ -26,8 +26,10 @@
 
             if (Game.maps.village) {
 
-                Game.maps.village.creatures.forEach(function(creature) {
+                Game.activeMap.creatures.forEach(function(creature) {
             
+                    creature.moved = false;
+
                     if (creature.movementTarget) {
 
                         creature.movementTarget.loop(ticks);
@@ -75,6 +77,12 @@
                     $G.toggleDebug();
 
                     break;
+                
+                case 'I':
+
+                    UI.toggleCharacterWindow();
+
+                    break;
 
             }
 
@@ -85,15 +93,15 @@
             var inputRows = input.split('\n'), 
                 grid = [], i, j, inputCols;
 
-            for (i = 0; i < inputRows.length; i++) {
+            for (i = 0; i < 20/*inputRows.length*/; i++) {
 
                 inputCols = inputRows[i].split('\t');
 
                 grid.push([]);
 
-                for (j = 0; j < inputCols.length; j++) {
+                for (j = 0; j < 20/*inputCols.length*/; j++) {
 
-                    grid[i].push({ t: inputCols[j], walkable: inputCols[j] == 'F', x: j * $G.tileSize, y: i * $G.tileSize });
+                    grid[i].push({ t: inputCols[j], walkable: inputCols[j] != '', x: j * $G.tileSize, y: i * $G.tileSize });
 
                 }
 
@@ -112,13 +120,13 @@
                         name: 'The Village', 
                         spawnPoints: [
                             {
-                                x: 32, 
-                                y: 1152, 
+                                x: 1500, 
+                                y: 1500, 
                                 spawns: 'betaVendorNpc'
                             },
                             {
-                                x: 32, 
-                                y: 992, 
+                                x: 1360, 
+                                y: 1360, 
                                 spawns: 'hero'
                             }
                         ], 
@@ -126,9 +134,46 @@
                         grid: grid, 
                         rows: grid.length, 
                         cols: grid[0].length, 
+                        nullTile: { walkable: false }, 
+                        tileIndex: function(x, y) {
+
+                            return Utils.positionToGridIndex(x, y, $G.tileSize);
+
+                        }, 
                         tile: function(x, y) {
                             
-                            return (this.grid[Math.floor(x / $G.tileSize)] || [])[Math.floor(y / $G.tileSize)] || { walkable: false };
+                            var tile = Utils.gridElement(this.grid, x, y, $G.tileSize);
+
+                            if (tile == null) {
+
+                                tile = this.nullTile;
+
+                            }
+
+                            return tile;
+
+                        }, 
+                        tiles: function(x1, y1, x2, y2) {
+                            
+                            var startIndex = Utils.positionToGridIndex(x1, y1, $G.tileSize), 
+                                endIndex = Utils.positionToGridIndex(x2, y2, $G.tileSize), 
+                                startRow = Math.max(0, startIndex.row), 
+                                endRow = Math.min(this.grid.length, endIndex.row), 
+                                startCol = Math.max(0, startIndex.col), 
+                                endCol = Math.min(this.grid[0].length, endIndex.col), 
+                                tiles = [], i, j;
+                            
+                            for (i = startRow; i < endRow; i++) {
+
+                                for (j = startCol; j < endCol; j++) {
+
+                                    tiles.push(this.grid[i][j]);
+
+                                }
+
+                            }
+
+                            return tiles;
 
                         }
                     };
@@ -146,7 +191,6 @@
                 });
 
                 Game.hero = map.hero = map.creatures.filter(function(i) { return i.name == 'Hero'; }).shift();
-                map.hero.moved = true;
 
                 Game.maps[mapKey] = map;
                 Game.activeMap = map;

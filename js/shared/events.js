@@ -4,7 +4,7 @@
 
         handlers: {}, 
 
-        on: function(event, handler) {
+        on: function(event, handler, context) {
 
             if (!this.handlers[event]) {
 
@@ -12,7 +12,7 @@
 
             }
 
-            this.handlers[event].push(handler);
+            this.handlers[event].push({ handler: handler, context: context });
 
         }, 
 
@@ -22,7 +22,7 @@
 
             if (this.handlers[event]) {
 
-                this.handlers[event].map(function(e) { e.call(e, data); });
+                this.handlers[event].map(function(e) { e.handler.call(e.context, data); });
             
             }
 

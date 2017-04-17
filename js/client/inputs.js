@@ -273,7 +273,8 @@ var Inputs = {
             .unbind(Inputs.onInput)
             .keydown(Inputs.onInput)
             .mousedown(Inputs.onInput)
-            .bind('contextmenu', Inputs.prevent);
+            .bind('contextmenu', Inputs.prevent)
+            .mousemove(Inputs.onMouseMove);
 
     }, 
 
@@ -285,13 +286,20 @@ var Inputs = {
 
     }, 
 
+    onMouseMove: function(event) {
+    
+        $G.mouseX = event.offsetX;
+        $G.mouseY = event.offsetY;
+
+    }, 
+
     onInput: function(event) {
 
         var worldPosition = UI.renderer.isometricToCartesian(
-                (event.offsetX + UI.renderer.offset.x) * $G.scale, 
-                (event.offsetY + UI.renderer.offset.y) * $G.scale), 
+                event.offsetX - UI.renderer.offset.x, 
+                event.offsetY - UI.renderer.offset.y), 
             key;
-
+ 
         switch (event.type) {
 
             case 'mousedown':

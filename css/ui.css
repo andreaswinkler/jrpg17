@@ -60,3 +60,176 @@ canvas {
     border: 1px solid red;
     width: 230px; height: 230px;
 }
+
+.ui-window {
+    display: none;
+    border: 1px solid #000;
+    background: #333;
+    height: 100%;
+}
+
+.ui-window-align-right {
+    right: 0;
+    left: auto;
+}
+
+.ui-window-layer-default {
+    z-index: 1000;
+}
+
+.visible {
+    display: block;
+}
+
+.ui-statField-balance {
+    border: 1px solid #000;
+    height: 25px;
+    display: block;
+}
+
+.ui-statsBar {
+    width: 30%; height: 50%;
+    padding: 0px;
+    border: 1px solid #000;
+    float: left;
+}
+
+.ui-equipmentScreen {
+    width: 69%; height: 50%;
+    padding: 0px;
+    border: 1px solid #000;
+    float: left;
+    position: absolute;
+    right: 0;
+}
+
+.ui-equipmentSlot {
+    display: block;
+    border: 1px solid #000;
+    padding: 2px;
+    position: absolute;
+}
+
+.ui-equipmentSlot-headPiece {
+    width: 50px;
+    height: 50px;
+    top: 5px; left: 50%;
+    margin-left: -25px;
+}
+
+.ui-equipmentSlot-belt {
+    width: 60px;
+    height: 20px;
+    top: 150px; left: 50%;
+    margin-left: -30px;
+}
+
+.ui-equipmentSlot-pants {
+    top: 180px; left: 50%;
+    margin-left: -25px;
+}
+
+.ui-equipmentSlot-boots {
+    top: 250px; left: 50%;
+    margin-left: -25px;
+}
+
+.ui-equipmentSlot-shoulders {
+    top: 30px; left: 50%;
+    margin-left: -90px;
+}
+
+.ui-equipmentSlot-gloves {
+    top: 100px; left: 50%;
+    margin-left: -110px;
+}
+
+.ui-equipmentSlot-ring1 {
+    top: 180px; left: 50%;
+    margin-left: -100px;
+}
+
+.ui-equipmentSlot-ring2 {
+    top: 180px; left: 50%;
+    margin-left: 70px;
+}
+
+.ui-equipmentSlot-mainHand {
+    top: 225px; left: 50%;
+    margin-left: -110px;
+}
+
+.ui-equipmentSlot-bracers {
+    top: 100px; left: 50%;
+    margin-left: 60px;
+}
+
+.ui-equipmentSlot-offhand {
+    top: 225px; left: 50%;
+    margin-left: 60px;
+}
+
+.ui-equipmentSlot-token1 {
+    top: 330px; left: 50%;
+    margin-left: -70px;
+}
+
+.ui-equipmentSlot-token2 {
+    top: 330px; left: 50%;
+    margin-left: -12.5px;
+}
+
+.ui-equipmentSlot-token3 {
+    top: 330px; left: 50%;
+    margin-left: 50px;
+}
+
+.ui-equipmentSlot-shoulders, 
+.ui-equipmentSlot-bracers, 
+.ui-equipmentSlot-boots, 
+.ui-equipmentSlot-pants, 
+.ui-equipmentSlot-gloves {
+    width: 50px;
+    height: 60px;
+}
+
+.ui-equipmentSlot-amulet {
+    width: 35px;
+    height: 35px;
+    top: 40px; left: 50%;
+    margin-left: 45px;
+}
+
+.ui-equipmentSlot-ring1, 
+.ui-equipmentSlot-ring2, 
+.ui-equipmentSlot-token1, 
+.ui-equipmentSlot-token2, 
+.ui-equipmentSlot-token3 {
+    width: 25px;
+    height: 25px;
+}
+
+.ui-equipmentSlot-chestPiece {
+    width: 60px;
+    height: 75px;
+    top: 65px; left: 50%;
+    margin-left: -30px;
+}
+
+.ui-equipmentSlot-mainHand,
+.ui-equipmentSlot-offhand, 
+.ui-equipmentSlot-alternativeMainHand,
+.ui-equipmentSlot-alternativeOffhand {
+    width: 50px;
+    height: 75px;
+}
+
+.ui-equipmentSlot-alternativeMainHand, 
+.ui-equipmentSlot-alternativeOffhand {
+    display: none;
+}
+
+.ui-equipmentScreen.alternative .ui-equipmentSlot-alternativeMainHand, 
+.ui-equipmentScreen.alternative .ui-equipmentSlot-alternativeOffhand {
+    display: block;
+}

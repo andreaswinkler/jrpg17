@@ -35,6 +35,8 @@
 
                             }
 
+                            this.creature.moved = true;
+
                         } else {
 
                             this.creature.movementTarget = null;

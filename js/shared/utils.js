@@ -26,7 +26,31 @@
 
         hitTest: function(x1, y1, w1, h1, x2, y2, w2, h2) {
             
+            //console.log('hitTest', x1, y1, w1, h1, x2, y2, w2, h2);
             return !(x1 > x2 + w2 || x1 + w1 < x2 || y1 > y2 + h2 || y1 + h1 < y2);
+
+        }, 
+
+        gridElement: function(grid, x, y, cellSize) {
+
+            var index = this.positionToGridIndex(x, y, cellSize);
+
+            if (index.row >= 0 && index.row < grid.length && index.col >= 0 && index.col < grid[index.row].length) {
+
+                return grid[index.row][index.col];
+
+            }
+
+            return null;
+
+        }, 
+
+        positionToGridIndex: function(x, y, cellSize) {
+
+            return {
+                row: Math.floor(y / cellSize), 
+                col: Math.floor(x / cellSize)
+            };
 
         }
 

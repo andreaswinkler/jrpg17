@@ -28,34 +28,153 @@ var UI = {
         };
 
         this.update = function() {
+            
+            var heroIsoCoordinates = UI.renderer.cartesianToIsometric(Game.hero.x, Game.hero.y);
 
             this.dynamicLayer.clear();
-            UI.renderer.mapBuffer.drawTo(this.dynamicLayer, 0, 0, Game.hero.x - 250, Game.hero.y - 250, 500, 500, 250, 250);
+            UI.renderer.mapBuffer.drawTo(this.dynamicLayer, 0, 0, heroIsoCoordinates.x + UI.renderer.offset.map - 2000, heroIsoCoordinates.y - 2000, 4000, 4000, 250, 250);
 
         };
 
     },  
 
+    Window: function(container, options) {
+
+        var options = $.extend({
+                align: 'center', 
+                layer: 'default'
+            }, options);
+
+        this.e = $('<div class="positioned ui-window ui-window-align-' + options.align + ' ui-window-layer-' + options.layer + '"></div>');
+        this.e.css('width', options.width);
+
+        container.append(this.e);
+
+        this.toggle = function() {
+
+            this.e.toggleClass('visible');
+
+        };
+
+    }, 
+
+    StatField: function(container, options) {
+
+        this.e = $('<div class="ui-statField"><label>' + options.label + '</label><span class="value"></span></div>');
+
+        if (options.cssClass) {
+
+            this.e.addClass(options.cssClass);
+
+        }
+
+        this.eValue = this.e.find('.value');
+
+        this.update = function(value) {
+
+            this.eValue.html(value);
+
+        };
+
+        container.append(this.e);
+
+    }, 
+
+    StatsBar: function(container) {
+
+        this.e = $('<div class="ui-statsBar"></div>');
+
+        this.strengthField = new UI.StatField(this.e, { label: 'Strength' });
+        this.dexterityField = new UI.StatField(this.e, { label: 'Dexterity' });
+        this.intelligenceField = new UI.StatField(this.e, { label: 'Intelligence' });
+        this.vitalityField = new UI.StatField(this.e, { label: 'Vitality' });
+
+        this.balanceField = new UI.StatField(this.e, { label: '', cssClass: 'ui-statField-balance' });
+
+        container.append(this.e);
+
+        this.update = function(hero) {
+
+            this.strengthField.update(hero.strength);
+            this.dexterityField.update(hero.dexterity);
+            this.intelligenceField.update(hero.intelligence);
+            this.vitalityField.update(hero.vitality);
+            
+            this.balanceField.update(hero.balance);
+
+        };
+
+    }, 
+
+    EquipmentSlot: function(container, options) {
+
+        this.e = $('<div class="ui-equipmentSlot ui-equipmentSlot-' + options.slot +'" title="' + options.title + '"></div>');
+
+        container.append(this.e);
+
+    }, 
+
+    EquipmentScreen: function(container) {
+
+        this.e = $('<div class="ui-equipmentScreen"></div>');
+
+        this.headPieceSlot = new UI.EquipmentSlot(this.e, { title: 'Head Piece', slot: 'headPiece' });
+        this.amuletSlot = new UI.EquipmentSlot(this.e, { title: 'Amulet', slot: 'amulet' });
+        this.shouldersSlot = new UI.EquipmentSlot(this.e, { title: 'Shoulders', slot: 'shoulders' });
+        this.glovesSlot = new UI.EquipmentSlot(this.e, { title: 'Gloves', slot: 'gloves' });
+        this.chestPieceSlot = new UI.EquipmentSlot(this.e, { title: 'Chest Piece', slot: 'chestPiece' });
+        this.bracersSlot = new UI.EquipmentSlot(this.e, { title: 'Bracers', slot: 'bracers' });
+        this.beltSlot = new UI.EquipmentSlot(this.e, { title: 'Belt', slot: 'belt' });
+        this.pantsSlot = new UI.EquipmentSlot(this.e, { title: 'Pants', slot: 'pants' });
+        this.bootsSlot = new UI.EquipmentSlot(this.e, { title: 'Boots', slot: 'boots' });
+        this.leftRingSlot = new UI.EquipmentSlot(this.e, { title: 'Ring', slot: 'ring1' });
+        this.rightRingSlot = new UI.EquipmentSlot(this.e, { title: 'Ring', slot: 'ring2' });
+        this.tokenSlot1 = new UI.EquipmentSlot(this.e, { title: 'Token', slot: 'token1' });
+        this.tokenSlot2 = new UI.EquipmentSlot(this.e, { title: 'Token', slot: 'token2' });
+        this.tokenSlot3 = new UI.EquipmentSlot(this.e, { title: 'Token', slot: 'token3' });
+        this.mainHandSlot = new UI.EquipmentSlot(this.e, { title: 'Weapon', slot: 'mainHand' });
+        this.alternativeMainHandSlot = new UI.EquipmentSlot(this.e, { title: 'Weapon', slot: 'alternativeMainHand' });
+        this.offhandSlot = new UI.EquipmentSlot(this.e, { title: 'Offhand', slot: 'offhand' });
+        this.alternativeOffhandSlot = new UI.EquipmentSlot(this.e, { title: 'Offhand', slot: 'alternativeOffhand' });
+
+
+        container.append(this.e);
+
+    }, 
+
     init: function(container) {
 
-        UI.container = container;
+        this.container = container;
 
-        UI.minimap = new UI.Minimap($('<div class="ui-minimap positioned" />').appendTo(UI.container));
+        this.minimap = new UI.Minimap($('<div class="ui-minimap positioned" />').appendTo(this.container));
         
-        UI.renderer = IsometricRenderer;
-        UI.renderer.init($('<div class="ui-stage positioned fullscreen" />').appendTo(UI.container), $G.tileSize);
+        this.renderer = IsometricRenderer;
+        this.renderer.init($('<div class="ui-stage positioned fullscreen" />').appendTo(this.container), $G.tileSize);
 
-        Events.on('game.init', UI.loadingScreen);
-        Events.on('game.start', UI.gameScreen);
+        this.characterWindow = new UI.Window(this.container, { align: 'right', width: '45%' });
+        this.statsBar = new UI.StatsBar(this.characterWindow.e);
+        this.equipmentScreen = new UI.EquipmentScreen(this.characterWindow.e);
 
-        Events.on('map.loaded', UI.onMapLoaded);
+        Events.on('game.init', this.loadingScreen, this);
+        Events.on('game.start', this.gameScreen, this);
+
+        Events.on('map.loaded', this.onMapLoaded, this);
+
+    }, 
+
+    toggleCharacterWindow: function() {
+
+        this.statsBar.update(Game.hero);
+
+        this.characterWindow.toggle();
 
     }, 
 
     onMapLoaded: function(map) {
 
-        UI.minimap.setMapName(map.name);
-        UI.minimap.updateStaticContent();
+        this.minimap.setMapName(map.name);
+        this.minimap.updateStaticContent();
+        this.minimap.update();
         // show map name accross screen
 
 

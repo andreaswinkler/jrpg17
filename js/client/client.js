@@ -4,7 +4,7 @@ window.$G = {
 
     difficulty: 0, 
 
-    tileSize: 64, 
+    tileSize: 256, 
 
     scale: 1, 
 
