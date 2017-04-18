@@ -24,6 +24,13 @@
             
         }, 
 
+        slotAcceptsItem: function(creature, slot, item) {
+
+            // do some more sophisticated logic here!
+            return slot == item.slot;
+
+        }, 
+
         hitTest: function(x1, y1, w1, h1, x2, y2, w2, h2) {
             
             //console.log('hitTest', x1, y1, w1, h1, x2, y2, w2, h2);
@@ -42,6 +49,30 @@
             }
 
             return null;
+
+        }, 
+
+        gridElements: function(grid, x1, y1, x2, y2, cellSize) {
+
+            var startIndex = Utils.positionToGridIndex(x1, y1, cellSize), 
+                endIndex = Utils.positionToGridIndex(x2, y2, cellSize), 
+                startRow = Math.max(0, startIndex.row), 
+                endRow = Math.min(grid.length, endIndex.row), 
+                startCol = Math.max(0, startIndex.col), 
+                endCol = Math.min(grid[0].length, endIndex.col), 
+                elements = [], i, j;
+                            
+            for (i = startRow; i < endRow; i++) {
+
+                for (j = startCol; j < endCol; j++) {
+
+                    elements.push(grid[i][j]);
+
+                }
+
+            }
+
+            return elements;
 
         }, 
 

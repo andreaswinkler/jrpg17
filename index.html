@@ -5,6 +5,7 @@
 <title>jrpg17</title>
 <script type="text/javascript" src="js/jquery-3.2.0.min.js"></script>
 <script type="text/javascript" src="js/stats.min.js"></script>
+<script type="text/javascript" src="server/node_modules/socket.io-client/dist/socket.io.min.js"></script>
 <script type="text/javascript" src="js/client/client.js"></script>
 <script type="text/javascript" src="js/client/auth.js"></script>
 <script type="text/javascript" src="js/client/net.js"></script>
@@ -14,9 +15,12 @@
 <script type="text/javascript" src="js/client/isometricRenderer.js"></script>
 <script type="text/javascript" src="js/shared/utils.js"></script>
 <script type="text/javascript" src="js/shared/events.js"></script>
-<script type="text/javascript" src="js/shared/game.js"></script>
-<script type="text/javascript" src="js/shared/creatureFactory.js"></script>
-<script type="text/javascript" src="js/shared/movementSystem.js"></script>
+<script type="text/javascript">
+window.settings = {
+    tileSize: 256
+}
+</script>
+<script type="text/javascript" src="js/shared/components.js"></script>
 <link rel="stylesheet" type="text/css" href="css/ui.css" />
 </head>
 <body>

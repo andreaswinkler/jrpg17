@@ -24,6 +24,23 @@
         "dexterity": 10, 
         "vitality": 10, 
         "intelligence": 10, 
-        "balance": 0
+        "balance": 0,
+        "equipment": {
+            "mainHand": {
+                "class": "weapon", 
+                "rank": "normal", 
+                "quality": "normal", 
+                "minDmg": 1, 
+                "maxDmg": 3, 
+                "sockets": [], 
+                "name": "Small Sword", 
+                "attackSpeed": 1.1, 
+                "asset": "small-sword", 
+                "level": 1, 
+                "durability": 24, 
+                "maxDurability": 24,
+                "slot": "mainHand"
+            }
+        }
     }   
 }

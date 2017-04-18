@@ -1,0 +1,13 @@
+[
+    {
+        "name": "Small Sword", 
+        "class": "weapon", 
+        "minDmg": 1, 
+        "maxDmg": 3, 
+        "maxSockets": 2, 
+        "attackSpeed": 1.1,
+        "asset": "small-sword", 
+        "level": 1, 
+        "maxDurability": 24
+    }
+]

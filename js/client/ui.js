@@ -29,7 +29,7 @@ var UI = {
 
         this.update = function() {
             
-            var heroIsoCoordinates = UI.renderer.cartesianToIsometric(Game.hero.x, Game.hero.y);
+            var heroIsoCoordinates = UI.renderer.cartesianToIsometric($G.hero.x, $G.hero.y);
 
             this.dynamicLayer.clear();
             UI.renderer.mapBuffer.drawTo(this.dynamicLayer, 0, 0, heroIsoCoordinates.x + UI.renderer.offset.map - 2000, heroIsoCoordinates.y - 2000, 4000, 4000, 250, 250);
@@ -109,6 +109,74 @@ var UI = {
     EquipmentSlot: function(container, options) {
 
         this.e = $('<div class="ui-equipmentSlot ui-equipmentSlot-' + options.slot +'" title="' + options.title + '"></div>');
+        this.item = null;
+        this.slot = options.slot;
+
+        this.update = function(item) {
+         
+            if (item) {
+
+                this.e.html('<div class="ui-equipment-item rank-' + item.rank + '"><img src="assets/items/' + item.asset + '.png" /></div>');
+                this.item = item;
+
+            } else {
+
+                this.e.html('');
+                this.item = null;
+
+            }
+
+        };
+
+        this.accepts = function(item) {
+            
+            return Utils.slotAcceptsItem($G.hero, this.slot, item);
+
+        };
+
+        this.unequip = function() {
+
+            var item;
+
+            if (UI.itemInHand) {
+
+                if (this.accepts(UI.itemInHand)) {
+
+                    item = this.item;
+
+                    this.update(UI.itemInHand);
+
+                    UI.itemInHand = item;
+
+                }
+
+            } else {
+
+                UI.itemInHand = this.item;
+
+                this.update(null);
+
+            }
+
+        };
+
+        this.equip = function(item) {
+
+            this.update(item);
+
+        };
+
+        var that = this;
+
+        // if we click on a slot we determine if there is an item attached and if so, we put it into the hand
+        this.e.click(function(ev) {
+
+            that.unequip();
+
+            ev.preventDefault();
+            return false;
+
+        });
 
         container.append(this.e);
 
@@ -137,6 +205,11 @@ var UI = {
         this.offhandSlot = new UI.EquipmentSlot(this.e, { title: 'Offhand', slot: 'offhand' });
         this.alternativeOffhandSlot = new UI.EquipmentSlot(this.e, { title: 'Offhand', slot: 'alternativeOffhand' });
 
+        this.update = function(equipment) {
+
+            this.mainHandSlot.update(equipment.mainHand);
+
+        };
 
         container.append(this.e);
 
@@ -164,7 +237,8 @@ var UI = {
 
     toggleCharacterWindow: function() {
 
-        this.statsBar.update(Game.hero);
+        this.statsBar.update($G.hero);
+        this.equipmentScreen.update($G.hero.equipment);
 
         this.characterWindow.toggle();
 

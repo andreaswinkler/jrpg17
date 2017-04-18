@@ -59,8 +59,8 @@ var IsometricRenderer =  {
     updateMap: function(map) {
 
         var length = map.grid.length + map.grid[0].length,  
-            width = length * this.tileSize + this.halfTileSize, 
-            height = length * this.halfTileSize + this.quarterTileSize,  
+            width = (length * this.tileSize + this.halfTileSize) / 10, 
+            height = (length * this.halfTileSize + this.quarterTileSize) / 10,  
             leftMostTile = map.grid[map.grid.length - 1][0], 
             wallAsset = Assets.get('wall'), 
             i, j, iso, tile;
@@ -68,7 +68,7 @@ var IsometricRenderer =  {
         // calculate the horizontal offset necessary to avoid negative values on the map tile positions
         // we do so by getting the first tile of the last row (i.e. the left-most) and use its 
         // isometric coordinates as the offset
-        this.offset.map = (this.cartesianToIsometric(leftMostTile.x, leftMostTile.y).x - this.tileSize) * -1;
+        this.offset.map = (this.cartesianToIsometric(leftMostTile.x, leftMostTile.y).x - this.tileSize) / 10 * -1;
     
         this.mapBuffer = new IsometricRenderBuffer(width, height);
 
@@ -81,8 +81,7 @@ var IsometricRenderer =  {
                 iso = this.cartesianToIsometric(tile.x, tile.y);
                 iso.x += this.offset.map;
                 
-                this.mapBuffer.draw(Assets.get('tile_' + tile.t), iso.x - this.tileSize, iso.y);
-                //this.mapBuffer.text(i + '_' + j + '\n' + tile.x + '/' + tile.y + '\n[' + tile.t + ']', iso.x, iso.y + 64);
+                this.mapBuffer.draw(Assets.get('smalltile_' + tile.t), (iso.x - this.tileSize) / 10, (iso.y / 10));
 
             }
         
@@ -140,7 +139,7 @@ var IsometricRenderer =  {
     updateStaticContent: function(map) {
 
         var offset = $G.tileSize * 5, 
-            tiles = map.tiles(map.hero.x - offset, map.hero.y - offset, map.hero.x + offset, map.hero.y + offset);
+            tiles = Utils.gridElements(map.grid, map.hero.x - offset, map.hero.y - offset, map.hero.x + offset, map.hero.y + offset, $G.tileSize);
  
         this.staticLayerBack.clear();
         this.staticLayerFront.clear();
@@ -156,9 +155,9 @@ var IsometricRenderer =  {
 
     renderTile: function(tile) {
 
-        var heroIsoCoordinates = this.cartesianToIsometric(Game.hero.x, Game.hero.y), 
+        var heroIsoCoordinates = this.cartesianToIsometric($G.hero.x, $G.hero.y), 
             isoCoordinates = this.cartesianToIsometric(tile.x, tile.y), 
-            front = tile.y > Game.hero.y, 
+            front = tile.y > $G.hero.y, 
             layer = front ? this.staticLayerFront : this.staticLayerBack;
 
         if (tile.t != '') {

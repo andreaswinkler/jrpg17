@@ -35,6 +35,18 @@ var Assets = {
             'color': 'rgba(0,0,99,1)', 
             'tile': true
         }, 
+        'smalltile_F': {
+            'color': 'rgba(200,200,200,1)', 
+            'smalltile': true
+        },  
+        'smalltile_': {
+            'color': 'rgba(0,0,0,0)', 
+            'smalltile': true
+        },  
+        'smalltile_DR': {
+            'color': 'rgba(0,0,99,1)', 
+            'smalltile': true
+        }, 
         'wall': {
             'color': 'rgba(150,150,150,1)', 
             'block': true, 
@@ -79,6 +91,11 @@ var Assets = {
         canvas.width = (blueprint.width || $G.tileSize * 2) * Assets.scaleFactor;
         canvas.height = (blueprint.height || $G.tileSize) * Assets.scaleFactor;
         
+        if (blueprint.smalltile) {
+            canvas.width = canvas.width / 10;
+            canvas.height = canvas.height / 10;
+        }
+
         ctx.fillStyle = blueprint.color;
         ctx.strokeStyle = 'rgba(0,0,0,1)';
         
