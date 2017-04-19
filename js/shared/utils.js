@@ -24,13 +24,6 @@
             
         }, 
 
-        slotAcceptsItem: function(creature, slot, item) {
-
-            // do some more sophisticated logic here!
-            return slot == item.slot;
-
-        }, 
-
         hitTest: function(x1, y1, w1, h1, x2, y2, w2, h2) {
             
             //console.log('hitTest', x1, y1, w1, h1, x2, y2, w2, h2);
@@ -63,7 +56,7 @@
 
         canEquip: function(creature, item, slot) {
 
-            return item.slots.indexOf(slot) && 
+            return item.slots.indexOf(slot) != -1 && 
                 creature.level >= item.levelRequirement && 
                 creature.strength >= item.strengthRequirement && 
                 creature.dexterity >= item.dexterityRequirement && 

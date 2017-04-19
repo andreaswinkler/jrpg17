@@ -128,19 +128,13 @@ var UI = {
 
         };
 
-        this.accepts = function(item) {
-            
-            return Utils.slotAcceptsItem($G.hero, this.slot, item);
-
-        };
-
         this.unequip = function() {
 
             var item;
 
             if (UI.itemInHand) {
 
-                if (this.accepts(UI.itemInHand)) {
+                if (Utils.canEquip($G.hero, UI.itemInHand, this.slot)) {
 
                     item = this.item;
 
@@ -169,14 +163,35 @@ var UI = {
         var that = this;
 
         // if we click on a slot we determine if there is an item attached and if so, we put it into the hand
-        this.e.click(function(ev) {
+        this.e
+            .on('click', function(ev) {
+                
+                if (that.item) {
 
-            that.unequip();
+                    Net.emit('unequipItem', { itemId: that.item.id });
 
-            ev.preventDefault();
-            return false;
+                } else if ($G.hero.hand) {
 
-        });
+                    Net.emit('equipItem', { slot: that.slot });
+
+                }
+                
+                ev.preventDefault();
+                return false;
+
+            })
+            .on('contextmenu', function(ev) {
+
+                if (that.item) {
+
+                    Net.emit('unequipItem', { itemId: that.item.id, moveToInventory: true });
+                    
+                }
+
+                ev.preventDefault();
+                return false;
+
+            });
 
         container.append(this.e);
 
@@ -206,8 +221,49 @@ var UI = {
         this.alternativeOffhandSlot = new UI.EquipmentSlot(this.e, { title: 'Offhand', slot: 'alternativeOffhand' });
 
         this.update = function(equipment) {
-
+            
             this.mainHandSlot.update(equipment.mainHand);
+
+        };
+
+        container.append(this.e);
+
+    }, 
+
+    InventoryScreen: function(container) {
+
+        this.e = $('<div class="ui-inventory"><div class="ui-inventory-grid"></div></div>');
+        this.eGrid = this.e.find('.ui-inventory-grid');
+
+        this.update = function(inventory) {
+            
+            var rows = inventory.grid.length, 
+                cols = inventory.grid[0].length, 
+                height = this.e.height(), 
+                cellSize = Math.floor(height / rows), 
+                i, j, item;
+            
+            this.eGrid
+                .html('')
+                .css('background-size', cellSize + 'px ' + cellSize + 'px')
+                .css('width', (cols * cellSize) + 'px')
+                .css('height', (rows * cellSize) + 'px');
+
+            for (i = 0; i < inventory.grid.length; i++) {
+
+                for (j = 0; j < inventory.grid[i].length; j++) {
+
+                    item = inventory.grid[i][j];
+
+                    if (item != null && this.eGrid.find('.ui-inventory-item[data-id=' + item.id + ']').length == 0) {
+
+                        this.eGrid.append('<div class="ui-inventory-item" data-id="' + item.id + '" style="width:' + (item.inventoryWidth * cellSize) + 'px;height:' + (item.inventoryHeight * cellSize) + 'px;top:' + (i * cellSize) + 'px;left:' + (j * cellSize) + 'px"><img src="assets/items/' + item.asset + '.png" /></div>');
+
+                    }
+
+                }
+
+            }
 
         };
 
@@ -229,6 +285,7 @@ var UI = {
         this.characterWindow = new UI.Window(this.container, { align: 'right', width: '45%' });
         this.statsBar = new UI.StatsBar(this.characterWindow.e);
         this.equipmentScreen = new UI.EquipmentScreen(this.characterWindow.e);
+        this.inventoryScreen = new UI.InventoryScreen(this.characterWindow.e);
 
         this.eHand = $('<div class="ui-hand positioned"></div>').appendTo(this.container);
         this.eStatusBar = $('.status-bar');
@@ -244,6 +301,7 @@ var UI = {
 
         this.statsBar.update($G.hero);
         this.equipmentScreen.update($G.hero.equipment);
+        this.inventoryScreen.update($G.hero.inventories[0]);
 
         this.characterWindow.toggle();
 
@@ -279,7 +337,7 @@ var UI = {
 
         if (this.handInUse) {
 
-            this.eHand.css('left', x + 'px').css('top', y + 'px');
+            this.eHand.css('left', (x + 15) + 'px').css('top', (y + 15) + 'px');
         
         }
         

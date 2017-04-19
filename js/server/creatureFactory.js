@@ -52,13 +52,9 @@ module.exports = function(utils, blueprints, components, Inventory) {
                 creature.equip = function(item, slot) {
 
                     if (utils.canEquip(this, item, slot)) {
-
-                        if (this.equipment[slot]) {
-
-                            this.hand = this.equipment[slot];
-
-                        }
-
+  
+                        this.hand = this.equipment[slot];
+                        
                         this.equipment[slot] = item;
 
                         return true;

@@ -175,6 +175,32 @@ window.$G = {
 
         });
 
+        Net.on('equipmentUpdate', function(data) {
+
+            $G.hero.equipment = data.equipment;
+
+            UI.equipmentScreen.update($G.hero.equipment);
+
+        });
+
+        Net.on('inventoryUpdate', function(data) {
+
+            var i;
+
+            for (i = 0; i < $G.hero.inventories.length; i++) {
+
+                if ($G.hero.inventories[i].id == data.inventory.id) {
+
+                    $G.hero.inventories[i] = data.inventory;
+
+                }
+
+            }
+
+            UI.inventoryScreen.update($G.hero.inventories[0]);
+
+        });
+
         $G.GameLoop.loop();
 
     }, 
@@ -186,6 +212,18 @@ window.$G = {
             case 'mouseLeft':
 
                 $G.hero.moveTo(data.x, data.y);
+
+                break;
+            
+            case 'I':
+
+                UI.toggleCharacterWindow();
+
+                break;
+            
+            case 'D':
+
+                $G.toggleDebug();
 
                 break;
 

@@ -116,7 +116,7 @@ io.on('connection', function(client) {
         if (item) {
 
             result = client.game.equipItem(client.hero, item, data.slot, moveToInventory, row, col);
-
+            
             if (result.success) {
 
                 client.emit('handUpdate', { item: client.hero.hand });
@@ -136,7 +136,7 @@ io.on('connection', function(client) {
 
     client.on('unequipItem', function(data) {
 
-        var result = client.game.unequipItem(client.hero, data.itemId, client.hero.hand, data.moveToInventory);
+        var result = client.game.unequipItem(client.hero, data.itemId, data.moveToInventory);
 
         if (result.success) {
 

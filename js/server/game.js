@@ -181,7 +181,7 @@ module.exports = function(fs, utils, settings) {
 
                         if (typeof row != 'undefined') {
 
-                            placeResult = inventory.placeItem(item, row, col);
+                            placeResult = inventory.place(item, row, col);
 
                             if (placeResult !== false) {
 
@@ -197,7 +197,7 @@ module.exports = function(fs, utils, settings) {
 
                         } else {
 
-                            result.success = inventory.addItem(item);
+                            result.success = inventory.add(item);
 
                         }
 
@@ -217,9 +217,9 @@ module.exports = function(fs, utils, settings) {
                     if (creature.equip(item, slot)) {
 
                         result.success = true;
-
+                      
                         if (creature.hand != null && moveToInventory) {
-
+                           
                             this.addItemToInventory(creature, creature.inventories[0].id, creature.hand, row, col);
 
                             result.moveToInventorySuccess = true;
@@ -247,22 +247,22 @@ module.exports = function(fs, utils, settings) {
                     // get the slot we talk about and see if it isn't empty
                     if (item) {
 
+                        creature.hand = item;
+
                         result.success = true;
 
                         if (moveToInventory) {
 
-                            addToInventoryResult = this.addItemToInventory(creature, creature.inventories[0].id, item);
+                            addToInventoryResult = this.addItemToInventory(creature, creature.inventories[0].id, creature.hand);
 
                             if (addToInventoryResult.success) {
+
+                                creature.hand = null;
 
                                 result.inventory = addToInventoryResult.inventory;
                                 result.moveToInventorySuccess = true;
 
-                            } else {
-
-                                creature.hand = item;
-
-                            }
+                            } 
 
                         }
 

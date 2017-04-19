@@ -27,11 +27,12 @@
         "vitality": 10, 
         "intelligence": 10, 
         "balance": 0,
+        "level": 1, 
         "inventories": [
             {
                 "id": 1, 
                 "name": "Inventory", 
-                "rows": 10, 
+                "rows": 7, 
                 "cols": 10, 
                 "items": [
                     { 

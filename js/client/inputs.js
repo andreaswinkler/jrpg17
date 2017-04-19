@@ -272,7 +272,7 @@ var Inputs = {
         $(document)
             .unbind(Inputs.onInput)
             .keydown(Inputs.onInput)
-            .mousedown(Inputs.onInput)
+            .click(Inputs.onInput)
             .bind('contextmenu', Inputs.prevent)
             .mousemove(Inputs.onMouseMove);
 
@@ -304,7 +304,7 @@ var Inputs = {
  
         switch (event.type) {
 
-            case 'mousedown':
+            case 'click':
 
                 key = ['', 'mouseLeft', 'mouseMiddle', 'mouseRight'][event.which];
 
