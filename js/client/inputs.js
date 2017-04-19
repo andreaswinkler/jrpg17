@@ -287,9 +287,11 @@ var Inputs = {
     }, 
 
     onMouseMove: function(event) {
-    
-        $G.mouseX = event.offsetX;
-        $G.mouseY = event.offsetY;
+        
+        $G.mouseX = event.pageX;
+        $G.mouseY = event.pageY;
+
+        UI.onMouseMove($G.mouseX, $G.mouseY);
 
     }, 
 

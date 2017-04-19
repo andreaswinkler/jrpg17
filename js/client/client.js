@@ -167,6 +167,14 @@ window.$G = {
 
         });
 
+        Net.on('handUpdate', function(data) {
+
+            $G.hero.hand = data.item;
+
+            UI.handUpdate($G.hero.hand);
+
+        });
+
         $G.GameLoop.loop();
 
     }, 

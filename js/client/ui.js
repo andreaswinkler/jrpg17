@@ -218,6 +218,8 @@ var UI = {
     init: function(container) {
 
         this.container = container;
+        
+        this.handInUse = false;
 
         this.minimap = new UI.Minimap($('<div class="ui-minimap positioned" />').appendTo(this.container));
         
@@ -227,6 +229,9 @@ var UI = {
         this.characterWindow = new UI.Window(this.container, { align: 'right', width: '45%' });
         this.statsBar = new UI.StatsBar(this.characterWindow.e);
         this.equipmentScreen = new UI.EquipmentScreen(this.characterWindow.e);
+
+        this.eHand = $('<div class="ui-hand positioned"></div>').appendTo(this.container);
+        this.eStatusBar = $('.status-bar');
 
         Events.on('game.init', this.loadingScreen, this);
         Events.on('game.start', this.gameScreen, this);
@@ -251,6 +256,34 @@ var UI = {
         this.minimap.update();
         // show map name accross screen
 
+
+    }, 
+
+    handUpdate: function(item) {
+
+        if (item) {
+
+            this.handInUse = true;
+            this.eHand.html('<img src="assets/items/' + item.asset + '.png" />').show();
+        
+        } else {
+
+            this.handInUse = false;
+            this.eHand.hide();
+
+        }
+
+    }, 
+
+    onMouseMove: function(x, y) {
+
+        if (this.handInUse) {
+
+            this.eHand.css('left', x + 'px').css('top', y + 'px');
+        
+        }
+        
+        this.eStatusBar.html(x + ' / ' + y);
 
     }, 
 

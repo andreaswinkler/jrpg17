@@ -3,11 +3,13 @@
         "name": "β Vendor", 
         "faction": "neutral",
         "asset": "betaVendor", 
-        "inventory": [
+        "inventories": [
             {
+                "id": 3, 
                 "name": "Weapons", 
                 "rows": 16, 
-                "cols": 10
+                "cols": 10, 
+                "items": []
             }
         ], 
         "width": 40, 
@@ -25,8 +27,52 @@
         "vitality": 10, 
         "intelligence": 10, 
         "balance": 0,
+        "inventories": [
+            {
+                "id": 1, 
+                "name": "Inventory", 
+                "rows": 10, 
+                "cols": 10, 
+                "items": [
+                    { 
+                        "row": 0, 
+                        "col": 0, 
+                        "item": {
+                            "id": 1, 
+                            "class": "weapon", 
+                            "rank": "normal", 
+                            "quality": "good", 
+                            "minDmg": 1, 
+                            "maxDmg": 4, 
+                            "sockets": [null], 
+                            "name": "Good Small Sword", 
+                            "attackSpeed": 1.1, 
+                            "asset": "small-sword", 
+                            "level": 1, 
+                            "durability": 24, 
+                            "maxDurability": 24,
+                            "slots": ["mainHand"], 
+                            "inventoryWidth": 1, 
+                            "inventoryHeight": 2, 
+                            "levelRequirement": 1, 
+                            "strengthRequirement": 0, 
+                            "dexterityRequirement": 0, 
+                            "intelligenceRequirement": 0
+                        }
+                    }
+                ]
+            }, 
+            {
+                "id": 2, 
+                "name": "Stash Tab 1",
+                "rows": 16, 
+                "cols": 10, 
+                "items": []
+            }
+        ], 
         "equipment": {
             "mainHand": {
+                "id": 2, 
                 "class": "weapon", 
                 "rank": "normal", 
                 "quality": "normal", 
@@ -39,7 +85,13 @@
                 "level": 1, 
                 "durability": 24, 
                 "maxDurability": 24,
-                "slot": "mainHand"
+                "slots": ["mainHand"], 
+                "inventoryWidth": 1, 
+                "inventoryHeight": 2, 
+                "levelRequirement": 1, 
+                "strengthRequirement": 0, 
+                "dexterityRequirement": 0, 
+                "intelligenceRequirement": 0
             }
         }
     }   

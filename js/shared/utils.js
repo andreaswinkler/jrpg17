@@ -38,6 +38,60 @@
 
         }, 
 
+        arrayPushUnique: function(arr, el) {
+
+            var found = false, 
+                i;
+
+            for (i = 0; i < arr.length; i++) {
+
+                if (arr[i] == el) {
+
+                    found = true;
+
+                }
+
+            }
+
+            if (!found) {
+
+                arr.push(el);
+
+            }
+
+        }, 
+
+        canEquip: function(creature, item, slot) {
+
+            return item.slots.indexOf(slot) && 
+                creature.level >= item.levelRequirement && 
+                creature.strength >= item.strengthRequirement && 
+                creature.dexterity >= item.dexterityRequirement && 
+                creature.intelligence >= item.intelligenceRequirement;
+
+        }, 
+
+        grid: function(rows, cols) {
+
+            var grid = [], 
+                i, j;
+
+            for (i = 0; i < rows; i++) {
+
+                grid.push([]);
+
+                for (j = 0; j < cols; j++) {
+
+                    grid[i].push(null);
+
+                }
+
+            }
+
+            return grid;
+
+        }, 
+
         gridElement: function(grid, x, y, cellSize) {
 
             var index = this.positionToGridIndex(x, y, cellSize);

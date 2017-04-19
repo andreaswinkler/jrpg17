@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(fs, settings) {
+module.exports = function(fs, utils, settings) {
 
     return {
     
@@ -61,6 +61,14 @@ module.exports = function(fs, settings) {
                         }
 
                     }
+
+                }, 
+
+                tileIsWalkable: function(map, x, y) {
+
+                    var tile = utils.gridElement(map.grid, x, y, settings.tileSize);
+                    
+                    return tile && tile.walkable;
 
                 }, 
 
@@ -131,7 +139,138 @@ module.exports = function(fs, settings) {
 
                     }
 
-                }
+                }, 
+
+                grabItemFromInventory: function(creature, inventoryId, itemId) {
+
+                    var inventory = creature.inventory(inventoryId), 
+                        result = {
+                            inventory: inventory, 
+                            grabbedItem: null, 
+                            success: false
+                        };
+                    
+                    if (inventory) {
+
+                        result.grabbedItem = inventory.grabItem(itemId, creature.hand);
+
+                        if (result.grabbedItem) {
+
+                            creature.hand = result.grabbedItem;
+
+                            result.success = true;
+
+                        }
+
+                    }
+
+                    return result;
+
+                }, 
+
+                addItemToInventory: function(creature, inventoryId, item, row, col) {
+
+                    var inventory = creature.inventory(inventoryId), 
+                        result = {
+                            inventory: inventory, 
+                            success: false
+                        }, 
+                        placeResult;
+                    
+                    if (inventory) {
+
+                        if (typeof row != 'undefined') {
+
+                            placeResult = inventory.placeItem(item, row, col);
+
+                            if (placeResult !== false) {
+
+                                result.success = true;
+
+                                if (placeResult) {
+
+                                    creature.hand = placeResult;
+
+                                }
+
+                            }
+
+                        } else {
+
+                            result.success = inventory.addItem(item);
+
+                        }
+
+                    }
+
+                    return result;
+
+                }, 
+
+                equipItem: function(creature, item, slot, moveToInventory, row, col) {
+
+                    var result = {
+                            success: false, 
+                            moveToInventorySuccess: false
+                        };
+                    
+                    if (creature.equip(item, slot)) {
+
+                        result.success = true;
+
+                        if (creature.hand != null && moveToInventory) {
+
+                            this.addItemToInventory(creature, creature.inventories[0].id, creature.hand, row, col);
+
+                            result.moveToInventorySuccess = true;
+
+                            creature.hand = null;
+
+                        }
+
+                    }
+
+                    return result;
+
+                }, 
+
+                unequipItem: function(creature, itemId, moveToInventory) {
+
+                    var result = {
+                            inventory: null, 
+                            success: false, 
+                            moveToInventorySuccess: false
+                        }, 
+                        item = creature.unequip(itemId), 
+                        addToInventoryResult;
+                    
+                    // get the slot we talk about and see if it isn't empty
+                    if (item) {
+
+                        result.success = true;
+
+                        if (moveToInventory) {
+
+                            addToInventoryResult = this.addItemToInventory(creature, creature.inventories[0].id, item);
+
+                            if (addToInventoryResult.success) {
+
+                                result.inventory = addToInventoryResult.inventory;
+                                result.moveToInventorySuccess = true;
+
+                            } else {
+
+                                creature.hand = item;
+
+                            }
+
+                        }
+
+                    }
+
+                    return result;
+
+                }              
 
             }
 
