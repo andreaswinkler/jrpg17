@@ -60,9 +60,16 @@ module.exports = function() {
                 // walk through all games and invoke loop
                 // there shouldn't be too many games in the beginning so we dont't
                 // care _.each is more expansive than a loop
-                for (i = 0;  i < this.games.length; i++) {
+                for (i = this.games.length; i--;) {
 
                     this.games[i].update(this.tsLoopStart - this.tsLastLoopStart);
+
+                    if (this.tsLoopStart - this.games[i].lastActivityTimestamp > 60000) {
+
+                        this.games.splice(i, 1);
+                        console.log('no activity. game destroyed. remaining: ' + this.games.length);
+
+                    }
 
                 }
 

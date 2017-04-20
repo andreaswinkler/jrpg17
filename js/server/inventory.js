@@ -45,7 +45,7 @@ module.exports = function(utils) {
             this.grid = utils.grid(this.rows, this.cols);
 
             for (i = 0; i < elements.length; i++) {
-               
+
                 this.place(elements[i].item, elements[i].row, elements[i].col);
             
             }

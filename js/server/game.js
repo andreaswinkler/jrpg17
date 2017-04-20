@@ -4,16 +4,21 @@ module.exports = function(fs, utils, settings) {
 
     return {
     
+        counter: 0, 
+
         create: function(map) {
 
             return {
+                id: ++this.counter, 
                 maps: {}, 
                 map: null, 
                 clients: [], 
+                lastActivityTimestamp: +new Date(), 
 
                 pack: function() {
 
                     return {
+                        id: this.id, 
                         map: this.map
                     };
 
@@ -129,6 +134,8 @@ module.exports = function(fs, utils, settings) {
 
                 onInput: function(data, hero) {
 
+                    this.lastActivityTimestamp = +new Date();
+
                     switch (data.key) {
 
                         case 'mouseLeft':
@@ -174,17 +181,17 @@ module.exports = function(fs, utils, settings) {
 
                 }, 
 
-                addItemToInventory: function(creature, inventoryId, item, row, col) {
+                addItemToInventory: function(creature, inventoryId, row, col) {
 
-                    var inventory = creature.inventory(inventoryId), 
+                    var item = creature.hand, 
+                        inventory = creature.inventory(inventoryId), 
                         result = {
                             inventory: inventory, 
-                            success: false, 
-                            replacedItem: null
+                            success: false
                         }, 
                         placeResult;
                     
-                    if (inventory) {
+                    if (item && inventory) {
                         
                         if (typeof row != 'undefined') {
                             
@@ -196,7 +203,7 @@ module.exports = function(fs, utils, settings) {
 
                                 if (placeResult !== true) {
 
-                                    result.replacedItem = placeResult;
+                                    creature.hand = placeResult;
 
                                 }
 
@@ -228,7 +235,7 @@ module.exports = function(fs, utils, settings) {
                       
                         if (creature.hand != null && moveToInventory) {
                            
-                            this.addItemToInventory(creature, creature.inventories[0].id, creature.hand, row, col);
+                            this.addItemToInventory(creature, creature.inventories[0].id, row, col);
 
                             result.moveToInventorySuccess = true;
 
@@ -261,7 +268,7 @@ module.exports = function(fs, utils, settings) {
 
                         if (moveToInventory) {
 
-                            addToInventoryResult = this.addItemToInventory(creature, creature.inventories[0].id, creature.hand);
+                            addToInventoryResult = this.addItemToInventory(creature, creature.inventories[0].id);
 
                             if (addToInventoryResult.success) {
 

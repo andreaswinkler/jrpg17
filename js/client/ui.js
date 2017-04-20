@@ -309,7 +309,7 @@ var UI = {
                 valid = positionValid && Utils.gridElements(this.inventory.grid, row, col, row + $G.hero.hand.inventoryWidth - 1, col + $G.hero.hand.inventoryHeight - 1, 1).length <= 1;
 
             UI.positionAndResize(this.eHighlight, row * this.cellSize, col * this.cellSize, width, height);
-            console.log(positionValid);
+            
             if (valid) {
 
                 this.eHighlight.removeClass('invalid');

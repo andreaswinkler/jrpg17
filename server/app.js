@@ -11,7 +11,8 @@ var app = require('http').createServer(),
     inventory = require('./../js/server/inventory.js')(utils), 
     game = require('./../js/server/game.js')(fs, utils, settings),  
     components = require('./../js/shared/components.js'), 
-    creatureFactory = require('./../js/server/creatureFactory.js')(utils, settings, creatures, components, inventory);
+    itemFactory = require('./../js/server/itemFactory.js')(utils, settings, items), 
+    creatureFactory = require('./../js/server/creatureFactory.js')(utils, settings, creatures, components, inventory, itemFactory); 
 
 app.listen(1337);
 
@@ -27,7 +28,13 @@ io.on('connection', function(client) {
 
     client.on('disconnect', function() {
 
-        console.log('We lost a client.');
+        if (client.game) {
+
+            utils.arrayRemoveById(client.game.id);
+
+        }
+
+        console.log('We lost a client. Games remaining: ' + server.games.length);
 
     });
 
@@ -40,6 +47,8 @@ io.on('connection', function(client) {
 
         client.game.changeMap('village');
         client.game.map.creatures.push(client.player.hero);
+
+        console.log('Game created. Games running: ' + server.games.length);
 
         client.emit('gameCreated', { game: client.game.pack() });
 
@@ -83,17 +92,7 @@ io.on('connection', function(client) {
 
     client.on('placeItem', function(data) {
 
-        var result = client.game.addItemToInventory(client.hero, data.inventoryId, client.hero.hand, data.row, data.col);
-        
-        if (result.replacedItem) {
-
-            client.hero.hand = result.replacedItem;
-
-        } else {
-
-            client.hero.hand = null;
-
-        }
+        var result = client.game.addItemToInventory(client.hero, data.inventoryId, data.row, data.col);
 
         if (result.success) {
 

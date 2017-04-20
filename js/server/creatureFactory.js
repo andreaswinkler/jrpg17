@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(utils, settings, blueprints, components, Inventory) {
+module.exports = function(utils, settings, blueprints, components, Inventory, itemFactory) {
 
     return {
     
@@ -33,6 +33,14 @@ module.exports = function(utils, settings, blueprints, components, Inventory) {
                 for (i = 0; i < inventories.length; i++) {
 
                     inventory = Inventory.create(inventories[i].id, inventories[i].name, inventories[i].rows, inventories[i].cols);
+                    
+                    // prepare items
+                    inventories[i].items.forEach(function(inventoryItem) {
+
+                        itemFactory.update(inventoryItem.item, true);
+
+                    });
+                    
                     inventory.update(inventories[i].items);
 
                     creature.inventories.push(inventory);
@@ -48,6 +56,16 @@ module.exports = function(utils, settings, blueprints, components, Inventory) {
             }
 
             if (creature.equipment) {
+
+                for (key in creature.equipment) {
+
+                    if (creature.equipment[key] != null) {
+
+                        itemFactory.update(creature.equipment[key], true);
+
+                    }
+
+                }
 
                 creature.equip = function(item, slot) {
 
