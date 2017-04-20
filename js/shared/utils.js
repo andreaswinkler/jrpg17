@@ -54,6 +54,86 @@
 
         }, 
 
+        arrayRemoveById: function(arr, id) {
+
+            var i;
+
+            for (i = arr.length; i--;) {
+
+                if (arr[i].id == id) {
+
+                    arr.splice(i, 1);
+
+                }
+
+            }
+
+        }, 
+
+        paintGridCells: function(grid, el, row, col, width, height) {
+
+            var endRowIndex = Math.min(row + height, grid.length), 
+                endColIndex = Math.min(col + width, grid[0].length), 
+                i, j;
+
+            for (i = row; i < endRowIndex; i++) {
+
+                for (j = col; j < endColIndex; j++) {
+
+                    grid[i][j] = el;
+
+                }
+
+            }
+
+        }, 
+
+        removeFromGrid: function(grid, el) {
+
+            var i, j;
+
+            for (i = 0; i < grid.length; i++) {
+
+                for (j = 0; j < grid[i].length; j++) {
+
+                    if (grid[i][j] == el) {
+
+                        grid[i][j] = null;
+
+                    }
+
+                }
+
+            }
+
+        }, 
+
+        searchGridById: function(grid, id) {
+
+            var i, j;
+            
+            for (i = 0; i < grid.length; i++) {
+
+                for (j = 0; j < grid[i].length; j++) {
+
+                    if (grid[i][j] != null && grid[i][j].id == id) {
+
+                        return {
+                            el: grid[i][j], 
+                            row: i, 
+                            col: j
+                        }
+
+                    }
+                
+                }
+            
+            }
+
+            return null;
+
+        }, 
+
         canEquip: function(creature, item, slot) {
 
             return item.slots.indexOf(slot) != -1 && 

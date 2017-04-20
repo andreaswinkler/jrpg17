@@ -114,10 +114,34 @@ var UI = {
 
         this.update = function(item) {
          
+            var that = this;
+
             if (item) {
 
-                this.e.html('<div class="ui-equipment-item rank-' + item.rank + '"><img src="assets/items/' + item.asset + '.png" /></div>');
+                this.e.html('<div class="ui-equipment-item item-rank-' + item.rank + '"><img src="assets/items/' + item.asset + '.png" /></div>');
                 this.item = item;
+
+                this.e.find('.ui-equipment-item')
+                    .on('contextmenu', function(ev) {
+
+                        Net.emit('unequipItem', { itemId: that.item.id, moveToInventory: true });
+
+                        ev.preventDefault();
+                        return false;
+
+                    })
+                    .on('mouseenter', function(ev) {
+
+                        var e = $(ev.target).closest('.ui-equipment-item');
+
+                        UI.itemOverlay.show(e.offset().left, e.offset().top, that.item, 'equipment');
+
+                    })
+                    .on('mouseleave', function(ev) {
+
+                        UI.itemOverlay.hide();   
+
+                    });
 
             } else {
 
@@ -128,65 +152,21 @@ var UI = {
 
         };
 
-        this.unequip = function() {
-
-            var item;
-
-            if (UI.itemInHand) {
-
-                if (Utils.canEquip($G.hero, UI.itemInHand, this.slot)) {
-
-                    item = this.item;
-
-                    this.update(UI.itemInHand);
-
-                    UI.itemInHand = item;
-
-                }
-
-            } else {
-
-                UI.itemInHand = this.item;
-
-                this.update(null);
-
-            }
-
-        };
-
-        this.equip = function(item) {
-
-            this.update(item);
-
-        };
-
         var that = this;
 
         // if we click on a slot we determine if there is an item attached and if so, we put it into the hand
         this.e
             .on('click', function(ev) {
                 
-                if (that.item) {
-
-                    Net.emit('unequipItem', { itemId: that.item.id });
-
-                } else if ($G.hero.hand) {
+                if ($G.hero.hand) {
 
                     Net.emit('equipItem', { slot: that.slot });
 
-                }
-                
-                ev.preventDefault();
-                return false;
+                } else if (that.item) {
 
-            })
-            .on('contextmenu', function(ev) {
+                    Net.emit('unequipItem', { itemId: that.item.id });
 
-                if (that.item) {
-
-                    Net.emit('unequipItem', { itemId: that.item.id, moveToInventory: true });
-                    
-                }
+                } 
 
                 ev.preventDefault();
                 return false;
@@ -232,22 +212,31 @@ var UI = {
 
     InventoryScreen: function(container) {
 
-        this.e = $('<div class="ui-inventory"><div class="ui-inventory-grid"></div></div>');
+        this.e = $('<div class="ui-inventory"><div class="ui-inventory-grid"><div class="ui-inventory-highlight"></div></div></div>');
         this.eGrid = this.e.find('.ui-inventory-grid');
+        this.eHighlight = this.e.find('.ui-inventory-highlight');
+        this.cellSize = 0;
+        this.width = 0;
+        this.inventory = null;
 
         this.update = function(inventory) {
-            
+
             var rows = inventory.grid.length, 
                 cols = inventory.grid[0].length, 
                 height = this.e.height(), 
-                cellSize = Math.floor(height / rows), 
-                i, j, item;
-            
+                i, j, item, eItem;
+                
+            this.inventory = inventory;
+            this.cellSize = Math.floor(height / rows);
+
+            this.e.attr('data-id', inventory.id);
+
+            this.eGrid.find('.ui-inventory-item').remove();
+
             this.eGrid
-                .html('')
-                .css('background-size', cellSize + 'px ' + cellSize + 'px')
-                .css('width', (cols * cellSize) + 'px')
-                .css('height', (rows * cellSize) + 'px');
+                .css('background-size', this.cellSize + 'px ' + this.cellSize + 'px')
+                .css('width', (cols * this.cellSize) + 'px')
+                .css('height', (rows * this.cellSize) + 'px');
 
             for (i = 0; i < inventory.grid.length; i++) {
 
@@ -257,13 +246,253 @@ var UI = {
 
                     if (item != null && this.eGrid.find('.ui-inventory-item[data-id=' + item.id + ']').length == 0) {
 
-                        this.eGrid.append('<div class="ui-inventory-item" data-id="' + item.id + '" style="width:' + (item.inventoryWidth * cellSize) + 'px;height:' + (item.inventoryHeight * cellSize) + 'px;top:' + (i * cellSize) + 'px;left:' + (j * cellSize) + 'px"><img src="assets/items/' + item.asset + '.png" /></div>');
+                        eItem = $('<div class="ui-inventory-item item-rank-' + item.rank + '" data-id="' + item.id + '"></div>')
+                            .append('<img src="assets/items/' + item.asset + '.png" />')
+                            .on('click', function(ev) {
+
+                                var itemId = $(ev.target).closest('.ui-inventory-item').attr('data-id'), 
+                                    inventoryId = $(ev.target).closest('.ui-inventory').attr('data-id');
+
+                                Net.emit('grabItem', { itemId: itemId, inventoryId: inventoryId });
+
+                                ev.preventDefault();
+                                return false;
+
+                            })
+                            .on('contextmenu', function(ev) {
+
+                                var itemId = $(ev.target).closest('.ui-inventory-item').attr('data-id'); 
+
+                                Net.emit('equipItem', { itemId: itemId });
+
+                                ev.preventDefault();
+                                return false;
+
+                            })
+                            .on('mouseenter', function(ev) {
+
+                                var e = $(ev.target).closest('.ui-inventory-item');
+
+                                UI.itemOverlay.show(e.offset().left, e.offset().top, e.get(0)._item, 'inventory');
+
+                            })
+                            .on('mouseleave', function(ev) {
+
+                                UI.itemOverlay.hide();   
+
+                            });
+                            
+                        eItem.get(0)._item = item;
+                        
+                        UI.positionAndResize(eItem, i * this.cellSize, j * this.cellSize, item.inventoryWidth * this.cellSize, item.inventoryHeight * this.cellSize);
+
+                        this.eGrid.append(eItem);
 
                     }
 
                 }
 
             }
+
+        };
+
+        this.updateHighlight = function(x, y) {
+
+            var row = Math.floor(y / this.cellSize), 
+                col = Math.floor(x / this.cellSize), 
+                width = $G.hero.hand.inventoryWidth * this.cellSize, 
+                height = $G.hero.hand.inventoryHeight * this.cellSize, 
+                positionValid = (row + $G.hero.hand.inventoryHeight - 1) < this.inventory.grid.length && 
+                                (col + $G.hero.hand.inventoryWidth - 1) < this.inventory.grid[0].length, 
+                // position is valid if there is enough space on the inventory and we at 
+                // most only replace one item
+                valid = positionValid && Utils.gridElements(this.inventory.grid, row, col, row + $G.hero.hand.inventoryWidth - 1, col + $G.hero.hand.inventoryHeight - 1, 1).length <= 1;
+
+            UI.positionAndResize(this.eHighlight, row * this.cellSize, col * this.cellSize, width, height);
+            console.log(positionValid);
+            if (valid) {
+
+                this.eHighlight.removeClass('invalid');
+
+            } else {
+
+                this.eHighlight.addClass('invalid');
+
+            }
+
+            this.eHighlight.attr('data-row', row).attr('data-col', col).show();
+
+        };
+
+        var that = this;
+
+        this.eGrid.on('mousemove', function(ev) {
+
+            if ($G.hero.hand) {
+
+                that.updateHighlight(ev.pageX - that.eGrid.offset().left, ev.pageY - that.eGrid.offset().top);
+
+            } else {
+
+                that.eHighlight.hide();
+
+            }
+
+        });
+
+        this.eGrid.on('mouseleave', function(ev) {
+
+            that.eHighlight.hide();
+
+        });
+
+        this.eHighlight.on('click', function(ev) {
+            
+            if ($G.hero.hand) {
+
+               Net.emit('placeItem', { 
+                   inventoryId: $(ev.target).closest('.ui-inventory').attr('data-id'), 
+                   row: that.eHighlight.attr('data-row'), 
+                   col: that.eHighlight.attr('data-col'), 
+                });
+
+            }
+
+            ev.preventDefault();
+            return false;
+
+        });
+
+        container.append(this.e);
+
+    }, 
+
+    ItemOverlay: function(container) {
+
+        this.e = $('<div class="ui-item-overlay positioned"></div>');
+        this.eTitle = $('<div class="ui-item-overlay-title"></div>').appendTo(this.e);
+        this.eContent = $('<div class="ui-item-overlay-content"></div>').appendTo(this.e);
+        this.eActions = $('<div class="ui-item-overlay-actions"></div></div>').appendTo(this.e);
+        
+        this.eImage = $('<div class="ui-item-overlay-image"></div>').appendTo(this.eContent);
+        this.eMainstats = $('<div class="ui-item-overlay-mainstats"></div>').appendTo(this.eContent);
+        this.eAffixes = $('<div class="ui-item-overlay-affixes"></div>').appendTo(this.eContent);
+        this.eSlots = $('<div class="ui-item-overlay-slots"></div>').appendTo(this.eContent);
+        this.eSetinfo = $('<div class="ui-item-overlay-setinfo"></div>').appendTo(this.eContent);
+        this.eLore = $('<div class="ui-item-overlay-lore"></div>').appendTo(this.eContent);
+        this.eInfo = $('<div class="ui-item-overlay-info"></div>').appendTo(this.eContent);
+
+        this.eDescription = $('<div class="ui-item-overlay-description"></div>').appendTo(this.eMainstats);
+        this.eSlot = $('<div class="ui-item-overlay-slot"></div>').appendTo(this.eMainstats);
+        this.eMainstat = $('<div class="ui-item-overlay-mainstat"></div>').appendTo(this.eMainstats);
+
+        this.item = null;
+        this.actions = {
+            'equipment': ['unequip', 'move to inventory'], 
+            'inventory': ['grab', 'equip'], 
+            'inventoryWithVendor': ['grab', 'sell'], 
+            'vendor': [null, 'buy']
+        };
+
+        this.update = function(item, location, comparisonItem) {
+
+            this.item = item;
+
+            this.e.attr('data-rank', this.item.rank);
+
+            this.updateTitle(this.item);
+
+            this.updateContent(this.item, comparisonItem);
+
+            this.updateActions(location);
+
+        };
+
+        this.updateTitle = function(item) {
+
+            this.eTitle.html(item.name);
+
+        };
+
+        this.updateContent = function(item, comparisonItem) {
+
+            var description = item.type, 
+                mainStat = '', 
+                slots ='', 
+                i;
+
+            if (item.rank != 'normal') {
+
+                description = item.rank + ' ' + description;
+
+            }
+
+            if (item.class == 'weapon') {
+
+                mainStat += '<strong>' + item.dps + '</strong><br />Damage Per Second<br />';
+                mainStat += '<b>' + item.minDmg + ' - ' + item.maxDmg + '</b> Damage<br />';
+                mainStat += '<b>' + item.attackSpeed + '</b> Attacks Per Second';
+
+            } else if (item.class == 'armor') {
+
+                mainStat += '<strong>' + item.armor + '</strong><br />Armor';
+
+            }
+
+            for (i = 0; i < item.slots.length; i++) {
+
+                slots += '<div class="ui-item-overlay-slot"></div>';
+
+            }
+
+            this.eImage.css('background-image', 'url(assets/items/' + item.asset + '.png)');
+            this.eDescription.html(description);
+            this.eSlot.html(item.slotHint);
+            this.eMainstat.html(mainStat);
+
+            this.eAffixes.html('');
+            this.eSlots.html(slots);
+            this.eSetinfo.html('');
+            this.eLore.html('');
+            this.eInfo.html('<label>Required Level:</label><b>' + item.levelRequirement + '</b>');
+
+        };
+
+        this.updateActions = function(location) {
+
+            var leftClickAction = this.actions[location][0], 
+                rightClickAction = this.actions[location][1];
+
+            this.eActions.html('');
+
+            if (leftClickAction) {
+
+                this.eActions.append('<span class="ui-item-overlay-action ui-item-overlay-action-leftclick">' + leftClickAction + '</span>');
+
+            }
+
+            if (rightClickAction) {
+
+                this.eActions.append('<span class="ui-item-overlay-action ui-item-overlay-action-rightclick">' + rightClickAction + '</span>');
+
+            }
+
+        };
+
+        this.show = function(x, y, item, location) {
+
+            this.update(item, location);
+
+            this.e
+                .css('top', (y - this.e.height()) + 'px')
+                .css('left', (x - this.e.width()) + 'px')
+                .show();
+
+        };
+
+        this.hide = function() {
+
+            this.e.hide();
 
         };
 
@@ -287,6 +516,9 @@ var UI = {
         this.equipmentScreen = new UI.EquipmentScreen(this.characterWindow.e);
         this.inventoryScreen = new UI.InventoryScreen(this.characterWindow.e);
 
+        this.itemOverlay = new UI.ItemOverlay(this.container);
+        this.coparisonItemOverlay = new UI.ItemOverlay(this.container);
+
         this.eHand = $('<div class="ui-hand positioned"></div>').appendTo(this.container);
         this.eStatusBar = $('.status-bar');
 
@@ -296,6 +528,12 @@ var UI = {
         Events.on('map.loaded', this.onMapLoaded, this);
 
     }, 
+
+    positionAndResize: function(e, top, left, width, height) {
+
+        e.css('top', top + 'px').css('left', left + 'px').css('width', width + 'px').css('height', height + 'px');
+
+    },
 
     toggleCharacterWindow: function() {
 

@@ -146,19 +146,25 @@ module.exports = function(fs, utils, settings) {
                     var inventory = creature.inventory(inventoryId), 
                         result = {
                             inventory: inventory, 
-                            grabbedItem: null, 
-                            success: false
-                        };
+                            item: null, 
+                            success: false, 
+                            row: 0, 
+                            col: 0
+                        }, 
+                        grabItemResult;
                     
                     if (inventory) {
 
-                        result.grabbedItem = inventory.grabItem(itemId, creature.hand);
+                        grabItemResult = inventory.grabItem(itemId, creature.hand);
 
-                        if (result.grabbedItem) {
+                        if (grabItemResult.item) {
 
-                            creature.hand = result.grabbedItem;
+                            creature.hand = grabItemResult.item;
 
                             result.success = true;
+                            result.item = grabItemResult.item;
+                            result.row = grabItemResult.row;
+                            result.col = grabItemResult.col;
 
                         }
 
@@ -173,30 +179,31 @@ module.exports = function(fs, utils, settings) {
                     var inventory = creature.inventory(inventoryId), 
                         result = {
                             inventory: inventory, 
-                            success: false
+                            success: false, 
+                            replacedItem: null
                         }, 
                         placeResult;
                     
                     if (inventory) {
-
+                        
                         if (typeof row != 'undefined') {
-
+                            
                             placeResult = inventory.place(item, row, col);
 
                             if (placeResult !== false) {
 
                                 result.success = true;
 
-                                if (placeResult) {
+                                if (placeResult !== true) {
 
-                                    creature.hand = placeResult;
+                                    result.replacedItem = placeResult;
 
                                 }
 
                             }
 
                         } else {
-
+                            
                             result.success = inventory.add(item);
 
                         }
@@ -211,7 +218,8 @@ module.exports = function(fs, utils, settings) {
 
                     var result = {
                             success: false, 
-                            moveToInventorySuccess: false
+                            moveToInventorySuccess: false, 
+                            inventory: creature.inventories[0]
                         };
                     
                     if (creature.equip(item, slot)) {

@@ -138,6 +138,9 @@ window.$G = {
         this.game = game;
         this.game.hero = this.player.hero;
         this.game.map.hero = this.player.hero;
+
+        // make sure the hero is not already in the creature list
+        Utils.arrayRemoveById(this.game.map.creatures, this.player.hero.id);      
         this.game.map.creatures.push(this.player.hero);
 
         UI.renderer.updateMap(this.game.map);

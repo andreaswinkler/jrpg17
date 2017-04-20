@@ -1,3 +1,20 @@
 {
-    "tileSize": 256
+    "tileSize": 256, 
+    "attributes": [
+        "strength", 
+        "vitality", 
+        "dexterity",
+        "intelligence", 
+        "increasedSpeed", 
+        "attackSpeed", 
+        "increasedAttackSpeed", 
+        "criticalHitChance", 
+        "criticalHitDamage", 
+        "minDmg", 
+        "maxDmg", 
+        "armor", 
+        "blockChance", 
+        "dodgeChance", 
+        "blockAmount"
+    ]
 }

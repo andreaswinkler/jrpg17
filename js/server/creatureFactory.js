@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(utils, blueprints, components, Inventory) {
+module.exports = function(utils, settings, blueprints, components, Inventory) {
 
     return {
     
@@ -57,6 +57,8 @@ module.exports = function(utils, blueprints, components, Inventory) {
                         
                         this.equipment[slot] = item;
 
+                        this.update();
+
                         return true;
 
                     } else {
@@ -79,6 +81,8 @@ module.exports = function(utils, blueprints, components, Inventory) {
 
                             this.equipment[key] = null;
 
+                            this.update();
+
                             return item;
 
                         }
@@ -88,6 +92,45 @@ module.exports = function(utils, blueprints, components, Inventory) {
                     return null;
 
                 };
+
+                // update stats based on equipment
+                creature.update = function() {
+
+                    var item, i;
+
+                    for (i = 0; i < settings.attributes.length; i++) {
+
+                        this[settings.attributes[i] + '_current'] = this[settings.attributes[i]] || 0;
+
+                    }
+
+                    for (key in this.equipment) {
+
+                        if (this.equipment.hasOwnProperty(key) && this.equipment[key]) {
+
+                            item = this.equipment[key];
+
+                            if (item.minDmg) {
+
+                                item.dps = (item.minDmg + item.maxDmg) / 2 * item.attackSpeed;
+
+                            }
+
+                            if (item.durability > 0) {
+
+                                for (i = 0; i < settings.attributes.length; i++) {
+
+                                    this[settings.attributes[i] + '_current'] += item[settings.attributes[i]] || 0;
+
+                                }       
+
+                            }      
+
+                        }
+
+                    }
+
+                }
 
             }
 

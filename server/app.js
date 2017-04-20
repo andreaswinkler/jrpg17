@@ -11,7 +11,7 @@ var app = require('http').createServer(),
     inventory = require('./../js/server/inventory.js')(utils), 
     game = require('./../js/server/game.js')(fs, utils, settings),  
     components = require('./../js/shared/components.js'), 
-    creatureFactory = require('./../js/server/creatureFactory.js')(utils, creatures, components, inventory);
+    creatureFactory = require('./../js/server/creatureFactory.js')(utils, settings, creatures, components, inventory);
 
 app.listen(1337);
 
@@ -83,9 +83,18 @@ io.on('connection', function(client) {
 
     client.on('placeItem', function(data) {
 
-        var item = data.item || client.hero.hand, 
-            result = client.game.addItemToInventory(client.hero, data.inventoryId, item, data.row, data.col);
+        var result = client.game.addItemToInventory(client.hero, data.inventoryId, client.hero.hand, data.row, data.col);
         
+        if (result.replacedItem) {
+
+            client.hero.hand = result.replacedItem;
+
+        } else {
+
+            client.hero.hand = null;
+
+        }
+
         if (result.success) {
 
             client.emit('handUpdate', { item: client.hero.hand });
@@ -97,32 +106,35 @@ io.on('connection', function(client) {
 
     client.on('equipItem', function(data) {
 
-        var moveToInventory = false,
-            row, col, item, result;
+        var moveToInventory = false, 
+            slot, row, col, grabItemResult;
 
         if (data.itemId) {
 
-            // find item in inventory
+            grabItemResult = client.game.grabItemFromInventory(client.hero, client.hero.inventories[0].id, data.itemId);
+
+            row = grabItemResult.row;
+            col = grabItemResult.col;
+            
             moveToInventory = true;
-            row = 0;
-            col = 0;
-
-        } else {
-
-            item = client.hero.hand;
 
         }
 
-        if (item) {
+        item = client.hero.hand;
 
-            result = client.game.equipItem(client.hero, item, data.slot, moveToInventory, row, col);
+        if (client.hero.hand) {
+
+            result = client.game.equipItem(client.hero, client.hero.hand, (data.slot || client.hero.hand.slots[0]), moveToInventory, row, col);
             
             if (result.success) {
 
                 client.emit('handUpdate', { item: client.hero.hand });
                 client.emit('equipmentUpdate', { equipment: client.hero.equipment });
+                client.emit('update', [client.hero]);
 
-                if (result.moveToInventorySuccess) {
+                // we send an inventory update if we put back an item or if we took it directly 
+                // from there
+                if (result.moveToInventorySuccess || data.itemId) {
 
                     client.emit('inventoryUpdate', { inventory: result.inventory.pack() });
 
@@ -142,6 +154,7 @@ io.on('connection', function(client) {
 
             client.emit('handUpdate', { item: client.hero.hand });
             client.emit('equipmentUpdate', { equipment: client.hero.equipment });
+            client.emit('update', [client.hero]);
 
             if (result.moveToInventorySuccess) {
 

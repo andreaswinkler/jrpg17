@@ -54,8 +54,7 @@ module.exports = function(utils) {
 
         this.emptyGridIndex = function(width, height) {
 
-            var index = null, 
-                valid, i, j, k, l;
+            var valid, i, j, k, l;
 
             for (i = 0; i < this.grid.length - height + 1; i++) {
 
@@ -79,33 +78,29 @@ module.exports = function(utils) {
 
                     if (valid) {
 
-                        index = { row: i, col: j };
+                        return { row: i, col: j };
 
                     }
 
                 }
 
-                if (index) {
-
-                    break;
-
-                }
-
             }
 
-            return index;
+            return null;
 
         };
 
         // get a list of items within a grid section
         this.items = function(row, col, width, height) {
 
-            var items = [], 
+            var items = [],
+                endRowIndex = Math.min(row + height, this.grid.length), 
+                endColIndex = Math.min(col + width, this.grid[0].length),  
                 i, j, k, found;
 
-            for (i = row; i < row + height; i++) {
+            for (i = row; i < endRowIndex; i++) {
 
-                for (j = col; j < col + width; j++) {
+                for (j = col; j < endColIndex; j++) {
 
                     if (this.grid[i][j] != null) {
 
@@ -123,36 +118,21 @@ module.exports = function(utils) {
 
         this.grabItem = function(itemId, replacement) {
 
-            var item = null, 
-                i, j, index;
-
-            // try to find the item by id and get its grid index
-            for (i = 0; i < this.grid.length; i++) {
-
-                for (j = 0; j < this.grid[i].length; j++) {
-
-                    if (this.grid[i][j] != null && this.grid[i][j].id == itemId) {
-
-                        item = this.grid[i][j];
-                        index = { row: i, col: j };
-
-                    }
-
-                }
-            
-            }
+            var result = utils.searchGridById(this.grid, itemId);
 
             // great, we found the item
-            if (item) {
+            if (result) {
+
+                result.item = result.el;
 
                 // if we have a replacement, try to put it in place
                 if (replacement) {
                     
                     // we were able to replace the item, so the other one is 
                     // already removed
-                    if (this.place(replacement, index.row, index.col) != null) {
+                    if (this.place(replacement, result.row, result.col) != null) {
 
-                        return item;
+                        return result;
 
                     }
 
@@ -160,45 +140,24 @@ module.exports = function(utils) {
                 // we just grab the item so remove it from the inventory
                 else {
 
-                    this.remove(item);
+                    utils.removeFromGrid(this.grid, result.item);
 
                 }
 
             }
 
-            return item;
-
-        };
-
-        this.remove = function(item) {
-
-            var i, j;
-
-            for (i = 0; i < this.grid.length; i++) {
-
-                for (j = 0; j < this.grid[i].length; j++) {
-
-                    if (this.grid[i][j] == item) {
-
-                        this.grid[i][j] = null;
-
-                    }
-
-                }
-
-            }
+            return result;
 
         };
 
         this.place = function(item, row, col) {
 
-            var items = this.items(row, col, item.inventoryWidth, item.inventoryHeight), 
-                replacedItem = null;
+            var items = this.items(row, col, item.inventoryWidth, item.inventoryHeight);
     
             // if the section is empty we just place the item
             if (items.length == 0) {
 
-                this._markGridCells(item, row, col);
+                utils.paintGridCells(this.grid, item, row, col, item.inventoryWidth, item.inventoryHeight);
 
                 return true;
 
@@ -206,33 +165,15 @@ module.exports = function(utils) {
             // if there is only one item affected, we replace it
             else if (items.length == 1) {
 
-                replacedItem = items[0];
+                utils.removeFromGrid(this.grid, items[0]);
 
-                this.remove(replacedItem);
+                utils.paintGridCells(this.grid, item, row, col, item.inventoryWidth, item.inventoryHeight);
 
-                this._markGridCells(item, row, col);
-
-                return replacedItem;
+                return items[0];
 
             }
 
             return false;
-
-        };
-
-        this._markGridCells = function(item, row, col) {
-
-            var i, j;
-
-            for (i = row; i < row + item.inventoryHeight; i++) {
-
-                for (j = col; j < col + item.inventoryWidth; j++) {
-
-                    this.grid[i][j] = item;
-
-                }
-
-            }
 
         };
 
