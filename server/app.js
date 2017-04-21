@@ -16,6 +16,8 @@ var app = require('http').createServer(),
 
 app.listen(1337);
 
+console.log(itemFactory.createDrop({ level: 1, treasureClass: 1 }));
+
 io.on('connection', function(client) {
 
     console.log('somebody connected, yay!');

@@ -31,6 +31,85 @@
 
         }, 
 
+        random: function() {
+
+            // we got no parameter -> return a random float between 0.0 and 1.0 (including 0 but not including 1)
+            if (arguments.length == 0) {
+
+                return Math.random();
+
+            } 
+            // we got one parameter -> assume it is an array and return a randomly choosen element
+            // or if it is an object we grab a random key and also check any probability attribute given
+            else if (arguments.length == 1) {
+                
+                if (Array.isArray(arguments[0])) {
+
+                    return (arguments[0])[Math.floor(this.random(0, arguments[0].length - 1))];
+
+                } else {
+
+                    var list = [], 
+                        rand = this.random();
+
+                    for (var key in arguments[0]) {
+
+                        if (arguments[0].hasOwnProperty(key) && arguments[0][key]) {
+
+                            if (typeof arguments[0][key] == 'object' && (arguments[0][key].probability || 0) > rand) {
+
+                                continue;
+
+                            }
+
+                            list.push(key);
+
+                        }
+
+                    }
+
+                    return this.random(list);
+
+                }
+            } 
+            // we got two parameters -> return a random float between min/max
+            else if (arguments.length == 2) {
+
+                return Math.random() * (arguments[1] - arguments[0]) + arguments[0];
+
+            } 
+            else if (argumetns.length == 3) {
+
+                return Math.floor(Math.random() * (arguments[1] - arguments[0] + 1)) + arguments[0];
+
+            }
+
+        }, 
+
+        addValues: function(target, src) {
+
+            var key;
+
+            for (key in src) {
+
+                if (src.hasOwnProperty(key) && src[key] !== null) {
+
+                    if (!target[key]) {
+
+                        target[key] = 0;
+
+                    }
+
+                    target[key] += src[key];
+
+                }
+
+            }
+
+            return target;
+
+        }, 
+
         arrayPushUnique: function(arr, el) {
 
             var found = false, 

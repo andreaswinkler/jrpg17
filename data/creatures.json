@@ -1,6 +1,7 @@
 {
     "betaVendorNpc": {
         "name": "β Vendor", 
+        "type": "npc", 
         "faction": "neutral",
         "asset": "betaVendor", 
         "inventories": [
@@ -16,7 +17,8 @@
         "height": 100
     }, 
     "hero": {
-        "name": "Hero", 
+        "name": "Hero",
+        "type": "hero",  
         "faction": "heroes", 
         "asset": "hero", 
         "speed": 0.1, 
@@ -28,6 +30,7 @@
         "intelligence": 10, 
         "balance": 0,
         "level": 1, 
+        "rank": "hero", 
         "inventories": [
             {
                 "id": 1, 

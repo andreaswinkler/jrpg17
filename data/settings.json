@@ -15,6 +15,228 @@
         "armor", 
         "blockChance", 
         "dodgeChance", 
-        "blockAmount"
+        "blockAmount", 
+        "sockets"
+    ],
+    "equipmentDropChance": 0.25, 
+    "equipmentSalvageChance": 0.75, 
+    "salvageResults": {
+        "normal": {
+            "normal": 1
+        }, 
+        "magic": {
+            "normal": 1, 
+            "magic": 1
+        }, 
+        "rare": {
+            "normal": 2, 
+            "magic": 1, 
+            "rare": 1
+        }, 
+        "legendary": {
+            "normal": 2, 
+            "magic": 2, 
+            "rare": 1, 
+            "legendary": 1
+        }, 
+        "set": {
+            "normal": 2, 
+            "magic": 2, 
+            "rare": 2, 
+            "legendary": 1
+        }, 
+        "mythical": {
+            "normal": 2, 
+            "magic": 2, 
+            "rare": 2, 
+            "legendary": 5
+        }
+    }, 
+    "creatureRanks": {
+        "normal": {
+            "essenceMultiplier": 1,
+            "healthGlobeDropChance": 0.1
+        }, 
+        "champion": {
+            "essenceMultiplier": 1, 
+            "healthGlobeDropChance": 0.5
+        }, 
+        "rare": {
+            "essenceMultiplier": 2, 
+            "healthGlobeDropChance": 1
+        }, 
+        "unique": {
+            "essenceMultiplier": 2, 
+            "healthGlobeDropChance": 1
+        }, 
+        "boss": {
+            "essenceMultiplier": 3, 
+            "healthGlobeDropChance": 1
+        }
+    }, 
+    "itemRanks": {
+        "normal": {
+            "probability": 1, 
+            "minAffixCount": 0, 
+            "maxAffixCount": 0
+        }, 
+        "magic": {
+            "probability": 0.25, 
+            "minAffixCount": 1, 
+            "maxAffixCount": 2
+        }, 
+        "rare": {
+            "probability": 0.1, 
+            "minAffixCount": 3, 
+            "maxAffixCount": 5
+        }, 
+        "legendary": {
+            "probability": 0.01, 
+            "minAffixCount": 4, 
+            "maxAffixCount": 5
+        }, 
+        "set": {
+            "probability": 0.05, 
+            "minAffixCount": 4, 
+            "maxAffixCount": 5
+        }, 
+        "mythical": {
+            "probability": 0.001, 
+            "minAffixCount": 6, 
+            "maxAffixCount": 6
+        }
+    }, 
+    "itemQualities": {
+        "normal": {
+            "probability": 1, 
+            "damageMultiplier": 1, 
+            "armorMultiplier": 1, 
+            "nameTemplate": "%"
+        }, 
+        "damaged": {
+            "probability": 0.25, 
+            "damageMultiplier": 0.9, 
+            "armorMultiplier": 0.9, 
+            "nameTemplate": "Damaged %"
+        }, 
+        "good": {
+            "probability": 0.25, 
+            "damageMultiplier": 1.1, 
+            "armorMultiplier": 1.2, 
+            "nameTemplate": "Good %"
+        }, 
+        "exceptional": {
+            "probability": 0.1, 
+            "damageMultiplier": 1.2, 
+            "armorMultiplier": 1.5, 
+            "nameTemplate": "Exceptional %"
+        }, 
+        "etheral": {
+            "probability": 0.01, 
+            "damageMultiplier": 1.4, 
+            "armorMultiplier": 2, 
+            "nameTemplate": "Etheral %"
+        }
+    },
+    "affixes": [
+        { 
+            "classes": ["armor"], 
+            "minLevel": 1, 
+            "maxLevel": 10, 
+            "attrib": "armor", 
+            "minValue": 1, 
+            "maxValue": 2, 
+            "type": "prefix", 
+            "name": "Strong", 
+            "isInteger": true
+        }, 
+        {
+            "classes": ["armor"], 
+            "minLevel": 1, 
+            "maxLevel": 10, 
+            "attrib": "armor", 
+            "minValue": 1, 
+            "maxValue": 2, 
+            "type": "suffix", 
+            "name": "of the Fortress", 
+            "isInteger": true
+        }, 
+        {
+            "classes": ["armor"], 
+            "minLevel": 1, 
+            "maxLevel": 10, 
+            "attrib": "vitality", 
+            "minValue": 1, 
+            "maxValue": 2, 
+            "type": "suffix", 
+            "name": "of Wellbeing", 
+            "isInteger": true
+        }, 
+        {
+            "classes": ["armor"], 
+            "minLevel": 1, 
+            "maxLevel": 10, 
+            "attrib": "strength", 
+            "minValue": 1, 
+            "maxValue": 2, 
+            "type": "suffix", 
+            "name": "of Strength", 
+            "isInteger": true
+        },
+        {
+            "classes": ["armor", "weapon"], 
+            "minLevel": 1, 
+            "maxLevel": 10, 
+            "attrib": "sockets", 
+            "minValue": 1, 
+            "maxValue": 1, 
+            "type": "prefix", 
+            "name": "Socketed", 
+            "isInteger": true
+        },
+        {
+            "classes": ["weapon"], 
+            "minLevel": 1, 
+            "maxLevel": 10, 
+            "attrib": "minDmg", 
+            "minValue": 1, 
+            "maxValue": 1, 
+            "type": "prefix", 
+            "name": "Sharp", 
+            "isInteger": true
+        },
+        {
+            "classes": ["weapon"], 
+            "minLevel": 1, 
+            "maxLevel": 10, 
+            "attrib": "criticalHitDamage", 
+            "minValue": 1, 
+            "maxValue": 1, 
+            "type": "suffix", 
+            "name": "of Brutality",
+            "isInteger": true
+        },
+        {
+            "classes": ["weapon"], 
+            "minLevel": 1, 
+            "maxLevel": 10, 
+            "attrib": "maxDmg", 
+            "minValue": 1, 
+            "maxValue": 1, 
+            "type": "suffix", 
+            "name": "of Devastation", 
+            "isInteger": true
+        },
+        {
+            "classes": ["weapon"], 
+            "minLevel": 1, 
+            "maxLevel": 10, 
+            "attrib": "criticalHitChance", 
+            "minValue": 0.05, 
+            "maxValue": 0.1, 
+            "type": "prefix", 
+            "name": "Cruel", 
+            "isInteger": false
+        }
     ]
 }
