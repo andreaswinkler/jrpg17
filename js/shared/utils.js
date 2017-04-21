@@ -78,7 +78,7 @@
                 return Math.random() * (arguments[1] - arguments[0]) + arguments[0];
 
             } 
-            else if (argumetns.length == 3) {
+            else if (arguments.length == 3) {
 
                 return Math.floor(Math.random() * (arguments[1] - arguments[0] + 1)) + arguments[0];
 
