@@ -102,7 +102,15 @@ var UI = {
             this.intelligenceField.update(hero.intelligence);
             this.vitalityField.update(hero.vitality);
             
-            this.dpsField.update(hero.equipment.mainHand.dps.toFixed(1));
+            if (hero.equipment.mainHand) {
+
+                this.dpsField.update(hero.equipment.mainHand.dps.toFixed(1));
+
+            } else {
+
+                this.dpsField.update(0);
+
+            }
 
             this.balanceField.update(hero.balance);
 
@@ -207,6 +215,7 @@ var UI = {
         this.update = function(equipment) {
             
             this.mainHandSlot.update(equipment.mainHand);
+            this.chestPieceSlot.update(equipment.chestPiece);
 
         };
 
@@ -381,7 +390,7 @@ var UI = {
         this.eImage = $('<div class="ui-item-overlay-image"></div>').appendTo(this.eContent);
         this.eMainstats = $('<div class="ui-item-overlay-mainstats"></div>').appendTo(this.eContent);
         this.eAffixes = $('<div class="ui-item-overlay-affixes"></div>').appendTo(this.eContent);
-        this.eSlots = $('<div class="ui-item-overlay-slots"></div>').appendTo(this.eContent);
+        this.eSockets = $('<div class="ui-item-overlay-sockets"></div>').appendTo(this.eContent);
         this.eSetinfo = $('<div class="ui-item-overlay-setinfo"></div>').appendTo(this.eContent);
         this.eLore = $('<div class="ui-item-overlay-lore"></div>').appendTo(this.eContent);
         this.eInfo = $('<div class="ui-item-overlay-info"></div>').appendTo(this.eContent);
@@ -422,8 +431,9 @@ var UI = {
 
             var description = item.type, 
                 mainStat = '', 
-                slots ='', 
-                i;
+                sockets ='', 
+                affixes = '', 
+                i, affix;
 
             if (item.rank != 'normal') {
 
@@ -443,19 +453,29 @@ var UI = {
 
             }
 
-            for (i = 0; i < item.slots.length; i++) {
+            for (i = 0; i < item.sockets.length; i++) {
 
-                slots += '<div class="ui-item-overlay-slot"></div>';
+                sockets += '<div class="ui-item-overlay-socket"></div>';
 
             }
+
+            item.affixes.forEach(function(affix) {
+
+                if (!affix.internal) {
+
+                    affixes += '<div class="ui-item-overlay-affix">+' + affix[affix.attrib] + ' ' + affix.attrib + '</div>';
+
+                }
+
+            });
 
             this.eImage.css('background-image', 'url(assets/items/' + item.asset + '.png)');
             this.eDescription.html(description);
             this.eSlot.html(item.slotHint);
             this.eMainstat.html(mainStat);
 
-            this.eAffixes.html('');
-            this.eSlots.html(slots);
+            this.eAffixes.html(affixes);
+            this.eSockets.html(sockets);
             this.eSetinfo.html('');
             this.eLore.html('');
             this.eInfo.html('<label>Required Level:</label><b>' + item.levelRequirement + '</b>');

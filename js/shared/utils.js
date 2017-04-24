@@ -32,6 +32,20 @@
 
         }, 
 
+        clone: function(obj) {
+            
+            return obj ? JSON.parse(JSON.stringify(obj)) : {};
+
+        }, 
+
+        assign: function() {
+
+            var args = Array.prototype.slice.call(arguments).map(this.clone, this);
+
+            return Object.assign.apply(this, args);
+
+        }, 
+
         // create a random number or choose a random element
         // the following cases are supported
         // 1) no argument; return a random number between 0.0 and 1.0 (not including 1.0) by delegating to Math.random

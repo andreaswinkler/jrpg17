@@ -16,7 +16,7 @@
         "blockChance", 
         "dodgeChance", 
         "blockAmount", 
-        "sockets"
+        "socket"
     ],
     "equipmentDropChance": 0.25, 
     "equipmentSalvageChance": 0.75, 
@@ -187,7 +187,7 @@
             "classes": ["armor", "weapon"], 
             "minLevel": 1, 
             "maxLevel": 10, 
-            "attrib": "sockets", 
+            "attrib": "socket", 
             "minValue": 1, 
             "maxValue": 1, 
             "type": "prefix", 

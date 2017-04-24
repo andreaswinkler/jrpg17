@@ -9,7 +9,7 @@ module.exports = function(utils, settings, blueprints) {
 
         create: function(blueprint, level, rank, quality, namedItem) {
             
-            var item = Object.assign({}, blueprint, namedItem || {}), 
+            var item = utils.assign({}, blueprint, namedItem), 
                 qualitySettings = settings.itemQualities[quality], 
                 rankSettings = settings.itemRanks[rank], 
                 affixCount = utils.random(rankSettings.minAffixCount, rankSettings.maxAffixCount), 
@@ -39,8 +39,12 @@ module.exports = function(utils, settings, blueprints) {
 
             }
 
+            item.sockets = [];
+
             // calculate all affixes
             item.affixes.forEach(function(affix) {
+
+                var i;
 
                 affix[affix.attrib] = utils.random(affix.minValue, affix.maxValue, affix.isInteger);
 
@@ -61,6 +65,16 @@ module.exports = function(utils, settings, blueprints) {
                 if (affix.internal && affix.attrib == 'maxDmg') {
 
                     affix.maxDmg *= qualitySettings.damageMultiplier;
+
+                }
+
+                if (affix.socket) {
+
+                    for (i = 0; i < affix.socket; i++) {
+
+                        item.sockets.push(null);
+
+                    }
 
                 }
 

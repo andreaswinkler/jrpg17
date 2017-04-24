@@ -7,7 +7,7 @@
             { "internal": true, "minValue": 1, "maxValue": 1, "attrib": "minDmg" }, 
             { "internal": true, "minValue": 3, "maxValue": 3, "attrib": "maxDmg" }, 
             { "internal": true, "minValue": 1.1, "maxValue": 1.1, "attrib": "attackSpeed" }, 
-            { "internal": true, "minValue": 0, "maxValue": 2, "attrib": "sockets" }
+            { "internal": true, "minValue": 0, "maxValue": 2, "attrib": "socket" }
         ], 
         "asset": "small-sword", 
         "minLevel": 1,
@@ -40,7 +40,7 @@
         "type": "chestPiece",  
         "affixes": [
             { "internal": true, "minValue": 1, "maxValue": 3, "attrib": "armor" }, 
-            { "internal": true, "minValue": 0, "maxValue": 2, "attrib": "sockets" }
+            { "internal": true, "minValue": 0, "maxValue": 2, "attrib": "socket" }
         ],  
         "asset": "leather-armor", 
         "minLevel": 1, 
