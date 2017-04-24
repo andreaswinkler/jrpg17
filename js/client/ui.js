@@ -89,6 +89,8 @@ var UI = {
         this.intelligenceField = new UI.StatField(this.e, { label: 'Intelligence' });
         this.vitalityField = new UI.StatField(this.e, { label: 'Vitality' });
 
+        this.dpsField = new UI.StatField(this.e, { label: 'DPS' });
+
         this.balanceField = new UI.StatField(this.e, { label: '', cssClass: 'ui-statField-balance' });
 
         container.append(this.e);
@@ -100,6 +102,8 @@ var UI = {
             this.intelligenceField.update(hero.intelligence);
             this.vitalityField.update(hero.vitality);
             
+            this.dpsField.update(hero.equipment.mainHand.dps.toFixed(1));
+
             this.balanceField.update(hero.balance);
 
         };
@@ -429,9 +433,9 @@ var UI = {
 
             if (item.class == 'weapon') {
 
-                mainStat += '<strong>' + item.dps + '</strong><br />Damage Per Second<br />';
-                mainStat += '<b>' + item.minDmg + ' - ' + item.maxDmg + '</b> Damage<br />';
-                mainStat += '<b>' + item.attackSpeed + '</b> Attacks Per Second';
+                mainStat += '<strong>' + item.dps.toFixed(1) + '</strong><br />Damage Per Second<br />';
+                mainStat += '<b>' + item.minDmg.toFixed(1) + ' - ' + item.maxDmg.toFixed(1) + '</b> Damage<br />';
+                mainStat += '<b>' + item.attackSpeed.toFixed(2) + '</b> Attacks Per Second';
 
             } else if (item.class == 'armor') {
 

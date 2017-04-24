@@ -242,6 +242,14 @@ canvas {
     background: rgba(255, 255, 255, 0.75)
 }
 
+.item-rank-magic {
+    background: dodgerblue;
+}
+
+.item-rank-rare {
+    background: yellow;
+}
+
 .ui-equipment-item img {
     display: block;
     height: 120%; max-width: 120%; max-height: 120%;
@@ -320,4 +328,12 @@ canvas {
     background-size: contain;
     background-position: center center;
     background-repeat: no-repeat;
+}
+
+.ui-item-overlay[data-rank=rare] {
+    color: yellow;
+}
+
+.ui-item-overlay[data-rank=magic] {
+    color: dodgerblue;
 }

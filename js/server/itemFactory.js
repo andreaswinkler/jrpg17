@@ -66,8 +66,6 @@ module.exports = function(utils, settings, blueprints) {
 
             });
 
-            console.log(item.affixes);
-
             if (item.rank == 'normal') {
                 
                 item.name = qualitySettings.nameTemplate.replace('%', item.name); 

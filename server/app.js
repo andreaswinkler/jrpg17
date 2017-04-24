@@ -16,8 +16,6 @@ var app = require('http').createServer(),
 
 app.listen(1337);
 
-console.log(itemFactory.createDrop({ level: 1, treasureClass: 1 }));
-
 io.on('connection', function(client) {
 
     console.log('somebody connected, yay!');
@@ -25,6 +23,7 @@ io.on('connection', function(client) {
 
     client.player = { name: 'abc', hero: creatureFactory.create('hero') };
     client.hero = client.player.hero;
+
     client.hero.x = 600;
     client.hero.y = 600;
 
@@ -44,6 +43,17 @@ io.on('connection', function(client) {
 
         client.game = game.create();
         client.game.clients.push(client);
+
+         // fill our inventory and equipment
+        for (var i = 0; i < 20; i++) {
+            var drop = itemFactory.createDrop({ level: 1, treasureClass: 1 });
+            for (var j = 0; j < drop.items.length; j++) {
+                client.hero.hand = drop.items[j];
+                client.game.addItemToInventory(client.hero, 1);
+            }
+            client.hero.balance += drop.gold;
+        }
+        client.emit('inventoryUpdate', { inventory: client.hero.inventories[0].pack() });
 
         server.games.push(client.game);
 
