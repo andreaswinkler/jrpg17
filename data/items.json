@@ -256,7 +256,7 @@
         "setItems": [],  
         "mythicalItems": [], 
         "treasureClass": 1, 
-        "slots": ["leftRing", "rightRing"], 
+        "slots": ["ring1", "ring2"], 
         "slotHint": "Finger", 
         "inventoryWidth": 1, 
         "inventoryHeight": 1, 

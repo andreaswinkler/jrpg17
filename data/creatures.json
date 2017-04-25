@@ -37,38 +37,7 @@
                 "name": "Inventory", 
                 "rows": 7, 
                 "cols": 10, 
-                "items": [
-                    { 
-                        "row": 0, 
-                        "col": 0, 
-                        "item": {
-                            "id": 1, 
-                            "class": "weapon", 
-                            "type": "sword", 
-                            "rank": "normal", 
-                            "quality": "good",  
-                            "sockets": [null], 
-                            "name": "Good Small Axe", 
-                            "asset": "small-axe", 
-                            "level": 1, 
-                            "affixes": [
-                                { "internal": true, "minDmg": 2 }, 
-                                { "internal": true, "maxDmg": 5 }, 
-                                { "internal": true, "attackSpeed": 1 }
-                            ], 
-                            "durability": 24, 
-                            "maxDurability": 24,
-                            "slots": ["mainHand"], 
-                            "slotHint": "1-hand",  
-                            "inventoryWidth": 1, 
-                            "inventoryHeight": 2, 
-                            "levelRequirement": 1, 
-                            "strengthRequirement": 0, 
-                            "dexterityRequirement": 0, 
-                            "intelligenceRequirement": 0
-                        }
-                    }
-                ]
+                "items": []
             }, 
             {
                 "id": 2, 
@@ -79,32 +48,6 @@
             }
         ], 
         "equipment": {
-            "mainHand": {
-                "id": 2, 
-                "class": "weapon", 
-                "type": "sword", 
-                "rank": "normal", 
-                "quality": "normal", 
-                "affixes": [
-                    { "internal": true, "minDmg": 1 }, 
-                    { "internal": true, "maxDmg": 3 }, 
-                    { "internal": true, "attackSpeed": 1.1 }
-                ], 
-                "sockets": [], 
-                "name": "Small Sword",  
-                "asset": "small-sword", 
-                "level": 1, 
-                "durability": 24, 
-                "maxDurability": 24,
-                "slots": ["mainHand"],
-                "slotHint": "1-hand",  
-                "inventoryWidth": 1, 
-                "inventoryHeight": 2, 
-                "levelRequirement": 1, 
-                "strengthRequirement": 0, 
-                "dexterityRequirement": 0, 
-                "intelligenceRequirement": 0
-            }
         }
     }   
 }

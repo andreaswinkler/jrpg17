@@ -148,7 +148,8 @@
             "maxValue": 2, 
             "type": "prefix", 
             "name": "Strong", 
-            "isInteger": true
+            "isInteger": true, 
+            "isPercent": false
         }, 
         {
             "classes": ["armor"], 
@@ -159,7 +160,8 @@
             "maxValue": 2, 
             "type": "suffix", 
             "name": "of the Fortress", 
-            "isInteger": true
+            "isInteger": true, 
+            "isPercent": false
         }, 
         {
             "classes": ["armor", "jewelry"], 
@@ -170,7 +172,8 @@
             "maxValue": 2, 
             "type": "suffix", 
             "name": "of Wellbeing", 
-            "isInteger": true
+            "isInteger": true, 
+            "isPercent": false
         }, 
         {
             "classes": ["armor", "jewelry"], 
@@ -181,7 +184,8 @@
             "maxValue": 2, 
             "type": "suffix", 
             "name": "of Strength", 
-            "isInteger": true
+            "isInteger": true, 
+            "isPercent": false
         },
         {
             "classes": ["armor", "weapon", "jewelry"], 
@@ -192,7 +196,8 @@
             "maxValue": 1, 
             "type": "prefix", 
             "name": "Socketed", 
-            "isInteger": true
+            "isInteger": true, 
+            "isPercent": false
         },
         {
             "classes": ["weapon", "jewelry"], 
@@ -203,7 +208,8 @@
             "maxValue": 1, 
             "type": "prefix", 
             "name": "Sharp", 
-            "isInteger": true
+            "isInteger": true, 
+            "isPercent": false
         },
         {
             "classes": ["weapon", "jewelry"], 
@@ -214,7 +220,8 @@
             "maxValue": 0.02, 
             "type": "suffix", 
             "name": "of Brutality", 
-            "isInteger": false
+            "isInteger": false, 
+            "isPercent": true
         },
         {
             "classes": ["weapon", "jewelry"], 
@@ -225,7 +232,8 @@
             "maxValue": 1, 
             "type": "suffix", 
             "name": "of Devastation", 
-            "isInteger": true
+            "isInteger": true, 
+            "isPercent": false
         },
         {
             "classes": ["weapon", "jewelry"], 
@@ -236,7 +244,8 @@
             "maxValue": 0.02, 
             "type": "prefix", 
             "name": "Cruel", 
-            "isInteger": false
+            "isInteger": false, 
+            "isPercent": true
         }
     ]
 }

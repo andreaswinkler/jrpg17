@@ -128,6 +128,7 @@ var UI = {
                 this.item = item;
 
                 this.e.find('.ui-equipment-item')
+                    .append(UI.sockets(this.item))
                     .on('contextmenu', function(ev) {
 
                         Net.emit('unequipItem', { itemId: that.item.id, moveToInventory: true });
@@ -140,7 +141,7 @@ var UI = {
 
                         var e = $(ev.target).closest('.ui-equipment-item');
 
-                        UI.itemOverlay.show(e.offset().left, e.offset().top, that.item, 'equipment');
+                        UI.itemOverlay.show(e.offset().left - 50, e.offset().top, that.item, 'equipment');
 
                     })
                     .on('mouseleave', function(ev) {
@@ -215,9 +216,10 @@ var UI = {
             this.amuletSlot.update(equipment.amulet);
             this.beltSlot.update(equipment.belt);
             this.pantsSlot.update(equipment.pants);
-            this.leftRingSlot.update(equipment.leftRing);
-            this.rightRingSlot.update(equipment.rightRing);
+            this.leftRingSlot.update(equipment.ring1);
+            this.rightRingSlot.update(equipment.ring2);
             this.offhandSlot.update(equipment.offhand);
+            this.bootsSlot.update(equipment.boots);
 
         };
 
@@ -263,6 +265,7 @@ var UI = {
 
                         eItem = $('<div class="ui-inventory-item item-rank-' + item.rank + '" data-id="' + item.id + '"></div>')
                             .append('<img src="assets/items/' + item.asset + '.png" />')
+                            .append(UI.sockets(item))
                             .on('click', function(ev) {
 
                                 var itemId = $(ev.target).closest('.ui-inventory-item').attr('data-id'), 
@@ -286,14 +289,33 @@ var UI = {
                             })
                             .on('mouseenter', function(ev) {
 
-                                var e = $(ev.target).closest('.ui-inventory-item');
+                                var e = $(ev.target).closest('.ui-inventory-item'), 
+                                    item = e.get(0)._item, 
+                                    comparisonItem, i;
+                                
+                                for (i = 0; i < item.slots.length; i++) {
 
-                                UI.itemOverlay.show(e.offset().left, e.offset().top, e.get(0)._item, 'inventory');
+                                    if ($G.hero.equipment[item.slots[i]]) {
+
+                                        comparisonItem = $G.hero.equipment[item.slots[i]];
+
+                                    }
+
+                                }
+
+                                UI.itemOverlay.show(e.offset().left, e.offset().top, item, 'inventory');
+
+                                if (comparisonItem) {
+
+                                    UI.comparisonItemOverlay.show(UI.itemOverlay.e.offset().left - 22, e.offset().top, comparisonItem, 'comparison');
+
+                                }
 
                             })
                             .on('mouseleave', function(ev) {
 
                                 UI.itemOverlay.hide();   
+                                UI.comparisonItemOverlay.hide();
 
                             });
                             
@@ -406,7 +428,8 @@ var UI = {
             'equipment': ['unequip', 'move to inventory'], 
             'inventory': ['grab', 'equip'], 
             'inventoryWithVendor': ['grab', 'sell'], 
-            'vendor': [null, 'buy']
+            'vendor': [null, 'buy'], 
+            'comparison': [null, null]
         };
 
         this.update = function(item, location, comparisonItem) {
@@ -457,7 +480,7 @@ var UI = {
 
             for (i = 0; i < item.sockets.length; i++) {
 
-                sockets += '<div class="ui-item-overlay-socket"></div>';
+                sockets += '<div class="ui-item-overlay-socket">Empty Socket</div>';
 
             }
 
@@ -465,7 +488,7 @@ var UI = {
 
                 if (!affix.internal) {
 
-                    affixes += '<div class="ui-item-overlay-affix">+' + affix[affix.attrib] + ' ' + affix.attrib + '</div>';
+                    affixes += '<div class="ui-item-overlay-affix">+' + (affix.isPercent ? (affix[affix.attrib] * 100) + '%' : affix[affix.attrib]) + ' ' + affix.attrib + '</div>';
 
                 }
 
@@ -507,11 +530,22 @@ var UI = {
 
         this.show = function(x, y, item, location) {
 
+            var top, left;
+
             this.update(item, location);
 
+            top = y - this.e.height();
+            left = x - this.e.width();
+
+            if (top < 0) {
+
+                top = 0;
+
+            }
+
             this.e
-                .css('top', (y - this.e.height()) + 'px')
-                .css('left', (x - this.e.width()) + 'px')
+                .css('top', top + 'px')
+                .css('left', left + 'px')
                 .show();
 
         };
@@ -543,7 +577,10 @@ var UI = {
         this.inventoryScreen = new UI.InventoryScreen(this.characterWindow.e);
 
         this.itemOverlay = new UI.ItemOverlay(this.container);
-        this.coparisonItemOverlay = new UI.ItemOverlay(this.container);
+        this.comparisonItemOverlay = new UI.ItemOverlay(this.container);
+
+        this.itemOverlay.hide();
+        this.comparisonItemOverlay.hide();
 
         this.eHand = $('<div class="ui-hand positioned"></div>').appendTo(this.container);
         this.eStatusBar = $('.status-bar');
@@ -552,6 +589,20 @@ var UI = {
         Events.on('game.start', this.gameScreen, this);
 
         Events.on('map.loaded', this.onMapLoaded, this);
+
+    }, 
+
+    sockets: function(item) {
+
+        var e = $('<div class="ui-sockets"></div>');
+
+        item.sockets.forEach(function(socket) {
+
+            e.append('<div class="ui-socket"></div>');
+
+        });
+
+        return e;
 
     }, 
 

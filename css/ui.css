@@ -236,6 +236,7 @@ canvas {
 .ui-equipment-item {
     border: 2px solid #000;
     width: 100%; height: 100%;
+    position: absolute;
 }
 
 .item-rank-normal {
@@ -315,10 +316,51 @@ canvas {
     padding: 10px; 
     border: 1px solid #ddd;
     color: #eee;
+    width: 300px;
 }
 
 .ui-item-overlay-title {
     border: 1px solid #eee;
+    text-align: center;
+    padding: 2px 5px;
+}
+
+.ui-item-overlay-mainstats {
+    padding: 2px 5px;
+    width: 240px; height: 90px;
+    float: left;
+}
+
+.ui-item-overlay-mainstat {
+    clear: both; float: left;
+    color: #eee;
+    display: block;
+    width: 100%;
+}
+
+.ui-item-overlay-mainstat strong {
+    font-size: 22px;
+}
+
+.ui-item-overlay-description {
+    text-transform: capitalize;
+    float: left;
+}
+
+.ui-item-overlay-slot {
+    float: right; 
+    color: #666;
+}
+
+.ui-item-overlay-socket {
+    display: block;
+    height: 20px; 
+    padding-left: 20px; 
+}
+
+.ui-item-overlay-affixes {
+    clear: both;
+    margin-bottom: 10px;
 }
 
 .ui-item-overlay-image {
@@ -328,6 +370,7 @@ canvas {
     background-size: contain;
     background-position: center center;
     background-repeat: no-repeat;
+    margin-right: 5px;
 }
 
 .ui-item-overlay[data-rank=rare] {
@@ -336,4 +379,23 @@ canvas {
 
 .ui-item-overlay[data-rank=magic] {
     color: dodgerblue;
+}
+
+.ui-sockets {
+    width: 100%; height: 100%;
+    position: absolute; top: 0;
+}
+
+.ui-socket {
+    border: 1px solid #999;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 25px;
+    width: 50px; height: 50px; 
+    display: block;
+    margin: 0 auto;
+}
+
+.ui-equipment-item .ui-socket {
+    width: 25px; height: 25px;
+    border-radius: 12.5px;
 }
