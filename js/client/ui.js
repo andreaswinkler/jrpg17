@@ -90,6 +90,7 @@ var UI = {
         this.vitalityField = new UI.StatField(this.e, { label: 'Vitality' });
 
         this.dpsField = new UI.StatField(this.e, { label: 'DPS' });
+        this.armorField = new UI.StatField(this.e, { label: 'Armor' });
 
         this.balanceField = new UI.StatField(this.e, { label: '', cssClass: 'ui-statField-balance' });
 
@@ -102,15 +103,8 @@ var UI = {
             this.intelligenceField.update(hero.intelligence);
             this.vitalityField.update(hero.vitality);
             
-            if (hero.equipment.mainHand) {
-
-                this.dpsField.update(hero.equipment.mainHand.dps.toFixed(1));
-
-            } else {
-
-                this.dpsField.update(0);
-
-            }
+            this.dpsField.update(Utils.dps(hero).toFixed(1));
+            this.armorField.update(hero.armor_current.toFixed(0));
 
             this.balanceField.update(hero.balance);
 
@@ -216,6 +210,14 @@ var UI = {
             
             this.mainHandSlot.update(equipment.mainHand);
             this.chestPieceSlot.update(equipment.chestPiece);
+            this.glovesSlot.update(equipment.gloves);
+            this.headPieceSlot.update(equipment.headPiece);
+            this.amuletSlot.update(equipment.amulet);
+            this.beltSlot.update(equipment.belt);
+            this.pantsSlot.update(equipment.pants);
+            this.leftRingSlot.update(equipment.leftRing);
+            this.rightRingSlot.update(equipment.rightRing);
+            this.offhandSlot.update(equipment.offhand);
 
         };
 
@@ -443,13 +445,13 @@ var UI = {
 
             if (item.class == 'weapon') {
 
-                mainStat += '<strong>' + item.dps.toFixed(1) + '</strong><br />Damage Per Second<br />';
+                mainStat += '<strong>' + Utils.itemDps(item).toFixed(1) + '</strong><br />Damage Per Second<br />';
                 mainStat += '<b>' + item.minDmg.toFixed(1) + ' - ' + item.maxDmg.toFixed(1) + '</b> Damage<br />';
                 mainStat += '<b>' + item.attackSpeed.toFixed(2) + '</b> Attacks Per Second';
 
             } else if (item.class == 'armor') {
 
-                mainStat += '<strong>' + item.armor + '</strong><br />Armor';
+                mainStat += '<strong>' + item.armor.toFixed(1) + '</strong><br />Armor';
 
             }
 

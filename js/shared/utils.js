@@ -46,6 +46,104 @@
 
         }, 
 
+        averageDamagePerSecond: function(minDmg, maxDmg, attackSpeed) {
+
+            return (minDmg + maxDmg) / 2 * attackSpeed;
+
+        }, 
+
+        itemDps: function(item) {
+
+            return this.averageDamagePerSecond(item.minDmg, item.maxDmg, item.attackSpeed);
+
+        }, 
+
+        dps: function(creature) {
+            
+            return this.averageDamagePerSecond(creature.minDmg_current, creature.maxDmg_current, creature.attackSpeed_current);
+
+        }, 
+
+        // calculate a random damage value dealt by a source
+        // the source provides min/max damage and an optional modifier (aka skill) can 
+        // change this value
+        damage: function(source, modifier) {
+
+            var result = {
+                    damage: 0, 
+                    isCritical: false, 
+                    flavor: 'physical'
+                };
+            
+            result.damage = utils.random(source.minDmg_current, source.maxDmg_current);
+
+            if (utils.random() < source.criticalHitChance_current) {
+
+                result.isCritical = true;
+                result.damage *= (1 + source.criticalHitDamage_current);
+
+            }
+
+            if (modifier) {
+
+                if (modifier.damageMultiplier) {
+
+                    result.damage *= modifier.damageMultiplier;
+                
+                }
+
+                if (modifier.flavor) {
+
+                    result.flavor = modifier.flavor;
+
+                }
+
+            }
+
+            return result;
+
+        }, 
+
+        // calculate the damage applied to a target
+        hitDamage: function(target, damage, flavor, sourceLevel) {
+
+            var result = {
+                    isBlocked: false, 
+                    isDodged: false, 
+                    damage: 0
+                }, 
+                resistance = target['resistance_' + flavor + '_current'] || 0;
+            
+            // check if the attack is dodged
+            if (utils.random() < target.dodgeChance_current) {
+
+                result.isDodged = true;
+
+            } else {
+
+                // check if the attack is blocked -> if so, subtract the block amount
+                if (utils.random() < target.blockChance_current) {
+
+                    result.isBlocked = true;
+
+                    damage = Math.max(0, damage - target.blockAmount_current);
+
+                }
+
+                // handle armor
+                damage *= target.armor_current / (50 * sourceLevel + target.armor_current);
+
+                // handle resistances
+                damage *= resistance / (5 * sourceLevel + resistance);
+
+                result.damage = damage;
+            
+            }
+
+            return result;
+
+        }, 
+
         // create a random number or choose a random element
         // the following cases are supported
         // 1) no argument; return a random number between 0.0 and 1.0 (not including 1.0) by delegating to Math.random

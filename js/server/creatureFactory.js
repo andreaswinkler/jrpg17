@@ -128,12 +128,6 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                             item = this.equipment[key];
 
-                            if (item.minDmg) {
-
-                                item.dps = (item.minDmg + item.maxDmg) / 2 * item.attackSpeed;
-
-                            }
-
                             if (item.durability > 0) {
 
                                 for (i = 0; i < settings.attributes.length; i++) {

@@ -152,7 +152,8 @@ window.$G = {
 
         Net.on('update', function(data) {
 
-            var i, j;
+            var heroUpdated = false, 
+                i, j;
 
             for (i = 0; i < data.length; i++) {
 
@@ -162,9 +163,21 @@ window.$G = {
 
                         $.extend($G.game.map.creatures[j], data[i]);
 
+                        if ($G.game.map.creatures[j] === $G.hero) {
+
+                            heroUpdated = true;
+
+                        }
+
                     }
 
                 }
+
+            }
+
+            if (heroUpdated) {
+
+                UI.statsBar.update($G.hero);
 
             }
 

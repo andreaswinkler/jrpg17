@@ -19,8 +19,8 @@
         "treasureClass": 1, 
         "slots": ["mainHand"], 
         "slotHint": "1-hand", 
-        "inventoryWidth": 1, 
-        "inventoryHeight": 2,
+        "inventoryWidth": 2, 
+        "inventoryHeight": 3,
         "levelRequirement": 1,  
         "strengthRequirement": 10, 
         "dexterityRequirement": 0, 
@@ -39,7 +39,7 @@
         "class": "armor",
         "type": "chestPiece",  
         "affixes": [
-            { "internal": true, "minValue": 1, "maxValue": 3, "attrib": "armor" }, 
+            { "internal": true, "minValue": 2, "maxValue": 3, "attrib": "armor" }, 
             { "internal": true, "minValue": 0, "maxValue": 2, "attrib": "socket" }
         ],  
         "asset": "leather-armor", 
@@ -52,8 +52,8 @@
         "treasureClass": 1, 
         "slots": ["chestPiece"], 
         "slotHint": "Chest Piece", 
-        "inventoryWidth": 1, 
-        "inventoryHeight": 2, 
+        "inventoryWidth": 2, 
+        "inventoryHeight": 3, 
         "levelRequirement": 1, 
         "strengthRequirement": 10, 
         "dexterityRequirement": 0, 
@@ -62,6 +62,239 @@
             "Cow Skin", 
             "Skin Wall", 
             "Beast Hide"
+        ]
+    }, 
+    {
+        "name": "Leather Gloves", 
+        "class": "armor",
+        "type": "gloves",  
+        "affixes": [
+            { "internal": true, "minValue": 1, "maxValue": 2, "attrib": "armor" }
+        ],  
+        "asset": "leather-gloves", 
+        "minLevel": 1, 
+        "maxLevel": 10,  
+        "maxDurability": 12, 
+        "legendaryItems": [], 
+        "setItems": [],  
+        "mythicalItems": [], 
+        "treasureClass": 1, 
+        "slots": ["gloves"], 
+        "slotHint": "Gloves", 
+        "inventoryWidth": 2, 
+        "inventoryHeight": 2, 
+        "levelRequirement": 1, 
+        "strengthRequirement": 10, 
+        "dexterityRequirement": 0, 
+        "intelligenceRequirement": 0, 
+        "rareNames": [
+            "Cow Hoof", 
+            "Skin Grip", 
+            "Beast Claw"
+        ]
+    }, 
+    {
+        "name": "Sash", 
+        "class": "armor",
+        "type": "belt",  
+        "affixes": [
+            { "internal": true, "minValue": 1, "maxValue": 2, "attrib": "armor" }
+        ],  
+        "asset": "sash", 
+        "minLevel": 1, 
+        "maxLevel": 10,  
+        "maxDurability": 12, 
+        "legendaryItems": [], 
+        "setItems": [],  
+        "mythicalItems": [], 
+        "treasureClass": 1, 
+        "slots": ["belt"], 
+        "slotHint": "Belt", 
+        "inventoryWidth": 2, 
+        "inventoryHeight": 1, 
+        "levelRequirement": 1, 
+        "strengthRequirement": 10, 
+        "dexterityRequirement": 0, 
+        "intelligenceRequirement": 0, 
+        "rareNames": [
+            "Cow Wrap", 
+            "Skin Cord", 
+            "Beast Hide"
+        ]
+    }, 
+    {
+        "name": "Leather Pants", 
+        "class": "armor",
+        "type": "pants",  
+        "affixes": [
+            { "internal": true, "minValue": 2, "maxValue": 3, "attrib": "armor" }, 
+            { "internal": true, "minValue": 0, "maxValue": 1, "attrib": "socket" }
+        ],  
+        "asset": "leather-pants", 
+        "minLevel": 1, 
+        "maxLevel": 10,  
+        "maxDurability": 12, 
+        "legendaryItems": [], 
+        "setItems": [],  
+        "mythicalItems": [], 
+        "treasureClass": 1, 
+        "slots": ["pants"], 
+        "slotHint": "Pants", 
+        "inventoryWidth": 2, 
+        "inventoryHeight": 2, 
+        "levelRequirement": 1, 
+        "strengthRequirement": 10, 
+        "dexterityRequirement": 0, 
+        "intelligenceRequirement": 0, 
+        "rareNames": [
+            "Cow Wrap", 
+            "Skin Cord", 
+            "Beast Hide"
+        ]
+    }, 
+    {
+        "name": "Cap", 
+        "class": "armor",
+        "type": "headPiece",  
+        "affixes": [
+            { "internal": true, "minValue": 2, "maxValue": 3, "attrib": "armor" }, 
+            { "internal": true, "minValue": 0, "maxValue": 1, "attrib": "socket" }
+        ],  
+        "asset": "cap", 
+        "minLevel": 1, 
+        "maxLevel": 10,  
+        "maxDurability": 12, 
+        "legendaryItems": [], 
+        "setItems": [],  
+        "mythicalItems": [], 
+        "treasureClass": 1, 
+        "slots": ["headPiece"], 
+        "slotHint": "Head Piece", 
+        "inventoryWidth": 2, 
+        "inventoryHeight": 2, 
+        "levelRequirement": 1, 
+        "strengthRequirement": 10, 
+        "dexterityRequirement": 0, 
+        "intelligenceRequirement": 0, 
+        "rareNames": [
+            "Cow Wrap", 
+            "Skin Cord", 
+            "Beast Hide"
+        ]
+    }, 
+    {
+        "name": "Leather Boots", 
+        "class": "armor",
+        "type": "boots",  
+        "affixes": [
+            { "internal": true, "minValue": 2, "maxValue": 3, "attrib": "armor" }
+        ],  
+        "asset": "leather-boots", 
+        "minLevel": 1, 
+        "maxLevel": 10,  
+        "maxDurability": 12, 
+        "legendaryItems": [], 
+        "setItems": [],  
+        "mythicalItems": [], 
+        "treasureClass": 1, 
+        "slots": ["boots"], 
+        "slotHint": "Boots", 
+        "inventoryWidth": 2, 
+        "inventoryHeight": 2, 
+        "levelRequirement": 1, 
+        "strengthRequirement": 10, 
+        "dexterityRequirement": 0, 
+        "intelligenceRequirement": 0, 
+        "rareNames": [
+            "Cow Wrap", 
+            "Skin Cord", 
+            "Beast Hide"
+        ]
+    }, 
+    {
+        "name": "Small Shield", 
+        "class": "armor",
+        "type": "shield",  
+        "affixes": [
+            { "internal": true, "minValue": 3, "maxValue": 4, "attrib": "armor" }, 
+            { "internal": true, "minValue": 0.1, "maxValue": 0.15, "attrib": "blockChance" }, 
+            { "internal": true, "minValue": 2, "maxValue": 4, "attrib": "blockAmount" }, 
+            { "internal": true, "minValue": 0, "maxValue": 1, "attrib": "socket" }
+        ],  
+        "asset": "small-shield", 
+        "minLevel": 1, 
+        "maxLevel": 10,  
+        "maxDurability": 12, 
+        "legendaryItems": [], 
+        "setItems": [],  
+        "mythicalItems": [], 
+        "treasureClass": 1, 
+        "slots": ["offhand"], 
+        "slotHint": "Offhand", 
+        "inventoryWidth": 2, 
+        "inventoryHeight": 2, 
+        "levelRequirement": 1, 
+        "strengthRequirement": 10, 
+        "dexterityRequirement": 0, 
+        "intelligenceRequirement": 0, 
+        "rareNames": [
+            "Blade Blocker", 
+            "Pierce Avoider", 
+            "Sword Denial"
+        ]
+    }, 
+    {
+        "name": "Ring", 
+        "class": "jewelry",
+        "type": "ring",  
+        "affixes": [],  
+        "asset": "ring", 
+        "minLevel": 1, 
+        "maxLevel": 10,  
+        "maxDurability": 12, 
+        "legendaryItems": [], 
+        "setItems": [],  
+        "mythicalItems": [], 
+        "treasureClass": 1, 
+        "slots": ["leftRing", "rightRing"], 
+        "slotHint": "Finger", 
+        "inventoryWidth": 1, 
+        "inventoryHeight": 1, 
+        "levelRequirement": 1, 
+        "strengthRequirement": 10, 
+        "dexterityRequirement": 0, 
+        "intelligenceRequirement": 0, 
+        "rareNames": [
+            "Gem Circle", 
+            "Wedding Band", 
+            "Veil Wrap"
+        ]
+    }, 
+    {
+        "name": "Amulet", 
+        "class": "jewelry",
+        "type": "amulet",  
+        "affixes": [],  
+        "asset": "amulet", 
+        "minLevel": 1, 
+        "maxLevel": 10,  
+        "maxDurability": 12, 
+        "legendaryItems": [], 
+        "setItems": [],  
+        "mythicalItems": [], 
+        "treasureClass": 1, 
+        "slots": ["amulet"], 
+        "slotHint": "Neck", 
+        "inventoryWidth": 1, 
+        "inventoryHeight": 1, 
+        "levelRequirement": 1, 
+        "strengthRequirement": 10, 
+        "dexterityRequirement": 0, 
+        "intelligenceRequirement": 0, 
+        "rareNames": [
+            "Grim Talisman", 
+            "Chaos Emblem", 
+            "Neck Band"
         ]
     }
 ]

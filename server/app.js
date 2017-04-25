@@ -53,7 +53,9 @@ io.on('connection', function(client) {
             }
             client.hero.balance += drop.gold;
         }
+        client.hero.update();
         client.emit('inventoryUpdate', { inventory: client.hero.inventories[0].pack() });
+        client.emit('update', [client.hero]);
 
         server.games.push(client.game);
 

@@ -162,7 +162,7 @@
             "isInteger": true
         }, 
         {
-            "classes": ["armor"], 
+            "classes": ["armor", "jewelry"], 
             "minLevel": 1, 
             "maxLevel": 10, 
             "attrib": "vitality", 
@@ -173,7 +173,7 @@
             "isInteger": true
         }, 
         {
-            "classes": ["armor"], 
+            "classes": ["armor", "jewelry"], 
             "minLevel": 1, 
             "maxLevel": 10, 
             "attrib": "strength", 
@@ -184,7 +184,7 @@
             "isInteger": true
         },
         {
-            "classes": ["armor", "weapon"], 
+            "classes": ["armor", "weapon", "jewelry"], 
             "minLevel": 1, 
             "maxLevel": 10, 
             "attrib": "socket", 
@@ -195,7 +195,7 @@
             "isInteger": true
         },
         {
-            "classes": ["weapon"], 
+            "classes": ["weapon", "jewelry"], 
             "minLevel": 1, 
             "maxLevel": 10, 
             "attrib": "minDmg", 
@@ -206,18 +206,18 @@
             "isInteger": true
         },
         {
-            "classes": ["weapon"], 
+            "classes": ["weapon", "jewelry"], 
             "minLevel": 1, 
             "maxLevel": 10, 
             "attrib": "criticalHitDamage", 
-            "minValue": 1, 
-            "maxValue": 1, 
+            "minValue": 0.01, 
+            "maxValue": 0.02, 
             "type": "suffix", 
-            "name": "of Brutality",
-            "isInteger": true
+            "name": "of Brutality", 
+            "isInteger": false
         },
         {
-            "classes": ["weapon"], 
+            "classes": ["weapon", "jewelry"], 
             "minLevel": 1, 
             "maxLevel": 10, 
             "attrib": "maxDmg", 
@@ -228,12 +228,12 @@
             "isInteger": true
         },
         {
-            "classes": ["weapon"], 
+            "classes": ["weapon", "jewelry"], 
             "minLevel": 1, 
             "maxLevel": 10, 
             "attrib": "criticalHitChance", 
-            "minValue": 0.05, 
-            "maxValue": 0.1, 
+            "minValue": 0.01, 
+            "maxValue": 0.02, 
             "type": "prefix", 
             "name": "Cruel", 
             "isInteger": false

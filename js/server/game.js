@@ -205,6 +205,10 @@ module.exports = function(fs, utils, settings) {
 
                                     creature.hand = placeResult;
 
+                                } else {
+
+                                    creature.hand = null;
+
                                 }
 
                             }
@@ -212,6 +216,12 @@ module.exports = function(fs, utils, settings) {
                         } else {
                             
                             result.success = inventory.add(item);
+
+                            if (result.success) {
+
+                                creature.hand = null;
+
+                            }
 
                         }
 

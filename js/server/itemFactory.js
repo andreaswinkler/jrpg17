@@ -10,6 +10,7 @@ module.exports = function(utils, settings, blueprints) {
         create: function(blueprint, level, rank, quality, namedItem) {
             
             var item = utils.assign({}, blueprint, namedItem), 
+                rank = rank == 'normal' && ['ring', 'amulet'].indexOf(item.type) != -1 ? 'magic' : rank, 
                 qualitySettings = settings.itemQualities[quality], 
                 rankSettings = settings.itemRanks[rank], 
                 affixCount = utils.random(rankSettings.minAffixCount, rankSettings.maxAffixCount), 
@@ -272,12 +273,6 @@ module.exports = function(utils, settings, blueprints) {
 
                 this.applyAffixes(item);
             
-            }
-
-            if (item.minDmg) {
-
-                item.dps = (item.minDmg + item.maxDmg / 2) * item.attackSpeed;
-
             }
 
         }, 
