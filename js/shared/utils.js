@@ -304,6 +304,22 @@
 
         }, 
 
+        arrayRemove: function(arr, el) {
+
+            var i;
+
+            for (i = arr.length; i--;) {
+
+                if (arr[i] === el) {
+
+                    arr.splice(i, 1);
+
+                }
+
+            }
+
+        }, 
+
         // add a variable to all cells in a rectangular section of a grid
         paintGridCells: function(grid, el, row, col, width, height) {
 
@@ -394,6 +410,24 @@
             var tile = this.tile(map, x, y);
                     
             return tile && tile.walkable;
+
+        }, 
+
+        currency: function(amount) {
+
+            if (amount > 1) {
+
+                return Math.floor(amount) + ' Gold';
+
+            } else if (amount > 0.1) {
+
+                return Math.floor(amount * 10) + ' Silver';
+
+            } else {
+
+                return Math.floor(amount * 100) + ' Copper';
+
+            }
 
         }, 
 

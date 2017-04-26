@@ -560,6 +560,56 @@ var UI = {
 
     }, 
 
+    DroppedItemOverlay: function(container) {
+
+        this.e = $('<div class="ui-dropped-item-overlay positioned"></div>');
+
+        this.update = function(item) {
+            
+            var s = '';
+
+            if (item.isGold) {
+
+                s = Utils.currency(item.amount);
+
+            } else if (item.isHealthGlobe) {
+
+                s = 'Health Globe';
+
+            } else {
+
+                s = item.name;
+
+            }
+
+            this.e.html(s);
+
+        };
+
+        this.show = function(droppedItem, x, y) {
+
+            var top = y - 40, 
+                left = x;
+            
+            this.update(droppedItem.item);
+
+            this.e
+                .css('top', top + 'px')
+                .css('left', left + 'px')
+                .show();
+
+        };
+
+        this.hide = function() {
+
+            this.e.hide();
+
+        };
+
+        container.append(this.e);
+
+    }, 
+
     init: function(container) {
 
         this.container = container;
@@ -578,6 +628,8 @@ var UI = {
 
         this.itemOverlay = new UI.ItemOverlay(this.container);
         this.comparisonItemOverlay = new UI.ItemOverlay(this.container);
+
+        this.droppedItemOverlay = new UI.DroppedItemOverlay(this.container);
 
         this.itemOverlay.hide();
         this.comparisonItemOverlay.hide();
@@ -650,6 +702,15 @@ var UI = {
 
     onMouseMove: function(x, y) {
 
+        var worldPosition = this.renderer.isometricToCartesian(
+                x - this.renderer.offset.x, 
+                y - this.renderer.offset.y), 
+            droppedItem = $G.hero.droppedItems.find(function(droppedItem) { 
+                
+                return Utils.hitTest(droppedItem, worldPosition.x, worldPosition.y); 
+            
+            });
+        
         if (this.handInUse) {
 
             this.eHand.css('left', (x + 15) + 'px').css('top', (y + 15) + 'px');
@@ -657,6 +718,16 @@ var UI = {
         }
         
         this.eStatusBar.html(x + ' / ' + y);
+
+        if (droppedItem) {
+
+            this.droppedItemOverlay.show(droppedItem, x, y);
+
+        } else {
+
+            this.droppedItemOverlay.hide();
+
+        }
 
     }, 
 

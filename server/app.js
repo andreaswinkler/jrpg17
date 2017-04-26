@@ -26,8 +26,8 @@ io.on('connection', function(client) {
     client.player = { name: 'abc', hero: creatureFactory.create('hero') };
     client.hero = client.player.hero;
 
-    client.hero.x = 600;
-    client.hero.y = 600;
+    client.hero.x = 1600;
+    client.hero.y = 1600;
 
     client.on('disconnect', function() {
 
@@ -47,7 +47,7 @@ io.on('connection', function(client) {
         client.game.clients.push(client);
 
          // fill our inventory and equipment
-        for (var i = 0; i < 20; i++) {
+        for (var i = 0; i < 5; i++) {
             var drop = itemFactory.createDrop({ level: 1, treasureClass: 1 });
             for (var j = 0; j < drop.items.length; j++) {
                 client.hero.hand = drop.items[j];

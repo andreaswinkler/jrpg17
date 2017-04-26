@@ -399,3 +399,10 @@ canvas {
     width: 25px; height: 25px;
     border-radius: 12.5px;
 }
+
+.ui-dropped-item-overlay {
+    padding: 2px 5px;
+    background: #333;
+    color: #eee;
+    border: 1px solid #000;
+}

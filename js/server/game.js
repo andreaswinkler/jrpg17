@@ -76,6 +76,27 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                             creature._itemsDropped = false;
 
                         }
+
+                        if (creature._inventoryChanged) {
+
+                            updates.inventories = creature.inventories;
+                            creature._inventoryChanged = false;
+
+                        }
+
+                        if (creature._handChanged) {
+
+                            updates.hand = creature.hand;
+                            creature._handChanged = false;
+
+                        }
+
+                        if (creature._balanceChanged) {
+
+                            updates.balance = creature.balance;
+                            creature._balanceChanged = false;
+
+                        }
                         
                         if (Object.getOwnPropertyNames(updates).length > 0) {
 
@@ -119,19 +140,19 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                     
                     drop.items.forEach(function(i) {
 
-                        droppedItems.push({ item: i });
+                        droppedItems.push(i);
 
                     });
 
                     if (drop.gold > 0) {
 
-                        droppedItems.push({ item: { isGold: true, amount: drop.gold }});
+                        droppedItems.push({ isGold: true, amount: drop.gold });
 
                     }
 
                     for (i = 0; i < drop.healthGlobes.length; i++) {
 
-                        droppedItems.push({ item: { isHealthGlobe: true }});
+                        droppedItems.push({ isHealthGlobe: true });
 
                     }
 
@@ -139,7 +160,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                         if (drop.essences[key] > 0) {
 
-                            droppedItems.push({ item: { isEssence: true, type: key, amount: drop.essences[key] }});
+                            droppedItems.push({ isEssence: true, type: key, amount: drop.essences[key] });
 
                         }
 
@@ -149,7 +170,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                         if (drop.mats[key] > 0) {
 
-                            droppedItems.push({ item: { isMat: true, type: key, amount: drop.essences[key] }});
+                            droppedItems.push({ isMat: true, type: key, amount: drop.essences[key] });
 
                         }
 
@@ -177,34 +198,29 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                             if (hero.hand != null && utils.tileIsWalkable(hero.map, x, y)) {
 
-                                console.log('mouseLeft -> dropItem', hero.hand);
-
                                 hero.dropItem(hero.hand, x, y);
 
                                 hero.hand = null;
+                                hero._handChanged = true;
 
                             } else if (shift) {
-
-                                console.log('mouseLeft+shift -> attack', hero.skill0);
 
                                 this.useSkill(hero, 'skill0', x, y);
 
                             } else {
 
-                                console.log('mouseLeft -> interact');
+                                if (!this.pickUp(hero, x, y)) {
 
-                                if (!this.interact(hero, x, y)) {
+                                    if (!this.interact(hero, x, y)) {
 
-                                    console.log('mouseLeft -> attack', hero.skill0);
+                                        if (!this.useSkill(hero, 'skill0', x, y)) {
 
-                                    if (!this.useSkill(hero, 'skill0', x, y)) {
+                                            hero.moveTo(x, y);
 
-                                        console.log('mouseLeft -> moveTo', x, y);
-
-                                        hero.moveTo(x, y);
+                                        }
 
                                     }
-
+                                
                                 }
 
                             }
@@ -243,6 +259,45 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                         return true;
 
                     }
+
+                    return false;
+
+                }, 
+
+                pickUp: function(creature, x, y) {
+
+                    var droppedItem = creature.droppedItems.find(function(droppedItem) {
+
+                            return utils.hitTest(droppedItem, x, y);
+
+                        }), 
+                        result;
+
+                    if (droppedItem) {
+
+                        if (droppedItem.item.isGold) {
+
+                            creature.balance += droppedItem.item.amount;
+                            creature._balanceChanged = true;
+
+                        } else if (droppedItem.item.isHealthGlobe) {
+
+                            creature.healPercent(20);
+
+                        } else {
+
+                            creature.hand = droppedItem.item;
+                            result = this.addItemToInventory(creature, creature.inventories[0].id);
+                            creature._handChanged = true;
+                        
+                        }
+
+                        utils.arrayRemove(creature.droppedItems, droppedItem);
+
+                        creature._inventoryChanged = true;
+                        creature._itemsDropped = true;
+
+                    } 
 
                     return false;
 

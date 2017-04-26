@@ -9,13 +9,13 @@ module.exports = function(fs, utils, settings) {
             var input = fs.readFileSync('./../data/maps/' + key + '.txt', { encoding: 'utf-8' }),
                 grid = this.readMapData(input), 
                 interactables = [{
-                    x: 650, 
-                    y: 650, 
+                    x: 1650, 
+                    y: 1650, 
                     asset: 'chest', 
                     width: 50, 
                     height: 50, 
                     level: 1, 
-                    treasureClass: 1, 
+                    treasureClass: 10, 
                     active: true, 
                     interact: function(creature) {
 

@@ -121,7 +121,7 @@ module.exports = function(utils, settings, blueprints) {
         // in case the source has an equipment, we could also drop something from there
         createDrop: function(source) {
 
-            var amount = 1, 
+            var amount = source.treasureClass, 
                 drop = {
                     items: [], 
                     mats: {},  

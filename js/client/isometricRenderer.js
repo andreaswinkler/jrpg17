@@ -91,11 +91,11 @@ var IsometricRenderer =  {
 
     // set the offset based on the heroes position (he's always in the center)
     // return whether or not the offset has changed
-    setOffset: function(map) {
+    setOffset: function(hero) {
 
         var x = this.offset.x, 
             y = this.offset.y, 
-            heroIsoCoordinates = this.cartesianToIsometric(map.hero.x, map.hero.y);
+            heroIsoCoordinates = this.cartesianToIsometric(hero.x, hero.y);
 
         this.offset.x = this.halfWidth - heroIsoCoordinates.x;
         this.offset.y = this.halfHeight - heroIsoCoordinates.y;
@@ -106,14 +106,16 @@ var IsometricRenderer =  {
 
     // update dynamic content and also update static content
     // if the player has moved
-    update: function(map) {
+    update: function(map, hero) {
 
-        var offsetChanged = this.setOffset(map);
+        var offsetChanged = this.setOffset(hero);
 
         this.dynamicLayer.clear();
 
         map.creatures.forEach(this.renderElement, this);
         map.interactables.forEach(this.renderElement, this);
+
+        hero.droppedItems.forEach(this.renderDroppedItem, this);
 
         //this.dynamicLayer.drawCircle($G.mouseX, $G.mouseY, 5, 'rgba(10,90,222,0.5)');
 
@@ -151,6 +153,30 @@ var IsometricRenderer =  {
             bufferY = Math.floor(heroIsoCoordinates.y - this.halfHeight);
         
         this.mapBuffer.drawTo(this.staticLayer, 0, 0, bufferX, bufferY, this.width, this.height);*/
+
+    }, 
+
+    renderDroppedItem: function(droppedItem) {
+
+        var asset = 'item';
+
+        if (droppedItem.item.isGold) {
+
+            asset = 'gold';
+
+        } else if (droppedItem.item.isHealthGlobe) {
+
+            asset = 'healthGlobe';
+
+        } 
+
+        this.renderElement({
+            x: droppedItem.x, 
+            y: droppedItem.y, 
+            asset: asset,  
+            width: 20, 
+            height: 20
+        });
 
     }, 
 

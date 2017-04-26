@@ -23,8 +23,8 @@ window.$G = {
         console.log('G.init v' + this.version);
 
         $.get('data/settings.json', function(t) {
-
-            window.settings = t;
+ 
+            $.extend(window.settings, t);
 
             window.addEventListener('resize', $G.resize);
 
@@ -39,12 +39,6 @@ window.$G = {
                 $G.tileSize = data.settings.tileSize;
                 $G.player = data.player;
                 $G.hero = $G.player.hero;
-
-                $G.hero.moveTo = function(x, y) {
-
-                    Components.Movement.moveTo(this, x, y);
-
-                }
 
                 Events.on('user.loaded', $G.startScreen);
 
@@ -143,6 +137,12 @@ window.$G = {
         this.player.hero = this.game.map.creatures.find(function(i) { return i.id == $G.hero.id; });
         this.hero = this.player.hero;
 
+        $G.hero.moveTo = function(x, y) {
+
+            Components.Movement.moveTo(this, x, y);
+
+        }
+
         UI.renderer.updateMap(this.game.map);
   
         // we send all client inputs to the server
@@ -178,6 +178,8 @@ window.$G = {
             if (heroUpdated) {
 
                 UI.statsBar.update($G.hero);
+                UI.inventoryScreen.update($G.hero.inventories[0]);
+                UI.handUpdate($G.hero.hand);
 
             }
 
@@ -286,7 +288,7 @@ window.$G = {
 
                     $G.update($G.GameLoop.delta);
 
-                    UI.renderer.update($G.game.map);
+                    UI.renderer.update($G.game.map, $G.hero);
                     UI.minimap.update();
 
                     $G.GameLoop.lastTime = $G.GameLoop.currentTime - ($G.GameLoop.delta % $G.GameLoop.interval);

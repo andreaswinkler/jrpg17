@@ -57,6 +57,24 @@ var Assets = {
             'block': true, 
             'height': 50, 
             'width': 50
+        }, 
+        'gold': {
+            'color': 'rgba(0,255,255,1)', 
+            'block': true, 
+            'height': 20, 
+            'width': 20
+        }, 
+        'healthGlobe': {
+            'color': 'rgba(200,0,0,1)', 
+            'block': true, 
+            'height': 20, 
+            'width': 20
+        },
+        'item': {
+            'color': 'rgba(90,30,200,1)', 
+            'block': true, 
+            'height': 20, 
+            'width': 20
         }
     }, 
 

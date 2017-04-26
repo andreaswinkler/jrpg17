@@ -201,7 +201,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 creature.dropItem = function(item, x, y) {
 
-                    this.droppedItems.push({ item: item, x: x, y: y });
+                    this.droppedItems.push({ item: item, x: x, y: y, width: 20, height: 20 });
                     this._itemsDropped = true;
 
                 }
