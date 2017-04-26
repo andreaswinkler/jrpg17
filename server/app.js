@@ -9,10 +9,12 @@ var app = require('http').createServer(),
     settings = require('./../data/settings.json'), 
     utils = require('./../js/shared/utils.js'), 
     inventory = require('./../js/server/inventory.js')(utils), 
-    game = require('./../js/server/game.js')(fs, utils, settings),  
+    skills = require('./../js/server/skills.js')(utils), 
+    mapFactory = require('./../js/server/mapFactory.js')(fs, utils, settings), 
     components = require('./../js/shared/components.js'), 
     itemFactory = require('./../js/server/itemFactory.js')(utils, settings, items), 
     creatureFactory = require('./../js/server/creatureFactory.js')(utils, settings, creatures, components, inventory, itemFactory); 
+    game = require('./../js/server/game.js')(utils, settings, skills, mapFactory, itemFactory);
 
 app.listen(1337);
 
@@ -53,6 +55,7 @@ io.on('connection', function(client) {
             }
             client.hero.balance += drop.gold;
         }
+    
         client.hero.update();
         client.emit('inventoryUpdate', { inventory: client.hero.inventories[0].pack() });
         client.emit('update', [client.hero]);
@@ -60,7 +63,10 @@ io.on('connection', function(client) {
         server.games.push(client.game);
 
         client.game.changeMap('village');
-        client.game.map.creatures.push(client.player.hero);
+        client.game.map.creatures.push(client.hero);
+
+        client.hero.game = client.game;
+        client.hero.map = client.game.map;
 
         console.log('Game created. Games running: ' + server.games.length);
 
@@ -70,22 +76,9 @@ io.on('connection', function(client) {
 
     client.on('input', function(data) {
 
-        var item;
-
         if (client.game) {
 
-            if (data.key == 'mouseLeft' && client.hero.hand != null && client.game.tileIsWalkable(client.game.map, data.x, data.y)) {
-                
-                client.emit('handUpdate', { item: null });
-                client.emit('drop', { item: client.hero.hand, x: data.x, y: data.y });
-
-                client.hero.hand = null;
-
-            } else {
-
-                client.game.onInput(data, client.hero);
-            
-            }
+            client.game.onInput(data.key, data.x, data.y, data.shift, data.ctrl, client.hero);
 
         }
 

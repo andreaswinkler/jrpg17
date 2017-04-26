@@ -11,13 +11,11 @@ module.exports = function(utils) {
 
         this.grid = null;
 
+        this.packFields = ['id', 'name', 'grid'];
+
         this.pack = function() {
 
-            return {
-                id: this.id, 
-                name: this.name, 
-                grid: this.grid
-            }
+            return utils.pack(this);
 
         };
 

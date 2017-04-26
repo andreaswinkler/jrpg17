@@ -1,5 +1,8 @@
 (function() {
 
+    var isModule = typeof module !== 'undefined' && typeof module.exports !== 'undefined', 
+        settings = isModule ? require('./../../data/settings.json') : window.settings;
+
     var utils = {
 
         // calculate the distance between two positions in pixels
@@ -27,8 +30,20 @@
         // check if two rectangles intersect
         hitTest: function(x1, y1, w1, h1, x2, y2, w2, h2) {
             
-            //console.log('hitTest', x1, y1, w1, h1, x2, y2, w2, h2);
-            return !(x1 > x2 + w2 || x1 + w1 < x2 || y1 > y2 + h2 || y1 + h1 < y2);
+            if (arguments.length == 2) {
+
+                return this.hitTest(arguments[0].x, arguments[0].y, arguments[0].width, arguments[0].height, arguments[1].x, arguments[1].y, arguments[1].width, arugments[1].height);
+
+            } else if (arguments.length == 3) {
+
+                return this.hitTest(arguments[0].x, arguments[0].y, arguments[0].width, arguments[0].height, arguments[1], arguments[2], 0, 0);
+
+            } else {
+
+                //console.log('hitTest', x1, y1, w1, h1, x2, y2, w2, h2);
+                return !(x1 > x2 + w2 || x1 + w1 < x2 || y1 > y2 + h2 || y1 + h1 < y2);
+            
+            }
 
         }, 
 
@@ -61,6 +76,22 @@
         dps: function(creature) {
             
             return this.averageDamagePerSecond(creature.minDmg_current, creature.maxDmg_current, creature.attackSpeed_current);
+
+        }, 
+
+        cooldown: function(obj, ticks) {
+
+            if (obj.cooldown_current > 0) {
+
+                obj.cooldown_current = Math.max(0, obj.cooldown_current - ticks);
+
+            }
+
+        }, 
+
+        skillReady: function(skill) {
+
+            return skill && skill.cooldown_current == 0;
 
         }, 
 
@@ -352,6 +383,67 @@
 
         }, 
 
+        tile: function(map, x, y) {
+
+            return utils.gridElement(map.grid, x, y, settings.tileSize);
+
+        }, 
+
+        tileIsWalkable: function(map, x, y) {
+
+            var tile = this.tile(map, x, y);
+                    
+            return tile && tile.walkable;
+
+        }, 
+
+        pack: function(obj) {
+
+            if (obj != null && typeof obj == 'object') {
+
+                var fields = obj.packFields || Object.getOwnPropertyNames(obj), 
+                    result = {},
+                    i, key, prop;
+
+                if (obj.excludeFields) {
+
+                    fields = fields.filter(function(i) { return obj.excludeFields.indexOf(i) == -1; });
+
+                }
+
+                for (i = 0; i < fields.length; i++) {
+
+                    key = fields[i];
+                    prop = obj[key];
+
+                    if (typeof prop != 'function' && key != 'packFields') {
+
+                        if (Array.isArray(prop)) {
+
+                            result[key] = prop.map(this.pack, this);
+
+                        } else if (prop && prop.pack) {
+
+                            result[key] = prop.pack();
+
+                        } else {
+
+                            result[key] = prop;
+                        
+                        }
+                    
+                    }
+
+                }
+
+                return result;
+            
+            }
+
+            return obj;
+
+        }, 
+
         // create an empty grid of given dimensions
         grid: function(rows, cols) {
 
@@ -423,6 +515,51 @@
                 col: Math.floor(x / cellSize)
             };
 
+        }, 
+
+        /* ARCHEMEDEAN SPIRAL POSITIONS
+        *  return amount positions on an Archemedean spiral which are 
+        *  chord away from each other 
+        *  
+        *  this is from here:
+        *  http://stackoverflow.com/questions/13894715/draw-equidistant-points-on-a-spiral               
+        */    
+        equidistantPositionsOnArchimedeanSpiral: function(amount, chord, x, y) {
+        
+                // number of coils, this should be determined by the amount
+            var coils = 5, 
+                // value of theta corresponding to end of last coil
+                thetaMax = coils * 2 * Math.PI, 
+                radius = chord * coils,  
+                // How far to step away from center for each side
+                awayStep = radius / thetaMax,
+                positions = [], 
+                theta, away, around;
+            
+            // For every side, step around and away from center.
+            // start at the angle corresponding to a distance of chord
+            // away from centre.
+            for (theta = chord / awayStep; theta <= thetaMax; theta++) {
+            
+                away = awayStep * theta;
+                
+                positions.push({
+                    x: x + Math.cos(theta) * away, 
+                    y: y + Math.sin(theta) * away
+                });
+                
+                theta += chord / away;  
+                
+                if (positions.length >= amount) {
+                
+                    break;
+                
+                }  
+            
+            }
+            
+            return positions;
+        
         }
 
     };

@@ -22,19 +22,12 @@
                     infinite: false, 
                     ignoreObstacles: false, 
                     e: e, 
-                    validatePosition: function(map, x, y) {
-                            
-                        var tile = utils.gridElement(map.grid, x, y, settings.tileSize);
-
-                        return tile && tile.walkable;
-
-                    }, 
                     update: function(ticks, map) {
                             
                         var targetX = this.e.x + (this.dx * this.e.speed * ticks), 
                             targetY = this.e.y + (this.dy * this.e.speed * ticks);
                             
-                        if (this.ignoreObstacles || this.validatePosition(map, targetX, targetY)) {
+                        if (this.ignoreObstacles || utils.tileIsWalkable(map, targetX, targetY)) {
 
                             this.e.x = targetX;
                             this.e.y = targetY;

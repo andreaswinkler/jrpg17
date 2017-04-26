@@ -51,6 +51,12 @@ var Assets = {
             'color': 'rgba(150,150,150,1)', 
             'block': true, 
             'height': 400
+        },
+        'chest': {
+            'color': 'rgba(30,40,200,1)', 
+            'block': true, 
+            'height': 50, 
+            'width': 50
         }
     }, 
 

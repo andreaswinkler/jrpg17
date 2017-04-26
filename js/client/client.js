@@ -228,7 +228,7 @@ window.$G = {
 
             case 'mouseLeft':
 
-                $G.hero.moveTo(data.x, data.y);
+                //$G.hero.moveTo(data.x, data.y);
 
                 break;
             

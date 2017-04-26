@@ -28,6 +28,7 @@
         "dexterity": 10, 
         "vitality": 10, 
         "intelligence": 10, 
+        "maxMana": 50, 
         "balance": 0,
         "level": 1, 
         "rank": "hero", 
@@ -48,6 +49,24 @@
             }
         ], 
         "equipment": {
+        },
+        "skill0": {
+            "name": "Normal Attack", 
+            "requiresWeapon": true, 
+            "key": "normalAttack", 
+            "damageMultiplier": 1, 
+            "flavor": "physical", 
+            "range": "weapon"
+        }, 
+        "skill1": null, 
+        "skill2": null, 
+        "skill3": null, 
+        "skill4": null, 
+        "skill5": null, 
+        "xp": 0, 
+        "healthPotion": {
+            "cooldown": 60, 
+            "healPercent": 0.6
         }
     }   
 }

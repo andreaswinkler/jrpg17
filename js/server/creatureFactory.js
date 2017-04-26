@@ -9,10 +9,55 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
         create: function(key) {
 
-            var creature = Object.assign({}, this.blueprints[key]), 
+            var creature = utils.assign({}, this.blueprints[key]), 
                 i, inventories, inventory;
 
             creature.id = ++this.counter;
+            creature.droppedItems = [];
+
+            creature.excludeFields = ['map', 'game', '_itemsDropped'];
+
+            creature.pack = function() {
+
+                return utils.pack(this);
+
+            };
+
+            creature.enemy = function(x, y) {
+
+                return this.map.creatures.find(function(creature) { return creature.faction != this.faction && utils.hitTest(creature.x, creature.y, creature.width, creature.height, x, y, x + 1, y + 1) }, this);
+
+            };
+
+            creature.healPercent = function(value) {
+
+                this.heal(this.maxLife_current * value);
+
+            };
+
+            creature.hurt = function(value) {
+
+                creature.life = Math.max(0, creature.life - value);
+
+                if (creature.life == 0) {
+
+                    creature.isDead = true;
+
+                }
+
+            };
+
+            creature.heal = function(value) {
+
+                creature.life = Math.min(creature.maxLife_current, creature.life + value);
+
+            };
+
+            creature.restoreMana = function(value) {
+
+                creature.mana = Math.min(creature.maxMana_current, creature.mana + value);
+
+            };
 
             if (creature.speed) {
 
@@ -141,6 +186,23 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                         }
 
                     }
+
+                    this.maxLife_current += this.vitality_current * 10;
+                    this.lifePerSecond_current += this.vitality_current / 10;
+                    this.manaPerSecond_current += this.intelligence_current / 10;
+
+                }, 
+
+                creature.weapon = function() {
+
+                    return this.equipment.mainHand;
+
+                }
+
+                creature.dropItem = function(item, x, y) {
+
+                    this.droppedItems.push({ item: item, x: x, y: y });
+                    this._itemsDropped = true;
 
                 }
 

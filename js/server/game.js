@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(fs, utils, settings) {
+module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
     return {
     
@@ -14,13 +14,11 @@ module.exports = function(fs, utils, settings) {
                 map: null, 
                 clients: [], 
                 lastActivityTimestamp: +new Date(), 
+                packFields: ['id', 'map'], 
 
                 pack: function() {
 
-                    return {
-                        id: this.id, 
-                        map: this.map
-                    };
+                    return utils.pack(this);
 
                 }, 
 
@@ -46,6 +44,38 @@ module.exports = function(fs, utils, settings) {
                             }
 
                         }
+
+                        // life per second
+                        if (creature.life < creature.maxLife_current) {
+
+                            creature.heal(creature.lifePerSecond_current / 1000 * ticks);
+
+                            updates.life = creature.life;
+                        
+                        }
+                        
+                        // mana per second
+                        if (creature.mana < creature.maxMana_current) {
+
+                            creature.restoreMana(creature.manaPerSecond_current / 1000 * ticks);
+
+                            updates.mana = updates.mana;
+                        
+                        }
+
+                        // healthpotion cooldown
+                        if (creature.healthpotion) {
+
+                            utils.cooldown(creature.healthpotion, ticks);
+
+                        }
+
+                        if (creature._itemsDropped) {
+
+                            updates.droppedItems = creature.droppedItems;
+                            creature._itemsDropped = false;
+
+                        }
                         
                         if (Object.getOwnPropertyNames(updates).length > 0) {
 
@@ -69,19 +99,11 @@ module.exports = function(fs, utils, settings) {
 
                 }, 
 
-                tileIsWalkable: function(map, x, y) {
-
-                    var tile = utils.gridElement(map.grid, x, y, settings.tileSize);
-                    
-                    return tile && tile.walkable;
-
-                }, 
-
                 changeMap: function(key) {
 
                     if (!this.maps[key]) {
 
-                        this.maps[key] = this.loadMap(key);
+                        this.maps[key] = mapFactory.create(key);
 
                     }
 
@@ -89,60 +111,164 @@ module.exports = function(fs, utils, settings) {
 
                 }, 
 
-                loadMap: function(key) {
+                createDrop: function(source, target) {
 
-                    var input = fs.readFileSync('./../data/maps/' + key + '.txt', { encoding: 'utf-8' }),
-                        grid = this.readMapData(input);
-               
-                    return {
-                        name: input.name, 
-                        creatures: [], 
-                        grid: grid, 
-                        rows: grid.length, 
-                        cols: grid[0].length
+                    var drop = itemFactory.createDrop(source), 
+                        droppedItems = [],
+                        positions, i, key;
+                    
+                    drop.items.forEach(function(i) {
+
+                        droppedItems.push({ item: i });
+
+                    });
+
+                    if (drop.gold > 0) {
+
+                        droppedItems.push({ item: { isGold: true, amount: drop.gold }});
+
                     }
 
-                }, 
+                    for (i = 0; i < drop.healthGlobes.length; i++) {
 
-                readMapData: function(input) {
+                        droppedItems.push({ item: { isHealthGlobe: true }});
 
-                    var inputRows = input.split('\n'), 
-                        grid = [], i, j, inputCols;
+                    }
 
-                    for (i = 0; i < inputRows.length; i++) {
+                    for (key in drop.essences) {
 
-                        inputCols = inputRows[i].split('\t');
+                        if (drop.essences[key] > 0) {
 
-                        grid.push([]);
-
-                        for (j = 0; j < inputCols.length; j++) {
-
-                            grid[i].push({ 
-                                t: inputCols[j], 
-                                walkable: inputCols[j] != '', 
-                                x: j * settings.tileSize, 
-                                y: i * settings.tileSize 
-                            });
+                            droppedItems.push({ item: { isEssence: true, type: key, amount: drop.essences[key] }});
 
                         }
 
                     }
 
-                    return grid;
+                    for (key in drop.mats) {
+
+                        if (drop.mats[key] > 0) {
+
+                            droppedItems.push({ item: { isMat: true, type: key, amount: drop.essences[key] }});
+
+                        }
+
+                    }
+
+                    positions = utils.equidistantPositionsOnArchimedeanSpiral(droppedItems.length, 30, source.x, source.y);
+
+                    for (i = 0; i < droppedItems.length; i++) {
+
+                        target.dropItem(droppedItems[i], positions[i].x, positions[i].y);
+
+                    }
 
                 }, 
 
-                onInput: function(data, hero) {
+                onInput: function(key, x, y, shift, ctrl, hero) {
+
+                    var tile, interactable;
 
                     this.lastActivityTimestamp = +new Date();
 
-                    switch (data.key) {
+                    switch (key) {
 
                         case 'mouseLeft':
 
-                            hero.moveTo(data.x, data.y);
+                            if (hero.hand != null && utils.tileIsWalkable(hero.map, x, y)) {
+
+                                console.log('mouseLeft -> dropItem', hero.hand);
+
+                                hero.dropItem(hero.hand, x, y);
+
+                                hero.hand = null;
+
+                            } else if (shift) {
+
+                                console.log('mouseLeft+shift -> attack', hero.skill0);
+
+                                this.useSkill(hero, 'skill0', x, y);
+
+                            } else {
+
+                                console.log('mouseLeft -> interact');
+
+                                if (!this.interact(hero, x, y)) {
+
+                                    console.log('mouseLeft -> attack', hero.skill0);
+
+                                    if (!this.useSkill(hero, 'skill0', x, y)) {
+
+                                        console.log('mouseLeft -> moveTo', x, y);
+
+                                        hero.moveTo(x, y);
+
+                                    }
+
+                                }
+
+                            }
 
                             break;
+                        
+                        case 'mouseRight':
+
+                            this.useSkill(hero, 'skill1', x, y);
+
+                            break;
+                        
+                        case 'Q':
+
+                            this.useHealthPotion(hero);
+
+                            break;
+
+                    }
+
+                }, 
+
+                interact: function(creature, x, y) {
+
+                    var tile = utils.tile(creature.map, x, y), 
+                        interactable = tile.interactables.find(function(interactable) {
+
+                            return interactable.active && utils.hitTest(interactable, x, y);
+
+                        });
+                    
+                    if (interactable) {
+
+                        interactable.interact(creature);
+
+                        return true;
+
+                    }
+
+                    return false;
+
+                }, 
+
+                useSkill: function(creature, slot, x, y) {
+
+                    var skill = creature[slot];
+
+                    if (!creature.scheduledSkill && utils.skillReady(skill)) {
+
+                        return skills.invoke(creature, skill, x, y);
+
+                    }
+
+                    return false;
+
+                }, 
+
+                useHealthPotion: function(creature) {
+
+                    if (creature.healthPotion && !creature.healthPotion.cooldown_current) {
+
+                        creature.healPercent(creature.healthPotion.healPercent);
+
+                        creature.healthPotion.cooldown_current = creature.healthPotion.cooldown * 1000;
 
                     }
 

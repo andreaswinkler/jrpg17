@@ -16,7 +16,11 @@
         "blockChance", 
         "dodgeChance", 
         "blockAmount", 
-        "socket"
+        "socket", 
+        "maxLife", 
+        "maxMana", 
+        "lifePerSecond", 
+        "manaPerSecond"
     ],
     "equipmentDropChance": 0.25, 
     "equipmentSalvageChance": 0.75, 

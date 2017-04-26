@@ -113,6 +113,7 @@ var IsometricRenderer =  {
         this.dynamicLayer.clear();
 
         map.creatures.forEach(this.renderElement, this);
+        map.interactables.forEach(this.renderElement, this);
 
         //this.dynamicLayer.drawCircle($G.mouseX, $G.mouseY, 5, 'rgba(10,90,222,0.5)');
 
