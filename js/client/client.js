@@ -37,6 +37,8 @@ window.$G = {
             $G.player = data.player;
             $G.hero = $G.player.hero;
 
+            $G.expandInventories($G.hero.inventories);
+
             Events.on('user.loaded', $G.startScreen);
 
             Net.on('gameCreated', function(data) {
@@ -130,6 +132,26 @@ window.$G = {
 
         this.map = map;
 
+        this.expandInventories(this.hero.inventories);
+
+    }, 
+
+    expandInventories: function(inventories) {
+
+        inventories.forEach(function(inventory) {
+
+            if (inventory.items) {
+
+                inventory.grid = Utils.expandGrid(inventory.items, 'item', inventory.rows, inventory.cols);
+            
+            } else {
+
+                inventory.grid = Utils.grid(inventory.rows, inventory.cols);
+
+            }
+
+        });
+
     }, 
 
     gameScreen: function(game, map) {
@@ -155,21 +177,19 @@ window.$G = {
 
                 for (j = 0; j < $G.map.creatures.length; j++) {
 
-                    if ($G.map.creatures[j].id == data[i].id) {
+                    creature = $G.map.creatures[j];
 
-                        $.extend($G.map.creatures[j], data[i]);
+                    if (creature.id == data[i].id) {
+                        
+                        $.extend(creature, data[i]);
 
                         if (data[i].inventories) {
 
-                            for (var k = 0; k < $G.map.creatures[j].inventories.length; k++) {
-
-                                $G.map.creatures[j].inventories[k].grid = utils.expandGrid($G.map.creatures[j].inventories[k].items, 'item', $G.map.creatures[j].inventories[k].rows, $G.map.creatures[j].inventories[k].cols);
-
-                            }
+                            $G.expandInventories(creature.inventories);
 
                         }
 
-                        if ($G.map.creatures[j] === $G.hero) {
+                        if (creature === $G.hero) {
 
                             heroUpdated = true;
 
@@ -185,46 +205,10 @@ window.$G = {
 
                 UI.statsBar.update($G.hero);
                 UI.inventoryScreen.update($G.hero.inventories[0]);
+                UI.equipmentScreen.update($G.hero.equipment);
                 UI.handUpdate($G.hero.hand);
 
             }
-
-        });
-
-        Net.on('handUpdate', function(data) {
-
-            $G.hero.hand = data.item;
-
-            UI.handUpdate($G.hero.hand);
-
-        });
-
-        Net.on('equipmentUpdate', function(data) {
-
-            $G.hero.equipment = data.equipment;
-
-            UI.equipmentScreen.update($G.hero.equipment);
-            UI.statsBar.update($G.hero);
-
-        });
-
-        Net.on('inventoryUpdate', function(data) {
-
-            var i;
-
-            for (i = 0; i < $G.hero.inventories.length; i++) {
-
-                if ($G.hero.inventories[i].id == data.inventory.id) {
-
-                    data.inventory.grid = utils.expandGrid(data.inventory.items, 'item', data.inventory.rows, data.inventory.cols);
-
-                    $G.hero.inventories[i] = data.inventory;
-
-                }
-
-            }
-
-            UI.inventoryScreen.update($G.hero.inventories[0]);
 
         });
 

@@ -17,7 +17,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
             creature.droppedItems = [];
             creature.inputs = [];
 
-            creature.excludeFields = ['map', 'game', 'inputs'];
+            creature.excludeFields = ['map', 'game', 'inputs', 'movementTarget'];
 
             creature.pack = function() {
 
@@ -115,6 +115,18 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                         });
                     
+                    }
+
+                    if (!inventories[i].rows) {
+
+                        inventories[i].rows = this.blueprints[key].inventories[i].rows;
+
+                    }
+
+                    if (!inventories[i].cols) {
+
+                        inventories[i].cols = this.blueprints[key].inventories[i].cols;
+
                     }
 
                     inventory = Inventory.create(inventories[i].id, inventories[i].name, inventories[i].rows, inventories[i].cols, inventories[i].items);

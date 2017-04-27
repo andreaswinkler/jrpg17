@@ -72,89 +72,25 @@ io.on('connection', function(client) {
 
     client.on('grabItem', function(data) {
 
-        var result = client.game.grabItemFromInventory(client.hero, data.inventoryId, data.itemId);
-
-        if (result.success) {
-
-            client.emit('handUpdate', { item: client.hero.hand });
-            client.emit('inventoryUpdate', { inventory: result.inventory.pack() });
-
-        }
+        client.hero.inputs.push({ key: 'grabItem', data: data });
 
     });
 
     client.on('placeItem', function(data) {
 
-        var result = client.game.addItemToInventory(client.hero, data.inventoryId, data.row, data.col);
-
-        if (result.success) {
-
-            client.emit('handUpdate', { item: client.hero.hand });
-            client.emit('inventoryUpdate', { inventory: result.inventory.pack() });
-
-        }
+        client.hero.inputs.push({ key: 'placeItem', data: data });
 
     });
 
     client.on('equipItem', function(data) {
 
-        var moveToInventory = false, 
-            slot, row, col, grabItemResult;
-
-        if (data.itemId) {
-
-            grabItemResult = client.game.grabItemFromInventory(client.hero, client.hero.inventories[0].id, data.itemId);
-
-            row = grabItemResult.row;
-            col = grabItemResult.col;
-            
-            moveToInventory = true;
-
-        }
-
-        item = client.hero.hand;
-
-        if (client.hero.hand) {
-
-            result = client.game.equipItem(client.hero, client.hero.hand, (data.slot || client.hero.hand.slots[0]), moveToInventory, row, col);
-            
-            if (result.success) {
-
-                client.emit('handUpdate', { item: client.hero.hand });
-                client.emit('equipmentUpdate', { equipment: client.hero.equipment });
-                client.emit('update', [client.hero.pack()]);
-
-                // we send an inventory update if we put back an item or if we took it directly 
-                // from there
-                if (result.moveToInventorySuccess || data.itemId) {
-
-                    client.emit('inventoryUpdate', { inventory: result.inventory.pack() });
-
-                }
-
-            }
-
-        }
+        client.hero.inputs.push({ key: 'equipItem', data: data });
 
     });
 
     client.on('unequipItem', function(data) {
 
-        var result = client.game.unequipItem(client.hero, data.itemId, data.moveToInventory);
-
-        if (result.success) {
-
-            client.emit('handUpdate', { item: client.hero.hand });
-            client.emit('equipmentUpdate', { equipment: client.hero.equipment });
-            client.emit('update', [client.hero.pack()]);
-
-            if (result.moveToInventorySuccess) {
-
-                client.emit('inventoryUpdate', { inventory: result.inventory.pack() });
-
-            }
-
-        }
+        client.hero.inputs.push({ key: 'unequipItem', data: data });
 
     });
 

@@ -59,7 +59,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                                 input = creature.inputs[j];
 
-                                this.processInput(input.key, input.x, input.y, input.shift, input.ctrl, creature, updates);
+                                this.processInput(input.key, input.x, input.y, input.shift, input.ctrl, input.data, creature, updates);
 
                                 creature.inputs.splice(j, 1);
 
@@ -189,13 +189,37 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                 }, 
 
-                processInput: function(key, x, y, shift, ctrl, hero, updates) {
+                processInput: function(key, x, y, shift, ctrl, data, hero, updates) {
 
                     console.log('input', key, x, y, shift, ctrl);
 
                     this.lastActivityTimestamp = +new Date();
 
                     switch (key) {
+
+                        case 'grabItem':
+
+                            this.inputGrabItem(hero, data.inventoryId, data.itemId, updates);
+
+                            break;
+                        
+                        case 'placeItem':
+
+                            this.inputPlaceItem(hero, data.inventoryId, data.row, data.col, updates);
+
+                            break;
+                        
+                        case 'equipItem':
+
+                            this.inputEquipItem(hero, data.itemId, data.slot, updates);
+
+                            break;
+                        
+                        case 'unequipItem':
+
+                            this.inputUnequipItem(hero, data.itemId, data.moveToInventory, updates);
+
+                            break;
 
                         case 'mouseLeft':
 
@@ -241,6 +265,86 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                             break;
 
+                    }
+
+                }, 
+
+                inputUnequipItem: function(hero, itemId, moveToInventory, updates) {
+    
+                    var result = this.unequipItem(hero, itemId, moveToInventory);
+
+                    if (result.success) {
+
+                        updates.hand = hero.hand;
+                        updates.equipment = hero.equipment;
+
+                        if (result.moveToInventorySuccess) {
+
+                            updates.inventories = hero.inventories;
+
+                        }
+
+                    }
+
+                }, 
+
+                inputGrabItem: function(hero, inventoryId, itemId) {
+
+                    if (this.grabItemFromInventory(hero, inventoryId, itemId).success) {
+
+                        updates.hand = hero.hand;
+                        updates.inventories = hero.inventories;
+
+                    }
+
+                }, 
+
+                inputPlaceItem: function(hero, inventoryId, row, col) {
+
+                    if (this.addItemToInventory(hero, inventoryId, row, col).success) {
+
+                        updates.hand = hero.hand;
+                        updates.inventories = hero.inventories;
+
+                    }
+
+                }, 
+
+                inputEquipItem: function(hero, itemId, slot) {
+
+                    var moveToInventory = false, 
+                        row, col, result, grabItemResult;
+
+                    if (itemId) {
+
+                        grabItemResult = this.grabItemFromInventory(hero, hero.inventories[0].id, data.itemId);
+
+                        row = grabItemResult.row;
+                        col = grabItemResult.col;
+            
+                        moveToInventory = true;
+
+                    }
+
+                    if (hero.hand) {
+
+                        result = this.equipItem(hero, hero.hand, (slot || hero.hand.slots[0]), moveToInventory, row, col);
+            
+                        if (result.success) {
+
+                            updates.hand = hero.hand;
+                            updates.equipment = hero.equipment;
+                        
+                        }
+
+                        // we send an inventory update if we put back an item or if we took it directly 
+                        // from there
+                        if (result.moveToInventorySuccess || itemId) {
+
+                            updates.inventories = hero.inventories;
+
+                        }
+                    
                     }
 
                 }, 
