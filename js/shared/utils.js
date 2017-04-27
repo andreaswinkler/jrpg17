@@ -400,7 +400,7 @@
         }, 
 
         tile: function(map, x, y) {
-
+            
             return utils.gridElement(map.grid, x, y, settings.tileSize);
 
         }, 
@@ -436,6 +436,7 @@
             if (obj != null && typeof obj == 'object') {
 
                 var fields = obj.packFields || Object.getOwnPropertyNames(obj), 
+                    propertyBlacklist = ['packFields', 'excludeFields'], 
                     result = {},
                     i, key, prop;
 
@@ -450,7 +451,7 @@
                     key = fields[i];
                     prop = obj[key];
 
-                    if (typeof prop != 'function' && key != 'packFields') {
+                    if (typeof prop != 'function' && propertyBlacklist.indexOf(key) == -1) {
 
                         if (Array.isArray(prop)) {
 
@@ -475,6 +476,54 @@
             }
 
             return obj;
+
+        }, 
+
+        packGrid: function(grid, key, widthProp, heightProp) {
+
+            var packedGrid = [], 
+                packedElements = [], 
+                packedElement, i, j;
+            
+            for (i = 0; i < grid.length; i++) {
+
+                for (j = 0; j < grid[i].length; j++) {
+
+                    if (grid[i][j] && packedElements.indexOf(grid[i][j]) == -1) {
+
+                        packedElement = { 
+                            row: i, 
+                            col: j, 
+                            width: widthKey ? grid[i][j][widthProp] : 1, 
+                            height: heightKey ? grid[i][j][heightProp] : 1 
+                        };
+                        packedElement[key] = grid[i][j];
+
+                        packedElements.push(grid[i][j]);
+                        packedGrid.push(packedElement);
+
+                    }
+
+                }
+
+            }
+
+            return packedGrid;
+
+        }, 
+
+        expandGrid: function(packedGrid, key, rows, cols) {
+
+            var grid = this.grid(rows, cols), 
+                i;
+            
+            for (i = 0; i < packedGrid.length; i++) {
+
+                this.paintGridCells(grid, packedGrid[i][key], packedGrid[i].row, packedGrid[i].col, packedGrid[i].width, packedGrid[i].height);
+
+            }
+
+            return grid;
 
         }, 
 
@@ -548,6 +597,12 @@
                 row: Math.floor(y / cellSize), 
                 col: Math.floor(x / cellSize)
             };
+
+        }, 
+
+        findByHitTest: function(arr, x, y) {
+
+            return arr.find(function(el) { return utils.hitTest(el, x, y); });
 
         }, 
 

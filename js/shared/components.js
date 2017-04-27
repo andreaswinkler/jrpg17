@@ -22,12 +22,12 @@
                     infinite: false, 
                     ignoreObstacles: false, 
                     e: e, 
-                    update: function(ticks, map) {
+                    update: function(ticks) {
                             
                         var targetX = this.e.x + (this.dx * this.e.speed * ticks), 
                             targetY = this.e.y + (this.dy * this.e.speed * ticks);
                             
-                        if (this.ignoreObstacles || utils.tileIsWalkable(map, targetX, targetY)) {
+                        if (this.ignoreObstacles || utils.tileIsWalkable(this.e.map, targetX, targetY)) {
 
                             this.e.x = targetX;
                             this.e.y = targetY;

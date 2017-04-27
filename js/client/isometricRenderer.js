@@ -58,6 +58,8 @@ var IsometricRenderer =  {
     /* could be a new map, render to map buffer and update static content layer */
     updateMap: function(map) {
 
+        console.log('update map');
+
         var length = map.grid.length + map.grid[0].length,  
             width = (length * this.tileSize + this.halfTileSize) / 10, 
             height = (length * this.halfTileSize + this.quarterTileSize) / 10,  
@@ -92,7 +94,7 @@ var IsometricRenderer =  {
     // set the offset based on the heroes position (he's always in the center)
     // return whether or not the offset has changed
     setOffset: function(hero) {
-
+      
         var x = this.offset.x, 
             y = this.offset.y, 
             heroIsoCoordinates = this.cartesianToIsometric(hero.x, hero.y);
@@ -132,21 +134,21 @@ var IsometricRenderer =  {
 
         if (offsetChanged) {
 
-            this.updateStaticContent(map);
+            this.updateStaticContent(map, hero);
 
         }
 
     }, 
 
     // put the correct map section on the screen
-    updateStaticContent: function(map) {
+    updateStaticContent: function(map, hero) {
 
-        var offset = $G.tileSize * 5, 
-            tiles = Utils.gridElements(map.grid, map.hero.x - offset, map.hero.y - offset, map.hero.x + offset, map.hero.y + offset, $G.tileSize);
- 
+        var offset = this.tileSize * 5, 
+            tiles = Utils.gridElements(map.grid, hero.x - offset, hero.y - offset, hero.x + offset, hero.y + offset, this.tileSize);
+            
         this.staticLayerBack.clear();
         this.staticLayerFront.clear();
-
+        
         tiles.forEach(this.renderTile, this);
 
             /*bufferX = Math.floor(heroIsoCoordinates.x + this.offset.map - this.halfWidth), 
@@ -181,14 +183,14 @@ var IsometricRenderer =  {
     }, 
 
     renderTile: function(tile) {
-
+        
         var heroIsoCoordinates = this.cartesianToIsometric($G.hero.x, $G.hero.y), 
             isoCoordinates = this.cartesianToIsometric(tile.x, tile.y), 
             front = tile.y > $G.hero.y, 
             layer = front ? this.staticLayerFront : this.staticLayerBack;
-
+          
         if (tile.t != '') {
-
+            
             layer.draw(
                 Assets.get('tile_' + tile.t), 
                 isoCoordinates.x - this.tileSize + this.offset.x, 
@@ -196,14 +198,12 @@ var IsometricRenderer =  {
             );
         
         } else {
-
+            
             layer.draw(
                 Assets.get('wall'), 
                 isoCoordinates.x - this.tileSize + this.offset.x, 
                 isoCoordinates.y + this.offset.y - 40
             ); 
-
-
         
         }
 

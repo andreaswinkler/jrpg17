@@ -619,7 +619,7 @@ var UI = {
         this.minimap = new UI.Minimap($('<div class="ui-minimap positioned" />').appendTo(this.container));
         
         this.renderer = IsometricRenderer;
-        this.renderer.init($('<div class="ui-stage positioned fullscreen" />').appendTo(this.container), $G.tileSize);
+        this.renderer.init($('<div class="ui-stage positioned fullscreen" />').appendTo(this.container), $G.settings.tileSize);
 
         this.characterWindow = new UI.Window(this.container, { align: 'right', width: '45%' });
         this.statsBar = new UI.StatsBar(this.characterWindow.e);

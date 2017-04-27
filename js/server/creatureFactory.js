@@ -7,15 +7,17 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
         blueprints: blueprints,
         counter: 0,  
 
-        create: function(key) {
-
-            var creature = utils.assign({}, this.blueprints[key]), 
+        create: function(key, data, game) {
+            
+            var creature = utils.assign({}, this.blueprints[key], data), 
                 i, inventories, inventory;
-
+            
             creature.id = ++this.counter;
+            creature.game = game;
             creature.droppedItems = [];
+            creature.inputs = [];
 
-            creature.excludeFields = ['map', 'game', '_itemsDropped'];
+            creature.excludeFields = ['map', 'game', 'inputs'];
 
             creature.pack = function() {
 
@@ -59,6 +61,33 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             };
 
+            creature.changeMap = function(mapKey) {
+
+                var oldMapKey, pos;
+
+                // remove ourselves from the current map if necessary
+                if (this.map) {
+
+                    oldMapKey = this.map.key;
+
+                    this.map.removeCreature(this);
+
+                }
+
+                // load the new map
+                this.map = this.game.map(mapKey);
+
+                // add ourselves to the new map
+                this.map.addCreature(this);
+
+                // update our position accordingly
+                pos = this.map.entrance(oldMapKey);
+
+                this.x = pos.x;
+                this.y = pos.y;
+
+            };
+
             if (creature.speed) {
 
                 creature.moveTo = function(x, y) {
@@ -77,16 +106,18 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 for (i = 0; i < inventories.length; i++) {
 
-                    inventory = Inventory.create(inventories[i].id, inventories[i].name, inventories[i].rows, inventories[i].cols);
-                    
-                    // prepare items
-                    inventories[i].items.forEach(function(inventoryItem) {
+                    if (inventories[i].items) {
 
-                        itemFactory.update(inventoryItem.item, true);
+                        // prepare items
+                        inventories[i].items.forEach(function(inventoryItem) {
 
-                    });
+                            itemFactory.update(inventoryItem.item, true);
+
+                        });
                     
-                    inventory.update(inventories[i].items);
+                    }
+
+                    inventory = Inventory.create(inventories[i].id, inventories[i].name, inventories[i].rows, inventories[i].cols, inventories[i].items);
 
                     creature.inventories.push(inventory);
 
@@ -199,10 +230,13 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 }
 
-                creature.dropItem = function(item, x, y) {
+                creature.dropItem = function(x, y) {
 
-                    this.droppedItems.push({ item: item, x: x, y: y, width: 20, height: 20 });
-                    this._itemsDropped = true;
+                    // move an item from the creatures hand to the dropped items list
+                    this.droppedItems.push({ item: this.hand, x: x, y: y, width: 20, height: 20 });
+
+                    // empty the creatures hand
+                    this.hand = null;
 
                 }
 

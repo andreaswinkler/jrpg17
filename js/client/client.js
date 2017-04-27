@@ -4,8 +4,6 @@ window.$G = {
 
     difficulty: 0, 
 
-    tileSize: 0, 
-
     scale: 1, 
 
     allowResize: false, 
@@ -22,47 +20,44 @@ window.$G = {
 
         console.log('G.init v' + this.version);
 
-        $.get('data/settings.json', function(t) {
- 
-            $.extend(window.settings, t);
+        window.addEventListener('resize', $G.resize);
 
-            window.addEventListener('resize', $G.resize);
+        this.options = $.extend({}, options);
 
-            this.options = $.extend({}, options);
+        // stats window
+        $G.stats = new Stats();
+        $G.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+        $('.debug-perf').append($G.stats.dom);
+        // end stats window
 
-            $G.stats = new Stats();
-            $G.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-            $('.debug-perf').append($G.stats.dom);
+        Events.on('net.connected', function(data) {
 
-            Events.on('net.connected', function(data) {
+            $G.settings = data.settings;
 
-                $G.tileSize = data.settings.tileSize;
-                $G.player = data.player;
-                $G.hero = $G.player.hero;
+            $G.player = data.player;
+            $G.hero = $G.player.hero;
 
-                Events.on('user.loaded', $G.startScreen);
+            Events.on('user.loaded', $G.startScreen);
 
-                Net.on('gameCreated', function(data) {
+            Net.on('gameCreated', function(data) {
 
-                    Events.emit('game.start');
+                Events.emit('game.start');
 
-                    $G.gameScreen(data.game);
-
-                });
-
-                Inputs.init();
-
-                UI.init(container);
-
-                $G.resize();
-
-                Auth.init();
+                $G.gameScreen(data.game, data.map);
 
             });
 
-            Net.init();
+            Inputs.init();
+
+            UI.init(container);
+
+            $G.resize();
+
+            Auth.init();
 
         });
+
+        Net.init();
 
     }, 
 
@@ -127,27 +122,28 @@ window.$G = {
 
     }, 
 
-    gameScreen: function(game) {
+    onMapChanged: function(map) {
+
+        // update hero reference
+        this.hero = map.creatures.find(function(i) { return i.id == this.hero.id; }, this);
+        this.hero.map = map;
+
+        this.map = map;
+
+    }, 
+
+    gameScreen: function(game, map) {
 
         this.game = game;
-        this.game.hero = this.player.hero;
-        this.game.map.hero = this.player.hero;
 
-        // make sure the hero is not already in the creature list
-        this.player.hero = this.game.map.creatures.find(function(i) { return i.id == $G.hero.id; });
-        this.hero = this.player.hero;
+        this.onMapChanged(map);
 
-        $G.hero.moveTo = function(x, y) {
+        UI.renderer.updateMap(this.hero.map);
 
-            Components.Movement.moveTo(this, x, y);
+        Events.emit('map.loaded', this.map);
 
-        }
-
-        UI.renderer.updateMap(this.game.map);
-  
         // we send all client inputs to the server
         Events.on('input', Net.input, Net);
-        // and use it ourselves
         Events.on('input', this.input, this);
 
         Net.on('update', function(data) {
@@ -157,13 +153,23 @@ window.$G = {
 
             for (i = 0; i < data.length; i++) {
 
-                for (j = 0; j < $G.game.map.creatures.length; j++) {
+                for (j = 0; j < $G.map.creatures.length; j++) {
 
-                    if ($G.game.map.creatures[j].id == data[i].id) {
+                    if ($G.map.creatures[j].id == data[i].id) {
 
-                        $.extend($G.game.map.creatures[j], data[i]);
+                        $.extend($G.map.creatures[j], data[i]);
 
-                        if ($G.game.map.creatures[j] === $G.hero) {
+                        if (data[i].inventories) {
+
+                            for (var k = 0; k < $G.map.creatures[j].inventories.length; k++) {
+
+                                $G.map.creatures[j].inventories[k].grid = utils.expandGrid($G.map.creatures[j].inventories[k].items, 'item', $G.map.creatures[j].inventories[k].rows, $G.map.creatures[j].inventories[k].cols);
+
+                            }
+
+                        }
+
+                        if ($G.map.creatures[j] === $G.hero) {
 
                             heroUpdated = true;
 
@@ -210,6 +216,8 @@ window.$G = {
 
                 if ($G.hero.inventories[i].id == data.inventory.id) {
 
+                    data.inventory.grid = utils.expandGrid(data.inventory.items, 'item', data.inventory.rows, data.inventory.cols);
+
                     $G.hero.inventories[i] = data.inventory;
 
                 }
@@ -225,7 +233,7 @@ window.$G = {
     }, 
 
     input: function(data) {
-       
+        
         switch (data.key) {
 
             case 'mouseLeft':
@@ -254,13 +262,13 @@ window.$G = {
 
         var i = 0; 
         
-        for (i = 0; i < this.game.map.creatures.length; i++) {
+        for (i = 0; i < this.map.creatures.length; i++) {
                         
-            creature = this.game.map.creatures[i];
+            creature = this.map.creatures[i];
 
             if (creature.movementTarget) {
                             
-                creature.movementTarget.update(ticks, this.game.map);
+                creature.movementTarget.update(ticks, this.map);
 
             }
         
@@ -288,7 +296,7 @@ window.$G = {
 
                     $G.update($G.GameLoop.delta);
 
-                    UI.renderer.update($G.game.map, $G.hero);
+                    UI.renderer.update($G.map, $G.hero);
                     UI.minimap.update();
 
                     $G.GameLoop.lastTime = $G.GameLoop.currentTime - ($G.GameLoop.delta % $G.GameLoop.interval);

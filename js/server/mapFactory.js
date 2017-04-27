@@ -4,7 +4,7 @@ module.exports = function(fs, utils, settings) {
 
     return {
     
-        create: function(key) {
+        create: function(key, game) {
 
             var input = fs.readFileSync('./../data/maps/' + key + '.txt', { encoding: 'utf-8' }),
                 grid = this.readMapData(input), 
@@ -35,17 +35,45 @@ module.exports = function(fs, utils, settings) {
             });
 
             return {
-                name: input.name, 
+                name: key, 
+                key: key, 
                 creatures: [], 
                 interactables: interactables,
                 grid: grid, 
                 rows: grid.length, 
                 cols: grid[0].length, 
+                game: game, 
+                entrances: {
+                    default: {
+                        x: 1600, 
+                        y: 1600
+                    }    
+                }, 
+                excludeFields: ['game'], 
                 pack: function() {
 
                     return utils.pack(this);
 
+                }, 
+                addCreature: function(creature) {
+
+                    this.creatures.push(creature);
+                    creature.map = this;
+                    creature.game = this.game;
+
+                }, 
+                removeCreature: function(creature) {
+
+                    utils.arrayRemove(this.creatures, creature);
+                    creature.map = null;
+
+                },
+                entrance: function(sourceMap) {
+
+                    return this.entrances[sourceMap] || this.entrances.default;
+
                 }
+
             }
 
         }, 

@@ -112,8 +112,8 @@ var Assets = {
             ctx = canvas.getContext('2d'), 
             blueprint = Assets.blueprints[asset] || Assets.blueprints.missing;
 
-        canvas.width = (blueprint.width || $G.tileSize * 2) * Assets.scaleFactor;
-        canvas.height = (blueprint.height || $G.tileSize) * Assets.scaleFactor;
+        canvas.width = (blueprint.width || $G.settings.tileSize * 2) * Assets.scaleFactor;
+        canvas.height = (blueprint.height || $G.settings.tileSize) * Assets.scaleFactor;
         
         if (blueprint.smalltile) {
             canvas.width = canvas.width / 10;

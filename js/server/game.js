@@ -4,131 +4,133 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
     return {
     
+        // games counter, used to determine the game id
         counter: 0, 
 
-        create: function(map) {
+        // create a game
+        create: function() {
 
             return {
+                
+                // calculate the id by increasing the games counter
                 id: ++this.counter, 
+                
+                // map store, all entered maps are added here 
                 maps: {}, 
-                map: null, 
-                clients: [], 
-                lastActivityTimestamp: +new Date(), 
-                packFields: ['id', 'map'], 
 
+                // maintain the last time someone accessed this game 
+                // from the client. at some point the game is destroyed 
+                // due to inactivity
+                lastActivityTimestamp: +new Date(), 
+
+                // only these properties of the game object are 
+                // sent to the client
+                packFields: ['id'], 
+
+                // provide a function which converts the game 
+                // object when sent to the client
                 pack: function() {
 
                     return utils.pack(this);
 
                 }, 
 
+                // this method is called every frame and recalculates 
+                // the game state
                 update: function(ticks) {
                   
-                    var updatesList = [], 
-                        i, creature, updates;
+                    // maintain a list of updates per map
+                    var updatesList = {}, 
+                        mapKey, map, i, j, creature, input, updates, inputs;
 
-                    for (i = 0; i < this.map.creatures.length; i++) {
+                    // go through all maps and recalculate everything
+                    for (mapKey in this.maps) {
+
+                        map = this.maps[mapKey];
+                        updatesList[mapKey] = [];
+
+                        for (i = 0; i < map.creatures.length; i++) {
                         
-                        creature = this.map.creatures[i];
-                        updates = {};
+                            creature = map.creatures[i];
+                            updates = {};
 
-                        if (creature.movementTarget) {
+                            // process all inputs we got since the last loop
+                            for (j = creature.inputs.length; j--;) {
+
+                                input = creature.inputs[j];
+
+                                this.processInput(input.key, input.x, input.y, input.shift, input.ctrl, creature, updates);
+
+                                creature.inputs.splice(j, 1);
+
+                            }
                             
-                            creature.movementTarget.update(ticks, this.map);
+                            // handle movement
+                            if (creature.movementTarget) {
+                                
+                                creature.movementTarget.update(ticks);
 
-                            if (creature.moved) {
+                                if (creature.moved) {
 
-                                updates.x = creature.x;
-                                updates.y = creature.y;
+                                    updates.x = creature.x;
+                                    updates.y = creature.y;
+
+                                }
 
                             }
 
-                        }
+                            // life per second
+                            if (creature.life < creature.maxLife_current) {
 
-                        // life per second
-                        if (creature.life < creature.maxLife_current) {
+                                creature.heal(creature.lifePerSecond_current / 1000 * ticks);
 
-                            creature.heal(creature.lifePerSecond_current / 1000 * ticks);
-
-                            updates.life = creature.life;
-                        
-                        }
-                        
-                        // mana per second
-                        if (creature.mana < creature.maxMana_current) {
-
-                            creature.restoreMana(creature.manaPerSecond_current / 1000 * ticks);
-
-                            updates.mana = updates.mana;
-                        
-                        }
-
-                        // healthpotion cooldown
-                        if (creature.healthpotion) {
-
-                            utils.cooldown(creature.healthpotion, ticks);
-
-                        }
-
-                        if (creature._itemsDropped) {
-
-                            updates.droppedItems = creature.droppedItems;
-                            creature._itemsDropped = false;
-
-                        }
-
-                        if (creature._inventoryChanged) {
-
-                            updates.inventories = creature.inventories;
-                            creature._inventoryChanged = false;
-
-                        }
-
-                        if (creature._handChanged) {
-
-                            updates.hand = creature.hand;
-                            creature._handChanged = false;
-
-                        }
-
-                        if (creature._balanceChanged) {
-
-                            updates.balance = creature.balance;
-                            creature._balanceChanged = false;
-
-                        }
-                        
-                        if (Object.getOwnPropertyNames(updates).length > 0) {
-
-                            updates.id = creature.id;
+                                updates.life = creature.life;
                             
-                            updatesList.push(updates);
+                            }
+                        
+                            // mana per second
+                            if (creature.mana < creature.maxMana_current) {
 
-                        }
+                                creature.restoreMana(creature.manaPerSecond_current / 1000 * ticks);
+
+                                updates.mana = updates.mana;
+                            
+                            }
+
+                            // healthpotion cooldown
+                            if (creature.healthpotion) {
+
+                                utils.cooldown(creature.healthpotion, ticks);
+
+                            }
+                        
+                            // if we have any changes we add this creature to the updates list
+                            if (Object.getOwnPropertyNames(updates).length > 0) {
+
+                                updates.id = creature.id;
+                                
+                                updatesList[mapKey].push(updates);
+
+                            }
                 
-                    }
-
-                    if (updatesList.length > 0) {
-
-                        for (i = 0; i < this.clients.length; i++) {
-
-                            this.clients[i].emit('update', updatesList);
-
                         }
-
+                    
                     }
+
+                    return updatesList;
 
                 }, 
 
-                changeMap: function(key) {
+                // let a creature change to a different map
+                map: function(key) {
 
                     if (!this.maps[key]) {
 
-                        this.maps[key] = mapFactory.create(key);
+                        this.maps[key] = mapFactory.create(key, this);
 
                     }
 
-                    this.map = this.maps[key];
+                    return this.maps[key];
 
                 }, 
 
@@ -180,15 +182,16 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                     for (i = 0; i < droppedItems.length; i++) {
 
-                        target.dropItem(droppedItems[i], positions[i].x, positions[i].y);
+                        target.hand = droppedItems[i];
+                        target.dropItem(positions[i].x, positions[i].y);
 
                     }
 
                 }, 
 
-                onInput: function(key, x, y, shift, ctrl, hero) {
+                processInput: function(key, x, y, shift, ctrl, hero, updates) {
 
-                    var tile, interactable;
+                    console.log('input', key, x, y, shift, ctrl);
 
                     this.lastActivityTimestamp = +new Date();
 
@@ -198,10 +201,9 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                             if (hero.hand != null && utils.tileIsWalkable(hero.map, x, y)) {
 
-                                hero.dropItem(hero.hand, x, y);
+                                hero.dropItem(x, y);
 
-                                hero.hand = null;
-                                hero._handChanged = true;
+                                updates.hand = hero.hand;
 
                             } else if (shift) {
 
@@ -209,7 +211,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                             } else {
 
-                                if (!this.pickUp(hero, x, y)) {
+                                if (!this.pickUp(hero, x, y, updates)) {
 
                                     if (!this.interact(hero, x, y)) {
 
@@ -244,7 +246,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                 }, 
 
                 interact: function(creature, x, y) {
-
+                    
                     var tile = utils.tile(creature.map, x, y), 
                         interactable = tile.interactables.find(function(interactable) {
 
@@ -264,13 +266,11 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                 }, 
 
-                pickUp: function(creature, x, y) {
+                // check if we can pick up something from the given position
+                pickUp: function(creature, x, y, updates) {
 
-                    var droppedItem = creature.droppedItems.find(function(droppedItem) {
-
-                            return utils.hitTest(droppedItem, x, y);
-
-                        }), 
+                    // try to find a dropped item on the click position
+                    var droppedItem = utils.findByHitTest(creature.droppedItems, x, y), 
                         result;
 
                     if (droppedItem) {
@@ -278,24 +278,29 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                         if (droppedItem.item.isGold) {
 
                             creature.balance += droppedItem.item.amount;
-                            creature._balanceChanged = true;
+
+                            updates.balance = creature.balance;
 
                         } else if (droppedItem.item.isHealthGlobe) {
 
                             creature.healPercent(20);
 
+                            updates.life = creature.life;
+
                         } else {
 
                             creature.hand = droppedItem.item;
-                            result = this.addItemToInventory(creature, creature.inventories[0].id);
-                            creature._handChanged = true;
+                            this.addItemToInventory(creature, creature.inventories[0].id);
+
+                            updates.hand = creature.hand;
                         
                         }
 
+                        // remove the dropped item from the list
                         utils.arrayRemove(creature.droppedItems, droppedItem);
 
-                        creature._inventoryChanged = true;
-                        creature._itemsDropped = true;
+                        updates.inventories = creature.inventories;
+                        updates.droppedItems = creature.droppedItems;
 
                     } 
 
@@ -363,7 +368,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                 }, 
 
                 addItemToInventory: function(creature, inventoryId, row, col) {
-
+                
                     var item = creature.hand, 
                         inventory = creature.inventory(inventoryId), 
                         result = {

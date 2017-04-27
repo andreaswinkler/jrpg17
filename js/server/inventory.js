@@ -2,18 +2,20 @@
 
 module.exports = function(utils) {
 
-    var Inventory = function(id, name, rows, cols) {
+    var Inventory = function(id, name, rows, cols, items) {
 
         this.id = id;
         this.name = name;
         this.rows = rows;
         this.cols = cols;
 
-        this.grid = null;
+        this.grid = utils.expandGrid(items || [], 'item', this.rows, this.cols);
 
-        this.packFields = ['id', 'name', 'grid'];
+        this.packFields = ['id', 'name', 'items', 'rows', 'cols'];
 
         this.pack = function() {
+
+            this.items = utils.packGrid(this.grid, 'item', 'inventoryWidth', 'inventoryHeight');
 
             return utils.pack(this);
 
@@ -32,21 +34,6 @@ module.exports = function(utils) {
             } 
 
             return false;
-
-        };
-
-        this.update = function(elements) {
-
-            var elements = elements || [], 
-                i;
-
-            this.grid = utils.grid(this.rows, this.cols);
-
-            for (i = 0; i < elements.length; i++) {
-
-                this.place(elements[i].item, elements[i].row, elements[i].col);
-            
-            }
 
         };
 
@@ -174,8 +161,6 @@ module.exports = function(utils) {
             return false;
 
         };
-
-        this.update([]);
 
     };
 

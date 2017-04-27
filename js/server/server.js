@@ -1,25 +1,13 @@
 "use strict";
 
-module.exports = function() {
+module.exports = function(utils, settings, player, game) {
 
     return {
 
         // the current version of the server
         // completely useless at the moment, but fun to have
         // is however returned to the client upon handshake
-        version: '0.1-a', 
-        
-        /* INPUT
-        *  we handle an input (click, keypress) from the client
-        */
-        input: function(event, socket, data) {
-        
-            // let's store the input on the hero entity so we can 
-            // process it in the next loop
-            // data contains key, x, y
-            socket.player.inputs.unshift(data);
-        
-        },                              
+        version: '0.1-a',                            
         
         // the timestamp of a loop start
         tsLoopStart: null, 
@@ -49,7 +37,7 @@ module.exports = function() {
         run: function() {
         
             var that = this, 
-                i, updates;
+                i, j, updates, clientMapKey, game, client;
         
             // sample the start timestamp
             this.tsLoopStart = +new Date();
@@ -58,15 +46,37 @@ module.exports = function() {
             if (this.tsLastLoopStart + this.msLoop < this.tsLoopStart) {
             
                 // walk through all games and invoke loop
-                // there shouldn't be too many games in the beginning so we dont't
-                // care _.each is more expansive than a loop
                 for (i = this.games.length; i--;) {
 
-                    this.games[i].update(this.tsLoopStart - this.tsLastLoopStart);
+                    game = this.games[i];
 
-                    if (this.tsLoopStart - this.games[i].lastActivityTimestamp > 60000) {
+                    updates = game.game.update(this.tsLoopStart - this.tsLastLoopStart);
 
-                        this.games.splice(i, 1);
+                    // go through all clients and sent their updates
+                    for (j = 0; j < game.clients.length; j++) {
+
+                        client = game.clients[j];
+
+                        clientMapKey = client.hero.map.key;
+                        
+                        if (updates[clientMapKey].length > 0) {
+
+                            client.emit('update', updates[clientMapKey]);
+
+                        }
+
+                        if (this.tsLoopStart - client.player.saveTS > settings.autoSaveFrequencyMS) {
+
+                            client.player.save();
+
+                        }
+
+                    }
+
+                    if (this.tsLoopStart - this.games[i].game.lastActivityTimestamp > 60000) {
+
+                        this.removeGame(this.games[i]);
+
                         console.log('no activity. game destroyed. remaining: ' + this.games.length);
 
                     }
@@ -87,6 +97,41 @@ module.exports = function() {
             // rinse and repeat
             setTimeout(function() { that.run() });
         
+        }, 
+
+        createGame: function(client) {
+
+            client.game = game.create();
+            client.player.hero.game = client.game;
+
+            this.games.push({
+                game: client.game, 
+                clients: [client]
+            });
+
+        }, 
+
+        removeGame: function(game) {
+
+            utils.arrayRemove(this.games, game);
+
+        }, 
+
+        login: function(client, id) {
+
+            client.player = player.create(id);
+            client.hero = client.player.hero;
+
+        }, 
+
+        logout: function(client) {
+
+            if (client.game) {
+
+                this.removeGame(client.game);
+
+            }
+            
         }
     
     }
