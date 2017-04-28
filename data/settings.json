@@ -1,5 +1,5 @@
 {
-    "tileSize": 256, 
+    "tileSize": 128, 
     "attributes": [
         "strength", 
         "vitality", 
@@ -25,6 +25,7 @@
     "autoSaveFrequencyMS": 10000, 
     "equipmentDropChance": 0.25, 
     "equipmentSalvageChance": 0.75, 
+    "townPortalChannelDurationMS": 3000, 
     "salvageResults": {
         "normal": {
             "normal": 1
@@ -143,6 +144,15 @@
             "nameTemplate": "Etheral %"
         }
     },
+    "interactables": {
+        "chest": {
+            "name": "Chest", 
+            "treasureClass": 5, 
+            "width": 50, 
+            "height": 50, 
+            "asset": "chest"
+        }
+    }, 
     "affixes": [
         { 
             "classes": ["armor"], 

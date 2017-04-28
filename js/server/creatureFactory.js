@@ -79,7 +79,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 // add ourselves to the new map
                 this.map.addCreature(this);
-
+                
                 // update our position accordingly
                 pos = this.map.entrance(oldMapKey);
 

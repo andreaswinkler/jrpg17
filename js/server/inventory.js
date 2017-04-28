@@ -14,7 +14,7 @@ module.exports = function(utils) {
         this.packFields = ['id', 'name', 'items', 'rows', 'cols'];
 
         this.pack = function() {
-
+            
             this.items = utils.packGrid(this.grid, 'item', 'inventoryWidth', 'inventoryHeight');
 
             return utils.pack(this);
@@ -76,7 +76,7 @@ module.exports = function(utils) {
         };
 
         // get a list of items within a grid section
-        this.items = function(row, col, width, height) {
+        this.itemsInSection = function(row, col, width, height) {
 
             var items = [],
                 endRowIndex = Math.min(row + height, this.grid.length), 
@@ -137,7 +137,7 @@ module.exports = function(utils) {
 
         this.place = function(item, row, col) {
 
-            var items = this.items(row, col, item.inventoryWidth, item.inventoryHeight);
+            var items = this.itemsInSection(row, col, item.inventoryWidth, item.inventoryHeight);
     
             // if the section is empty we just place the item
             if (items.length == 0) {

@@ -58,7 +58,7 @@ var IsometricRenderer =  {
     /* could be a new map, render to map buffer and update static content layer */
     updateMap: function(map) {
 
-        console.log('update map');
+        console.log('update map', map);
 
         var length = map.grid.length + map.grid[0].length,  
             width = (length * this.tileSize + this.halfTileSize) / 10, 

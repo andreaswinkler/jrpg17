@@ -1,0 +1,11 @@
+{
+    "name": "Dungeon", 
+    "spawnPoints": [
+        {
+            "interactable": "chest", 
+            "x": 1650, 
+            "y": 1650
+        }    
+    ], 
+    "isTown": false
+}

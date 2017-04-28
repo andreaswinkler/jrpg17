@@ -41,6 +41,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                   
                     // maintain a list of updates per map
                     var updatesList = {}, 
+                        ts = +new Date(), 
                         mapKey, map, i, j, creature, input, updates, inputs;
 
                     // go through all maps and recalculate everything
@@ -65,6 +66,21 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                             }
                             
+                            // handle channeling
+                            if (creature.channeling) {
+
+                                creature.channeling.duration -= ticks;
+
+                                if (creature.channeling.duration <= 0) {
+
+                                    creature.channelling.action(creature, updates);
+
+                                    creature.channeling = null;
+
+                                }
+
+                            }
+
                             // handle movement
                             if (creature.movementTarget) {
                                 
@@ -108,11 +124,17 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                             if (Object.getOwnPropertyNames(updates).length > 0) {
 
                                 updates.id = creature.id;
-                                
-                                updatesList[mapKey].push(updates);
+
+                                updatesList[mapKey].push(utils.pack(updates));
 
                             }
                 
+                        }
+
+                        if (map.changedTS >= ts) {
+
+                            updatesList[mapKey].push({ type: 'map', map: map.pack() });
+
                         }
                     
                     }
@@ -121,7 +143,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                 }, 
 
-                // let a creature change to a different map
+                // map singleton
                 map: function(key) {
 
                     if (!this.maps[key]) {
@@ -231,15 +253,15 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                             } else if (shift) {
 
-                                this.useSkill(hero, 'skill0', x, y);
+                                this.useSkill(hero, 'skill0', x, y, updates);
 
                             } else {
 
                                 if (!this.pickUp(hero, x, y, updates)) {
 
-                                    if (!this.interact(hero, x, y)) {
+                                    if (!this.interact(hero, x, y, updates)) {
 
-                                        if (!this.useSkill(hero, 'skill0', x, y)) {
+                                        if (!this.useSkill(hero, 'skill0', x, y, updates)) {
 
                                             hero.moveTo(x, y);
 
@@ -255,17 +277,69 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                         
                         case 'mouseRight':
 
-                            this.useSkill(hero, 'skill1', x, y);
+                            this.useSkill(hero, 'skill1', x, y, updates);
 
                             break;
                         
                         case 'Q':
 
-                            this.useHealthPotion(hero);
+                            this.useHealthPotion(hero, updates);
+
+                            break;
+                        
+                        case 'T':
+
+                            this.townPortal(hero, updates);
 
                             break;
 
                     }
+
+                }, 
+
+                townPortal: function(hero, updates) {
+
+                    if (!hero.map.isTown) {
+
+                        hero.channeling = {
+                            duration: settings.townPortalChannelDurationMS, 
+                            type: 'townPortal', 
+                            action: function(hero, updates) {
+
+                                var townMap = game.townMap(), 
+                                    originMapKey = hero.map.key;
+
+                                // create portal from origin map to town
+                                hero.map.createTownPortal(hero, townMap.key);
+
+                                // change to town map
+                                hero.changeMap(townMap.key);
+
+                                // create a portal in town leading to the origin map
+                                hero.map.createTownPortal(hero, originMapKey);
+
+                            }
+                        };
+
+                        updates.channeling = hero.channeling;
+
+                    }
+
+                }, 
+
+                townMap: function() {
+
+                    for (var key in this.maps) {
+
+                        if (this.maps[key].isTown) {
+
+                            return this.maps[key];
+
+                        }
+
+                    }
+
+                    return null;
 
                 }, 
 
@@ -349,7 +423,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                 }, 
 
-                interact: function(creature, x, y) {
+                interact: function(creature, x, y, updates) {
                     
                     var tile = utils.tile(creature.map, x, y), 
                         interactable = tile.interactables.find(function(interactable) {
@@ -361,6 +435,8 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                     if (interactable) {
 
                         interactable.interact(creature);
+
+                        updates.droppedItems = creature.droppedItems;
 
                         return true;
 
@@ -397,13 +473,14 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                             this.addItemToInventory(creature, creature.inventories[0].id);
 
                             updates.hand = creature.hand;
+
+                            updates.inventories = creature.inventories;
                         
                         }
 
                         // remove the dropped item from the list
                         utils.arrayRemove(creature.droppedItems, droppedItem);
 
-                        updates.inventories = creature.inventories;
                         updates.droppedItems = creature.droppedItems;
 
                     } 
@@ -412,11 +489,15 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                 }, 
 
-                useSkill: function(creature, slot, x, y) {
+                useSkill: function(creature, slot, x, y, updates) {
 
                     var skill = creature[slot];
 
-                    if (!creature.scheduledSkill && utils.skillReady(skill)) {
+                    if (!creature.scheduledSkill && utils.skillReady(skill) && skill.manaCost >= creature.mana) {
+
+                        creature.mana -= skill.manaCost;
+
+                        updates.mana = creature.mana;
 
                         return skills.invoke(creature, skill, x, y);
 
@@ -426,13 +507,15 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                 }, 
 
-                useHealthPotion: function(creature) {
+                useHealthPotion: function(creature, updates) {
 
                     if (creature.healthPotion && !creature.healthPotion.cooldown_current) {
 
                         creature.healPercent(creature.healthPotion.healPercent);
 
                         creature.healthPotion.cooldown_current = creature.healthPotion.cooldown * 1000;
+
+                        updates.life = creature.life;
 
                     }
 

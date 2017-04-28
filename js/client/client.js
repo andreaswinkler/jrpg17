@@ -175,28 +175,40 @@ window.$G = {
 
             for (i = 0; i < data.length; i++) {
 
-                for (j = 0; j < $G.map.creatures.length; j++) {
+                if (data[i].type == 'map') {
 
-                    creature = $G.map.creatures[j];
+                    if (data[i].map.key == $G.hero.map.key) {
 
-                    if (creature.id == data[i].id) {
-                        
-                        $.extend(creature, data[i]);
+                        $.extend($G.hero.map, data[i].map);
 
-                        if (data[i].inventories) {
+                    }
 
-                            $G.expandInventories(creature.inventories);
+                } else {
 
-                        }
+                    for (j = 0; j < $G.map.creatures.length; j++) {
 
-                        if (creature === $G.hero) {
+                        creature = $G.map.creatures[j];
 
-                            heroUpdated = true;
+                        if (creature.id == data[i].id) {
+                            
+                            $.extend(creature, data[i]);
+
+                            if (data[i].inventories) {
+
+                                $G.expandInventories(creature.inventories);
+
+                            }
+
+                            if (creature === $G.hero) {
+
+                                heroUpdated = true;
+
+                            }
 
                         }
 
                     }
-
+                
                 }
 
             }

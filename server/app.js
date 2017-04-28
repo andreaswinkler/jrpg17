@@ -56,7 +56,7 @@ io.on('connection', function(client) {
         // end TEMP
 
         // TEMP: how do we determine which level we load?
-        client.hero.changeMap('village');
+        client.hero.changeMap('dungeon');
 
         console.log('Game created. Games running: ' + server.games.length);
 
