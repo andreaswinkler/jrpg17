@@ -1,5 +1,15 @@
 {
     "name": "The Village", 
-    "spawnPoints": [], 
+    "spawnPoints": [{
+        "creature": "betaVendorNpc", 
+        "x": 3700, 
+        "y": 2304
+    }], 
+    "entrances": {
+        "default": {
+            "x": 3584, 
+            "y": 2304
+        }    
+    }, 
     "isTown": true
 }

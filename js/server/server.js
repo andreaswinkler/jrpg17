@@ -75,7 +75,7 @@ module.exports = function(utils, settings, player, game) {
 
                     if (this.tsLoopStart - this.games[i].game.lastActivityTimestamp > 60000) {
 
-                        this.removeGame(this.games[i]);
+                        this.removeGame(this.games[i].game);
 
                         console.log('no activity. game destroyed. remaining: ' + this.games.length);
 
@@ -112,8 +112,18 @@ module.exports = function(utils, settings, player, game) {
         }, 
 
         removeGame: function(game) {
+            
+            var i;
+            
+            for (i = this.games.length; i--;) {
 
-            utils.arrayRemove(this.games, game);
+                if (this.games[i].game.id == game.id) {
+
+                    this.games.splice(i, 1);
+
+                }
+
+            }
 
         }, 
 
@@ -125,7 +135,7 @@ module.exports = function(utils, settings, player, game) {
         }, 
 
         logout: function(client) {
-
+            
             if (client.game) {
 
                 this.removeGame(client.game);

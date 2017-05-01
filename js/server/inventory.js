@@ -23,17 +23,25 @@ module.exports = function(utils) {
 
         this.add = function(item) {
 
-            var index = this.emptyGridIndex(item.inventoryWidth, item.inventoryHeight);
+            if (Array.isArray(item)) {
 
-            if (index) {
+                item.map(this.add, this);
 
-                this.place(item, index.row, index.col);
+            } else {
 
-                return true;
+                var index = this.emptyGridIndex(item.inventoryWidth, item.inventoryHeight);
 
-            } 
+                if (index) {
 
-            return false;
+                    this.place(item, index.row, index.col);
+
+                    return true;
+
+                } 
+
+                return false;
+            
+            }
 
         };
 
@@ -102,11 +110,11 @@ module.exports = function(utils) {
         };
 
         this.grabItem = function(itemId, replacement) {
-
+            
             var result = utils.searchGridById(this.grid, itemId);
-
+            
             // great, we found the item
-            if (result) {
+            if (result.el) {
 
                 result.item = result.el;
 
@@ -166,9 +174,9 @@ module.exports = function(utils) {
 
     return {
     
-        create: function(id, name, rows, cols) {
+        create: function(id, name, rows, cols, items) {
 
-            return new Inventory(id, name, rows, cols);
+            return new Inventory(id, name, rows, cols, items);
 
         }
 

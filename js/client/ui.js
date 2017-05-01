@@ -48,11 +48,36 @@ var UI = {
         this.e = $('<div class="positioned ui-window ui-window-align-' + options.align + ' ui-window-layer-' + options.layer + '"></div>');
         this.e.css('width', options.width);
 
+        this.eTitle = $('<div class="ui-window-title"><span>' + options.title + '</span><input type="button" class="ui-window-close" value="X" /></div>').appendTo(this.e);
+        this.eContent = $('<div class="ui-window-content"></div>').appendTo(this.e);
+
         container.append(this.e);
+
+        this.eTitle.find('input').click(function(ev) {
+
+            $(ev.target).closest('.ui-window').removeClass('visible');
+
+            ev.preventDefault();
+
+            return false;
+
+        });
+
+        this.active = function() {
+
+            return this.e.hasClass('visible');
+
+        };
 
         this.toggle = function() {
 
             this.e.toggleClass('visible');
+
+        };
+
+        this.title = function(title) {
+
+            this.eTitle.find('span').html(title);
 
         };
 
@@ -98,10 +123,10 @@ var UI = {
 
         this.update = function(hero) {
 
-            this.strengthField.update(hero.strength);
-            this.dexterityField.update(hero.dexterity);
-            this.intelligenceField.update(hero.intelligence);
-            this.vitalityField.update(hero.vitality);
+            this.strengthField.update(hero.strength_current);
+            this.dexterityField.update(hero.dexterity_current);
+            this.intelligenceField.update(hero.intelligence_current);
+            this.vitalityField.update(hero.vitality_current);
             
             this.dpsField.update(Utils.dps(hero).toFixed(1));
             this.armorField.update(hero.armor_current.toFixed(0));
@@ -132,6 +157,9 @@ var UI = {
                     .on('contextmenu', function(ev) {
 
                         Net.emit('unequipItem', { itemId: that.item.id, moveToInventory: true });
+
+                        UI.itemOverlay.hide();   
+                        UI.comparisonItemOverlay.hide();
 
                         ev.preventDefault();
                         return false;
@@ -227,7 +255,7 @@ var UI = {
 
     }, 
 
-    InventoryScreen: function(container) {
+    InventoryScreen: function(container, location) {
 
         this.e = $('<div class="ui-inventory"><div class="ui-inventory-grid"><div class="ui-inventory-highlight"></div></div></div>');
         this.eGrid = this.e.find('.ui-inventory-grid');
@@ -235,12 +263,14 @@ var UI = {
         this.cellSize = 0;
         this.width = 0;
         this.inventory = null;
+        this.location = location; 
 
         this.update = function(inventory) {
 
             var rows = inventory.grid.length, 
                 cols = inventory.grid[0].length, 
                 height = this.e.height(), 
+                location = this.location, 
                 i, j, item, eItem;
                 
             this.inventory = inventory;
@@ -273,6 +303,9 @@ var UI = {
 
                                 Net.emit('grabItem', { itemId: itemId, inventoryId: inventoryId });
 
+                                UI.itemOverlay.hide();   
+                                UI.comparisonItemOverlay.hide();
+
                                 ev.preventDefault();
                                 return false;
 
@@ -281,7 +314,26 @@ var UI = {
 
                                 var itemId = $(ev.target).closest('.ui-inventory-item').attr('data-id'); 
 
-                                Net.emit('equipItem', { itemId: itemId });
+                                if (UI.vendorWindow.active()) {
+
+                                    if (location == 'vendor') {
+
+                                        Net.emit('buyItem', { itemId: itemId });
+
+                                    } else {
+
+                                        Net.emit('sellItem', { itemId: itemId });
+                                    
+                                    }
+
+                                } else {
+
+                                    Net.emit('equipItem', { itemId: itemId });
+
+                                }
+
+                                UI.itemOverlay.hide();   
+                                UI.comparisonItemOverlay.hide();
 
                                 ev.preventDefault();
                                 return false;
@@ -303,7 +355,7 @@ var UI = {
 
                                 }
 
-                                UI.itemOverlay.show(e.offset().left, e.offset().top, item, 'inventory');
+                                UI.itemOverlay.show(e.offset().left, e.offset().top, item, location == 'inventory' && UI.vendorWindow.active() ? 'inventoryWithVendor' : location);
 
                                 if (comparisonItem) {
 
@@ -440,7 +492,7 @@ var UI = {
 
             this.updateTitle(this.item);
 
-            this.updateContent(this.item, comparisonItem);
+            this.updateContent(this.item, location, comparisonItem);
 
             this.updateActions(location);
 
@@ -452,12 +504,13 @@ var UI = {
 
         };
 
-        this.updateContent = function(item, comparisonItem) {
+        this.updateContent = function(item, location, comparisonItem) {
 
             var description = item.type, 
                 mainStat = '', 
                 sockets ='', 
                 affixes = '', 
+                info = '', 
                 i, affix;
 
             if (item.rank != 'normal') {
@@ -494,6 +547,18 @@ var UI = {
 
             });
 
+            info += '<label>Required Level:</label><b>' + item.levelRequirement + '</b>';
+
+            if (location == 'inventoryWithVendor') {
+
+                info += '<label>Sell Value:</label><b>' + item.sellValue + '</b>';
+
+            } else if (location == 'vendor') {
+
+                info += '<label>Price:</label><b>' + item.buyValue + '</b>';
+
+            }
+
             this.eImage.css('background-image', 'url(assets/items/' + item.asset + '.png)');
             this.eDescription.html(description);
             this.eSlot.html(item.slotHint);
@@ -503,7 +568,7 @@ var UI = {
             this.eSockets.html(sockets);
             this.eSetinfo.html('');
             this.eLore.html('');
-            this.eInfo.html('<label>Required Level:</label><b>' + item.levelRequirement + '</b>');
+            this.eInfo.html(info);
 
         };
 
@@ -540,6 +605,12 @@ var UI = {
             if (top < 0) {
 
                 top = 0;
+
+            } 
+
+            if (left < 0) {
+
+                left = x + 100;
 
             }
 
@@ -622,14 +693,58 @@ var UI = {
         this.renderer.init($('<div class="ui-stage positioned fullscreen" />').appendTo(this.container), $G.settings.tileSize);
 
         this.characterWindow = new UI.Window(this.container, { align: 'right', width: '45%' });
-        this.statsBar = new UI.StatsBar(this.characterWindow.e);
-        this.equipmentScreen = new UI.EquipmentScreen(this.characterWindow.e);
-        this.inventoryScreen = new UI.InventoryScreen(this.characterWindow.e);
+        this.statsBar = new UI.StatsBar(this.characterWindow.eContent);
+        this.equipmentScreen = new UI.EquipmentScreen(this.characterWindow.eContent);
+        this.inventoryScreen = new UI.InventoryScreen(this.characterWindow.eContent, 'inventory');
 
         this.itemOverlay = new UI.ItemOverlay(this.container);
         this.comparisonItemOverlay = new UI.ItemOverlay(this.container);
 
         this.droppedItemOverlay = new UI.DroppedItemOverlay(this.container);
+
+        this.vendorWindow = new UI.Window(this.container, { align: 'left', width: '45%', name: 'Vendor' });
+        this.vendorWindow.update = function(vendor) {
+
+            var tabs = '';
+
+            this.eContent.addClass('vendor').html('');
+            this.title(vendor.name);
+
+            vendor.inventories.forEach(function(inventory, ind) {
+
+                this['inventoryScreen' + ind] = new UI.InventoryScreen(this.eContent, 'vendor');
+                this['inventoryScreen' + ind].update(inventory);
+
+                if (ind > 0) {
+
+                    this['inventoryScreen' + ind].e.hide();
+
+                }
+
+                tabs += '<input type="button" value="' + ind + '"' + (ind == 0 ? ' class="active"' : '') + ' data-inventory-id="' + inventory.id +'" />';
+
+            }, this);
+
+            this.eContent.append('<div class="tabs">' + tabs + '</div>');
+
+            this.eContent.find('.tabs input').click(function(ev) {
+
+                var e = $(ev.target), 
+                    inventoryId = e.attr('data-inventory-id'), 
+                    w = e.closest('.ui-window');
+                
+                w.find('.ui-inventory').hide();
+                w.find('.ui-inventory[data-id=' + inventoryId + ']').show();
+                w.find('.tabs input').removeClass('active');
+                e.addClass('active');
+
+                ev.preventDefault();
+
+                return false;
+
+            });
+
+        };
 
         this.itemOverlay.hide();
         this.comparisonItemOverlay.hide();
@@ -663,6 +778,13 @@ var UI = {
         e.css('top', top + 'px').css('left', left + 'px').css('width', width + 'px').css('height', height + 'px');
 
     },
+
+    showVendorWindow: function(vendor) {
+
+        this.vendorWindow.update(vendor);
+        this.vendorWindow.toggle();
+
+    }, 
 
     toggleCharacterWindow: function() {
 

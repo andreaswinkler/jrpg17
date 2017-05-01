@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(fs, utils, settings) {
+module.exports = function(fs, utils, settings, creatureFactory) {
 
     return {
     
@@ -9,12 +9,13 @@ module.exports = function(fs, utils, settings) {
             var blueprint = require('./../../data/maps/' + key + '.json'), 
                 input = fs.readFileSync('./../data/maps/' + key + '.txt', { encoding: 'utf-8' }), 
                 grid = this.readMapData(input), 
+                npcs = [], 
                 interactables = [], 
                 creatures = [];
             
             blueprint.spawnPoints.forEach(function(spawnPoint) {
 
-                var interactable;
+                var interactable, creature;
 
                 if (spawnPoint.interactable) {
 
@@ -35,7 +36,22 @@ module.exports = function(fs, utils, settings) {
 
                     interactables.push(interactable);
 
-                }      
+                } else if (spawnPoint.creature) {
+
+                    creature = creatureFactory.create(spawnPoint.creature, { level: 1 }, game);
+
+                    creature.x = spawnPoint.x;
+                    creature.y = spawnPoint.y;
+
+                    creatures.push(creature);
+                   
+                    if (creature.type == 'npc') {
+
+                        npcs.push(creature);
+
+                    }
+
+                } 
 
             });
                
@@ -52,17 +68,13 @@ module.exports = function(fs, utils, settings) {
                 key: key, 
                 creatures: creatures, 
                 interactables: interactables,
+                npcs: npcs, 
                 grid: grid, 
                 rows: grid.length, 
                 cols: grid[0].length, 
                 game: game, 
                 changedTS: 0, 
-                entrances: {
-                    default: {
-                        x: 1600, 
-                        y: 1600
-                    }    
-                }, 
+                entrances: blueprint.entrances, 
                 excludeFields: ['game'], 
                 pack: function() {
 

@@ -10,8 +10,26 @@
                 "name": "Weapons", 
                 "rows": 16, 
                 "cols": 10, 
+                "autoFill": { "itemClass": "weapon", "amount": 20 }, 
+                "items": []
+            },
+            {
+                "id": 4, 
+                "name": "Armor", 
+                "rows": 16, 
+                "cols": 10, 
+                "autoFill": { "itemClass": "armor", "amount": 20 }, 
+                "items": []
+            },
+            {
+                "id": 5, 
+                "name": "Jewelry", 
+                "rows": 16, 
+                "cols": 10, 
+                "autoFill": { "itemClass": "jewelry", "amount": 10 }, 
                 "items": []
             }
+
         ], 
         "width": 40, 
         "height": 100

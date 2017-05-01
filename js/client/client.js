@@ -134,6 +134,12 @@ window.$G = {
 
         this.expandInventories(this.hero.inventories);
 
+        map.npcs.forEach(function(npc) {
+
+            this.expandInventories(npc.inventories);
+
+        }, this);
+
     }, 
 
     expandInventories: function(inventories) {
@@ -234,7 +240,13 @@ window.$G = {
 
             case 'mouseLeft':
 
-                //$G.hero.moveTo(data.x, data.y);
+                var npc = Utils.findByHitTest(this.map.npcs, data.x, data.y);
+
+                if (npc) {
+
+                    UI.showVendorWindow(npc);
+
+                }
 
                 break;
             

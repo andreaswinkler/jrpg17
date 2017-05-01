@@ -10,15 +10,21 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
         create: function(key, data, game) {
             
             var creature = utils.assign({}, this.blueprints[key], data), 
-                i, inventories, inventory;
+                i, j, inventories, inventory;
             
             creature.id = ++this.counter;
             creature.game = game;
             creature.droppedItems = [];
             creature.inputs = [];
 
-            creature.excludeFields = ['map', 'game', 'inputs', 'movementTarget'];
+            if (creature.balance == null) {
+                creature.balance = 0;
+            }
 
+            creature.balance = 1000;
+
+            creature.excludeFields = ['map', 'game', 'inputs', 'movementTarget'];
+            
             creature.pack = function() {
 
                 return utils.pack(this);
@@ -28,6 +34,26 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
             creature.enemy = function(x, y) {
 
                 return this.map.creatures.find(function(creature) { return creature.faction != this.faction && utils.hitTest(creature.x, creature.y, creature.width, creature.height, x, y, x + 1, y + 1) }, this);
+
+            };
+
+            creature.pay = function(amount) {
+
+                if (amount <= this.balance) {
+
+                    this.balance -= amount;
+
+                    return true;
+
+                }
+
+                return false;
+
+            };
+
+            creature.earn = function(amount) {
+
+                this.balance += amount;
 
             };
 
@@ -130,6 +156,12 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                     }
 
                     inventory = Inventory.create(inventories[i].id, inventories[i].name, inventories[i].rows, inventories[i].cols, inventories[i].items);
+                    
+                    if (inventories[i].autoFill) {
+
+                        inventory.add(itemFactory.createVendorStock(creature, inventories[i].autoFill));
+
+                    }
 
                     creature.inventories.push(inventory);
 
@@ -159,7 +191,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                     if (utils.canEquip(this, item, slot)) {
   
-                        this.hand = this.equipment[slot];
+                        this.hand = this.equipment[slot] || null;
                         
                         this.equipment[slot] = item;
 

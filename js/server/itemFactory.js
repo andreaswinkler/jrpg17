@@ -20,6 +20,8 @@ module.exports = function(utils, settings, blueprints) {
             item.level = level;
             item.rank = rank;
             item.quality = quality;
+            item.sellValue = item.level;
+            item.buyValue = item.level * 10;
 
             for (i = item.affixes.filter(function(i) { return !i.internal; }).length; i < affixCount; i++) {
 
@@ -112,6 +114,34 @@ module.exports = function(utils, settings, blueprints) {
             this.update(item, true);
 
             return item;
+
+        }, 
+
+        // generate a set of items for a vendor to display in one of 
+        // his shelf tabs
+        createVendorStock: function(vendor, options) {
+
+            var list = [], 
+                possibleBlueprints = this.blueprints.filter(function(i) {
+
+                    return i.minLevel <= vendor.level &&
+                        i.maxLevel >= vendor.level &&
+                        i.class == options.itemClass;
+
+                }), 
+                blueprint, rank, quality, i;
+
+            for (i = 0; i < options.amount; i++) {
+
+                blueprint = utils.random(possibleBlueprints);
+                rank = utils.random(['normal', 'magic', 'rare']);
+                quality = utils.random(settings.itemQualities);
+
+                list.push(this.create(blueprint, vendor.level, rank, quality));
+
+            }
+
+            return list;
 
         }, 
 
@@ -260,6 +290,13 @@ module.exports = function(utils, settings, blueprints) {
 
                 item.id = ++this.counter;
 
+            }
+
+            if (!item.buyValue) {
+                item.buyValue = item.level * 10;
+            }
+            if (!item.sellValue) {
+                item.sellValue = item.level;
             }
 
             // reset item

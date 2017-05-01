@@ -9,10 +9,10 @@ var app = require('http').createServer(),
     utils = require('./../js/shared/utils.js'), 
     inventory = require('./../js/server/inventory.js')(utils), 
     skills = require('./../js/server/skills.js')(utils), 
-    mapFactory = require('./../js/server/mapFactory.js')(fs, utils, settings), 
     components = require('./../js/shared/components.js'), 
     itemFactory = require('./../js/server/itemFactory.js')(utils, settings, items), 
-    creatureFactory = require('./../js/server/creatureFactory.js')(utils, settings, creatures, components, inventory, itemFactory), 
+    creatureFactory = require('./../js/server/creatureFactory.js')(utils, settings, creatures, components, inventory, itemFactory),
+    mapFactory = require('./../js/server/mapFactory.js')(fs, utils, settings, creatureFactory),  
     player = require('./../js/server/player.js')(fs, utils, creatureFactory), 
     game = require('./../js/server/game.js')(utils, settings, skills, mapFactory, itemFactory), 
     server = require('./../js/server/server.js')(utils, settings, player, game);
@@ -56,7 +56,7 @@ io.on('connection', function(client) {
         // end TEMP
 
         // TEMP: how do we determine which level we load?
-        client.hero.changeMap('dungeon');
+        client.hero.changeMap('village');
 
         console.log('Game created. Games running: ' + server.games.length);
 
@@ -91,6 +91,18 @@ io.on('connection', function(client) {
     client.on('unequipItem', function(data) {
 
         client.hero.inputs.push({ key: 'unequipItem', data: data });
+
+    });
+
+    client.on('sellItem', function(data) {
+
+        client.hero.inputs.push({ key: 'sellItem', data: data });
+
+    });
+
+    client.on('buyItem', function(data) {
+
+        client.hero.inputs.push({ key: 'buyItem', data: data });
 
     });
 

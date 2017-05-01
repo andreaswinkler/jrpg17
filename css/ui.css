@@ -68,6 +68,16 @@ canvas {
     height: 100%;
 }
 
+.ui-window-content {
+    top: 30px;
+}
+
+.ui-window-title {
+    background: #000; color: #fff;
+    height: 30px; 
+    text-align: center;
+}
+
 .ui-window-align-right {
     right: 0;
     left: auto;
@@ -280,6 +290,29 @@ canvas {
     top: 50%; 
     position: absolute;
     display: block;
+}
+
+.ui-window .tabs {
+    border: 1px solid red; 
+    display: block; width: 50px; height: auto;
+    right: 0; position: absolute; top: 30px;
+    background: green;
+}
+
+.ui-window .tabs input {
+    width: 50px; height: 50px; 
+    font-size: 50px; color: #fff;
+    background: #000;
+    display: block;
+}
+
+.ui-window .tabs input.active {
+    background: #333;
+}
+
+
+.vendor .ui-inventory {
+    top: 30px; height: 800px;
 }
 
 .ui-inventory-grid {

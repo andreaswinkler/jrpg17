@@ -56,7 +56,7 @@
         assign: function() {
 
             var args = Array.prototype.slice.call(arguments).map(this.clone, this);
-
+            
             return Object.assign.apply(this, args);
 
         }, 
@@ -293,7 +293,7 @@
             var i;
 
             for (i = arr.length; i--;) {
-
+                
                 if (arr[i].id == id) {
 
                     arr.splice(i, 1);
@@ -364,7 +364,11 @@
         // along with its grid index
         searchGridById: function(grid, id) {
 
-            var i, j;
+            var result = {
+                    el: null, 
+                    row: -1, 
+                    col: -1
+                }, i, j;
             
             for (i = 0; i < grid.length; i++) {
 
@@ -372,11 +376,11 @@
 
                     if (grid[i][j] != null && grid[i][j].id == id) {
 
-                        return {
-                            el: grid[i][j], 
-                            row: i, 
-                            col: j
-                        }
+                        result.el = grid[i][j];
+                        result.row = i;
+                        result.col = j;
+                        
+                        return result;
 
                     }
                 
@@ -384,7 +388,7 @@
             
             }
 
-            return null;
+            return result;
 
         }, 
 
@@ -431,13 +435,29 @@
 
         }, 
 
-        pack: function(obj) {
+        packField: function(prop) {
+
+            if (Array.isArray(prop)) {
+                                
+                return prop.map(this.packField, this);
+
+            } else if (prop && prop.pack) {
+
+                return prop.pack();
+
+            } 
+
+            return prop;
+
+        }, 
+
+        pack: function(obj, rootInvokePack) {
 
             if (obj != null && typeof obj == 'object') {
 
                 var fields = obj.packFields || Object.getOwnPropertyNames(obj), 
-                    propertyBlacklist = ['packFields', 'excludeFields'], 
-                    result = {},
+                     propertyBlacklist = ['packFields', 'excludeFields'], 
+                     result = {},
                     i, key, prop;
 
                 if (obj.excludeFields) {
@@ -453,26 +473,14 @@
 
                     if (typeof prop != 'function' && propertyBlacklist.indexOf(key) == -1) {
 
-                        if (Array.isArray(prop)) {
-
-                            result[key] = prop.map(this.pack, this);
-
-                        } else if (prop && prop.pack) {
-
-                            result[key] = prop.pack();
-
-                        } else {
-
-                            result[key] = prop;
+                        result[key] = this.packField(prop);
                         
-                        }
-                    
                     }
 
                 }
 
                 return result;
-            
+                
             }
 
             return obj;
@@ -494,8 +502,8 @@
                         packedElement = { 
                             row: i, 
                             col: j, 
-                            width: widthKey ? grid[i][j][widthProp] : 1, 
-                            height: heightKey ? grid[i][j][heightProp] : 1 
+                            width: widthProp? grid[i][j][widthProp] : 1, 
+                            height: heightProp ? grid[i][j][heightProp] : 1 
                         };
                         packedElement[key] = grid[i][j];
 

@@ -20,17 +20,35 @@ module.exports = function(fs, utils, creatureFactory) {
             
             player.pack = function() {
 
-                return utils.pack(player);
+                return utils.pack(this);
 
             };
 
             player.save = function() {
 
-                fs.writeFile('./../data/players/' + this.id + '.json', JSON.stringify(this.pack()), function(err) {
+                var id = this.id, 
+                    packedPlayer = this.pack(), 
+                    that = this;
+                
+                packedPlayer.hero.droppedItems = null;
+                that.saveTS = +new Date();
+
+                fs.writeFile('./../data/players/' + id + '-latest.json', JSON.stringify(packedPlayer), function(err) {
 
                     if (err) {
 
                         console.log('player data could not be saved', err);
+
+                    } else {
+
+                        fs.rename('./../data/players/' + id + '-latest.json', './../data/players/' + id + '.json', function(err) {
+
+                            if (err) {
+                            }
+
+                            that.saveTS = +new Date();
+
+                        });
 
                     }
 

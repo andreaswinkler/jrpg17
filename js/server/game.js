@@ -242,14 +242,27 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                             this.inputUnequipItem(hero, data.itemId, data.moveToInventory, updates);
 
                             break;
+                        
+                        case 'sellItem':
+
+                            this.inputSellItem(hero, data.itemId, updates);
+
+                            break;
+                            
+                        case 'buyItem':
+
+                            this.inputBuyItem(hero, data.itemId, updates);
+
+                            break;
 
                         case 'mouseLeft':
 
                             if (hero.hand != null && utils.tileIsWalkable(hero.map, x, y)) {
-
+                                
                                 hero.dropItem(x, y);
 
                                 updates.hand = hero.hand;
+                                updates.droppedItems = hero.droppedItems;
 
                             } else if (shift) {
 
@@ -343,6 +356,33 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                 }, 
 
+                inputBuyItem: function(hero, itemId, updates) {
+
+                    var result = this.buyItem(hero, itemId);
+
+                    if (result) {
+
+                        updates.balance = hero.balance;
+                        updates.inventories = hero.inventories;
+
+                    }
+
+                }, 
+
+                inputSellItem: function(hero, itemId, updates) {
+                    
+                    var result = this.sellItem(hero, itemId);
+
+                    if (result.success) {
+
+                        updates.balance = hero.balance;
+                        updates.inventories = hero.inventories;
+                        updates.equipment = hero.equipment;
+
+                    }
+
+                }, 
+
                 inputUnequipItem: function(hero, itemId, moveToInventory, updates) {
     
                     var result = this.unequipItem(hero, itemId, moveToInventory);
@@ -362,7 +402,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                 }, 
 
-                inputGrabItem: function(hero, inventoryId, itemId) {
+                inputGrabItem: function(hero, inventoryId, itemId, updates) {
 
                     if (this.grabItemFromInventory(hero, inventoryId, itemId).success) {
 
@@ -373,7 +413,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                 }, 
 
-                inputPlaceItem: function(hero, inventoryId, row, col) {
+                inputPlaceItem: function(hero, inventoryId, row, col, updates) {
 
                     if (this.addItemToInventory(hero, inventoryId, row, col).success) {
 
@@ -384,14 +424,14 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                 }, 
 
-                inputEquipItem: function(hero, itemId, slot) {
+                inputEquipItem: function(hero, itemId, slot, updates) {
 
                     var moveToInventory = false, 
                         row, col, result, grabItemResult;
 
                     if (itemId) {
 
-                        grabItemResult = this.grabItemFromInventory(hero, hero.inventories[0].id, data.itemId);
+                        grabItemResult = this.grabItemFromInventory(hero, hero.inventories[0].id, itemId);
 
                         row = grabItemResult.row;
                         col = grabItemResult.col;
@@ -403,7 +443,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                     if (hero.hand) {
 
                         result = this.equipItem(hero, hero.hand, (slot || hero.hand.slots[0]), moveToInventory, row, col);
-            
+                        
                         if (result.success) {
 
                             updates.hand = hero.hand;
@@ -419,7 +459,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                         }
                     
-                    }
+                    } 
 
                 }, 
 
@@ -430,7 +470,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
 
                             return interactable.active && utils.hitTest(interactable, x, y);
 
-                        });
+                        }), npc;
                     
                     if (interactable) {
 
@@ -439,6 +479,19 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                         updates.droppedItems = creature.droppedItems;
 
                         return true;
+
+                    } else {
+
+                        npc = utils.findByHitTest(creature.map.npcs, x, y);
+
+                        if (npc) {
+
+                            console.log('interact with ' + npc.name);
+                            creature.activeNpc = npc;
+
+                            return true;
+
+                        }
 
                     }
 
@@ -663,6 +716,64 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                             } 
 
                         }
+
+                    }
+
+                    return result;
+
+                }, 
+
+                buyItem: function(creature, itemId) {
+                    
+                    var result = {
+                            success: false
+                        }, 
+                        vendor = creature.activeNpc, 
+                        grabItemResult, item, i;
+
+                    for (i = 0; i < vendor.inventories.length; i++) {
+
+                        grabItemResult = this.grabItemFromInventory(vendor, vendor.inventories[i].id, itemId);
+
+                        if (grabItemResult.item) {
+
+                            item = grabItemResult.item;
+
+                        }
+
+                    }
+
+                    if (item && creature.pay(item.buyValue)) {
+
+                        creature.hand = creature.activeNpc.hand;
+                        creature.activeNpc.hand = null;
+
+                        this.addItemToInventory(creature, creature.inventories[0].id);
+
+                        result.success = true;
+
+                    }
+
+                    return result;
+
+                }, 
+
+                sellItem: function(creature, itemId) {
+                    
+                    var result = {
+                            success: false
+                        }, 
+                        grabItemResult = this.grabItemFromInventory(creature, creature.inventories[0].id, itemId), 
+                        item = grabItemResult.item;
+                    
+                    if (item) {
+                        
+                        // place item to npc inventory, handle inventory full stuff etc.
+                        creature.hand = null;
+                        
+                        creature.earn(item.sellValue);
+
+                        result.success = true;
 
                     }
 
