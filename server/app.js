@@ -59,8 +59,17 @@ io.on('connection', function(client) {
         client.hero.changeMap('village');
 
         console.log('Game created. Games running: ' + server.games.length);
-
+        
         client.emit('gameCreated', { game: client.game.pack(), map: client.hero.map.pack() });
+
+    });
+
+    client.on('leaveGame', function(data) {
+
+        client.player.save();
+        server.logout(client);
+
+        console.log('Client left game. Games remaining: ' + server.games.length);
 
     });
 

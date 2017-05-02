@@ -24,8 +24,8 @@
                     e: e, 
                     update: function(ticks) {
                             
-                        var targetX = this.e.x + (this.dx * this.e.speed * ticks), 
-                            targetY = this.e.y + (this.dy * this.e.speed * ticks);
+                        var targetX = ~~(this.e.x + (this.dx * this.e.speed * ticks)), 
+                            targetY = ~~(this.e.y + (this.dy * this.e.speed * ticks));
                             
                         if (this.ignoreObstacles || utils.tileIsWalkable(this.e.map, targetX, targetY)) {
 
@@ -38,7 +38,8 @@
 
                             }
 
-                            this.e.moved = true;
+                            this.e.updates.x = this.e.x;
+                            this.e.updates.y = this.e.y;
 
                         } else {
 

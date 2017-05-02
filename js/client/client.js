@@ -126,6 +126,8 @@ window.$G = {
 
     onMapChanged: function(map) {
 
+        console.log('onMapChanged', map);
+
         // update hero reference
         this.hero = map.creatures.find(function(i) { return i.id == this.hero.id; }, this);
         this.hero.map = map;
@@ -139,6 +141,10 @@ window.$G = {
             this.expandInventories(npc.inventories);
 
         }, this);
+
+        UI.renderer.updateMap(this.hero.map);
+
+        Events.emit('map.loaded', this.map);
 
     }, 
 
@@ -165,10 +171,6 @@ window.$G = {
         this.game = game;
 
         this.onMapChanged(map);
-
-        UI.renderer.updateMap(this.hero.map);
-
-        Events.emit('map.loaded', this.map);
 
         // we send all client inputs to the server
         Events.on('input', Net.input, Net);
@@ -206,6 +208,13 @@ window.$G = {
                             }
 
                             if (creature === $G.hero) {
+
+                                if ($G.hero.newMap) {
+                                    
+                                    $G.onMapChanged($G.hero.newMap);
+                                    $G.hero.newMap = null;
+
+                                }
 
                                 heroUpdated = true;
 
@@ -259,6 +268,12 @@ window.$G = {
             case 'D':
 
                 $G.toggleDebug();
+
+                break;
+            
+            case 'ESCAPE':
+
+                UI.toggleMenu();
 
                 break;
 

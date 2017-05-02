@@ -1,10 +1,25 @@
 {
     "name": "The Village", 
-    "spawnPoints": [{
-        "creature": "betaVendorNpc", 
-        "x": 3700, 
-        "y": 2304
-    }], 
+    "spawnPoints": [
+        {
+            "creature": "betaVendorNpc", 
+            "x": 3700, 
+            "y": 2304
+        }, 
+        {
+            "interactable": "chest", 
+            "x": 3700, 
+            "y": 2450
+        }   
+    ], 
+    "exits": [
+        {
+            "destinationMapKey": "dungeon", 
+            "asset": "portal", 
+            "x": 3750, 
+            "y": 2304
+        }
+    ], 
     "entrances": {
         "default": {
             "x": 3584, 

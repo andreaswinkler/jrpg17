@@ -59,7 +59,7 @@ module.exports = function(utils, settings, player, game) {
 
                         clientMapKey = client.hero.map.key;
                         
-                        if (updates[clientMapKey].length > 0) {
+                        if ((updates[clientMapKey] || []).length > 0) {
 
                             client.emit('update', updates[clientMapKey]);
 

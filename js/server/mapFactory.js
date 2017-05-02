@@ -11,7 +11,8 @@ module.exports = function(fs, utils, settings, creatureFactory) {
                 grid = this.readMapData(input), 
                 npcs = [], 
                 interactables = [], 
-                creatures = [];
+                creatures = [], 
+                map;
             
             blueprint.spawnPoints.forEach(function(spawnPoint) {
 
@@ -54,20 +55,12 @@ module.exports = function(fs, utils, settings, creatureFactory) {
                 } 
 
             });
-               
-            interactables.forEach(function(interactable) {
 
-                var tile = utils.gridElement(grid, interactable.x, interactable.y, settings.tileSize);
-
-                tile.interactables.push(interactable);
-
-            });
-
-            return {
+            map = {
                 name: key, 
                 key: key, 
                 creatures: creatures, 
-                interactables: interactables,
+                interactables: [],
                 npcs: npcs, 
                 grid: grid, 
                 rows: grid.length, 
@@ -102,7 +95,7 @@ module.exports = function(fs, utils, settings, creatureFactory) {
                 createTownPortal: function(hero, destinationMapKey) {
 
                     this.createPortal({
-                        type: 'town', 
+                        asset: 'townportal', 
                         owner: hero, 
                         x: hero.x, 
                         y: hero.y, 
@@ -115,7 +108,18 @@ module.exports = function(fs, utils, settings, creatureFactory) {
 
                     var portal = options;
 
+                    portal.excludeFields = ['origin'];
+                    portal.pack = function() {
+
+                        return utils.pack(this);
+
+                    }
+
                     portal.origin = this;
+                    portal.width = 50;
+                    portal.height = 100;
+                    portal.originMapKey = this.key;
+                    portal.active = true;
                     portal.interact = function(creature) {
 
                         creature.changeMap(this.destinationMapKey);
@@ -128,7 +132,7 @@ module.exports = function(fs, utils, settings, creatureFactory) {
 
                     };
                     
-                    this.interactables.push(portal);
+                    this.addInteractable(portal);
 
                     this.changedTS = +new Date();
 
@@ -139,9 +143,47 @@ module.exports = function(fs, utils, settings, creatureFactory) {
 
                     this.changedTS = +new Date();
 
+                },
+                addInteractable: function(interactable) {
+
+                    var tile = utils.gridElement(this.grid, interactable.x, interactable.y, settings.tileSize);
+                    
+                    tile.interactables.push(interactable);
+
+                    this.interactables.push(interactable);
+
                 }
 
-            }
+            };
+
+            interactables.forEach(function(interactable) {
+
+                map.addInteractable(interactable);
+
+            }, this);
+
+            blueprint.exits.forEach(function(exit) {
+
+                map.createPortal(exit);
+
+            }, this);
+
+            return map;
+
+        }, 
+
+        createTile: function(type, row, col) {
+
+            return {
+                t: type, 
+                walkable: type != '', 
+                x: col * settings.tileSize, 
+                y: row * settings.tileSize, 
+                interactables: [], 
+                pack: function() {
+                    return  utils.pack(this);
+                }
+            };
 
         }, 
 
@@ -160,34 +202,10 @@ module.exports = function(fs, utils, settings, creatureFactory) {
 
                 for (j = 0, jr = 0; j < inputCols.length; j++, jr += 2) {
 
-                    grid[ir].push({ 
-                        t: inputCols[j], 
-                        walkable: inputCols[j] != '', 
-                        x: jr * settings.tileSize, 
-                        y: ir * settings.tileSize,
-                        interactables: [] 
-                    });
-                    grid[ir + 1].push({ 
-                        t: inputCols[j], 
-                        walkable: inputCols[j] != '', 
-                        x: jr * settings.tileSize, 
-                        y: (ir + 1) * settings.tileSize,
-                        interactables: [] 
-                    });
-                    grid[ir].push({ 
-                        t: inputCols[j], 
-                        walkable: inputCols[j] != '', 
-                        x: (jr + 1) * settings.tileSize, 
-                        y: ir * settings.tileSize,
-                        interactables: [] 
-                    });
-                    grid[ir + 1].push({ 
-                        t: inputCols[j], 
-                        walkable: inputCols[j] != '', 
-                        x: (jr + 1) * settings.tileSize, 
-                        y: (ir + 1) * settings.tileSize,
-                        interactables: [] 
-                    });
+                    grid[ir].push(this.createTile(inputCols[j], ir, jr));
+                    grid[ir + 1].push(this.createTile(inputCols[j], ir + 1, jr));
+                    grid[ir].push(this.createTile(inputCols[j], ir, jr + 1));
+                    grid[ir + 1].push(this.createTile(inputCols[j], ir + 1, jr + 1));
 
                 }
 

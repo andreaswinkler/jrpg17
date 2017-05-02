@@ -7,6 +7,14 @@
             "y": 1650
         }    
     ], 
+    "exits": [
+        {
+            "destinationMapKey": "village", 
+            "asset": "portal", 
+            "x": 1550, 
+            "y": 1550
+        }
+    ], 
     "entrances": {
         "default": {
             "x": 1600, 

@@ -23,7 +23,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             creature.balance = 1000;
 
-            creature.excludeFields = ['map', 'game', 'inputs', 'movementTarget'];
+            creature.excludeFields = ['map', 'game', 'inputs', 'movementTarget', 'updates'];
             
             creature.pack = function() {
 
@@ -31,9 +31,61 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             };
 
+            creature.update = function(ticks) {
+
+                // handle channeling
+                if (this.channeling) {
+
+                    this.channeling.duration -= ticks;
+
+                    if (this.channeling.duration <= 0) {
+
+                        this.channelling.action(this);
+
+                        this.channeling = null;
+
+                    }
+
+                }
+
+                // handle movement
+                if (this.movementTarget) {
+                                
+                    this.movementTarget.update(ticks);
+
+                }
+
+                // life per second
+                if (this.life < this.maxLife_current) {
+
+                    this.heal(this.lifePerSecond_current / 1000 * ticks);
+                            
+                }
+
+                // mana per second
+                if (this.mana < this.maxMana_current) {
+
+                    this.restoreMana(this.manaPerSecond_current / 1000 * ticks);
+                            
+                }
+
+                // healthpotion cooldown
+                if (this.healthpotion) {
+
+                    utils.cooldown(this.healthpotion, ticks);
+
+                }
+
+            };
+
             creature.enemy = function(x, y) {
 
-                return this.map.creatures.find(function(creature) { return creature.faction != this.faction && utils.hitTest(creature.x, creature.y, creature.width, creature.height, x, y, x + 1, y + 1) }, this);
+                return this.map.creatures.find(function(creature) { 
+                    
+                    return creature.faction != this.faction && 
+                           utils.hitTest(creature.x, creature.y, creature.width, creature.height, x, y, x + 1, y + 1) 
+                
+                }, this);
 
             };
 
@@ -42,6 +94,8 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                 if (amount <= this.balance) {
 
                     this.balance -= amount;
+
+                    this.updates.balance = this.balance;
 
                     return true;
 
@@ -55,6 +109,8 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 this.balance += amount;
 
+                this.updates.balance = this.balance;
+
             };
 
             creature.healPercent = function(value) {
@@ -65,25 +121,32 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             creature.hurt = function(value) {
 
-                creature.life = Math.max(0, creature.life - value);
+                this.life = Math.max(0, this.life - value);
 
-                if (creature.life == 0) {
+                if (this.life == 0) {
 
-                    creature.isDead = true;
+                    this.isDead = true;
 
                 }
+
+                this.updates.life = this.life;
+                this.updates.isDead = this.isDead;
 
             };
 
             creature.heal = function(value) {
 
-                creature.life = Math.min(creature.maxLife_current, creature.life + value);
+                this.life = Math.min(this.maxLife_current, this.life + value);
+
+                this.updates.life = this.life;
 
             };
 
             creature.restoreMana = function(value) {
 
-                creature.mana = Math.min(creature.maxMana_current, creature.mana + value);
+                this.mana = Math.min(this.maxMana_current, this.mana + value);
+
+                this.updates.mana = this.mana;
 
             };
 
@@ -195,7 +258,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                         
                         this.equipment[slot] = item;
 
-                        this.update();
+                        this.updateStats();
 
                         return true;
 
@@ -219,7 +282,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                             this.equipment[key] = null;
 
-                            this.update();
+                            this.updateStats();
 
                             return item;
 
@@ -232,7 +295,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                 };
 
                 // update stats based on equipment
-                creature.update = function() {
+                creature.updateStats = function() {
 
                     var item, i;
 
@@ -281,6 +344,9 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                     // empty the creatures hand
                     this.hand = null;
+
+                    this.updates.droppedItems = this.droppedItems;
+                    this.updates.hand = this.hand;
 
                 }
 

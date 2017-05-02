@@ -31,6 +31,7 @@ module.exports = function(fs, utils, creatureFactory) {
                     that = this;
                 
                 packedPlayer.hero.droppedItems = null;
+                packedPlayer.hero.activeNpc = null;
                 that.saveTS = +new Date();
 
                 fs.writeFile('./../data/players/' + id + '-latest.json', JSON.stringify(packedPlayer), function(err) {

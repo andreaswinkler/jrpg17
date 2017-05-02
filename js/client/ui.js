@@ -681,6 +681,47 @@ var UI = {
 
     }, 
 
+    Menu: function(container) {
+
+        this.e = $('<div class="ui-menu positioned"><ul /></div>').appendTo(container);
+
+        this.e.find('ul').append('<li data-key="leave">Leave Game</li><li data-key="resume">Resume</li>');
+
+        this.e.find('li').click(function(ev) {
+
+            var e = $(ev.target), 
+                key = e.attr('data-key');
+            
+            switch (key) {
+
+                case 'leave':
+
+                    Net.emit('leaveGame', {});
+                    document.location.href = document.location.href;
+
+                    break;
+                
+                case 'resume':
+
+                    e.closest('.ui-menu').removeClass('visible');
+
+                    break;
+
+            }
+
+            ev.preventDefault();
+            return false;
+
+        });
+
+        this.toggle = function() {
+
+            this.e.toggleClass('visible');
+
+        };
+
+    }, 
+
     init: function(container) {
 
         this.container = container;
@@ -701,6 +742,8 @@ var UI = {
         this.comparisonItemOverlay = new UI.ItemOverlay(this.container);
 
         this.droppedItemOverlay = new UI.DroppedItemOverlay(this.container);
+
+        this.menu = new UI.Menu(this.container);
 
         this.vendorWindow = new UI.Window(this.container, { align: 'left', width: '45%', name: 'Vendor' });
         this.vendorWindow.update = function(vendor) {
@@ -783,6 +826,12 @@ var UI = {
 
         this.vendorWindow.update(vendor);
         this.vendorWindow.toggle();
+
+    }, 
+
+    toggleMenu: function() {
+
+        this.menu.toggle();
 
     }, 
 

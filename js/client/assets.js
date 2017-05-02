@@ -75,6 +75,12 @@ var Assets = {
             'block': true, 
             'height': 20, 
             'width': 20
+        }, 
+        'portal': {
+            'color': 'rgba(19,49,199,0.9)', 
+            'block': true, 
+            'height': 100, 
+            'width': 40
         }
     }, 
 
