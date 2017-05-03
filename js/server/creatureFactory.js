@@ -250,41 +250,85 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 }
 
-                creature.equip = function(item, slot) {
+                creature.equip = function(slot, itemId) {
 
-                    if (utils.canEquip(this, item, slot)) {
-  
-                        this.hand = this.equipment[slot] || null;
-                        
-                        this.equipment[slot] = item;
+                    var grabItemResult, item;
 
-                        this.updateStats();
+                    if (itemId) {
 
-                        return true;
+                        grabItemResult = this.inventories[0].grabItem(itemId);
 
-                    } else {
+                        if (grabItemResult.item) {
 
-                        return false;
+                            this.hand = grabItemResult.item;
+
+                        }
+
+                    } 
+
+                    if (this.hand) {
+
+                        slot = slot || this.hand.slots[0];
+
+                        if (utils.canEquip(this, this.hand, slot)) {
+
+                            item = this.hand;
+                            this.hand = this.equipment[slot] || null;
+                            this.equipment[slot] = item;
+
+                            this.updateStats();
+
+                            if (this.hand && grabItemResult) {
+
+                                this.inventories[0].place(this.hand, grabItemResult.row, grabItemResult.col);
+                                this.hand = null;
+
+                                this.updates.inventories = this.inventories;
+
+                            }
+
+                            this.updates.hand = this.hand;
+                            this.updates.equipment = this.equipment;
+
+                            return true;
+
+                        }
 
                     }
 
+                    return false;
+
                 };
 
-                creature.unequip = function(itemId) {
+                creature.unequip = function(itemId, moveToInventory) {
 
-                    var item, key;
+                    var key;
 
                     for (key in this.equipment) {
                         
                         if (this.equipment.hasOwnProperty(key) && this.equipment[key] && this.equipment[key].id == itemId) {
 
-                            item = this.equipment[key];
-
+                            this.hand = this.equipment[key];
                             this.equipment[key] = null;
+
+                            if (moveToInventory) {
+
+                                if (this.inventories[0].add(this.hand)) {
+
+                                    this.hand = null;
+                                    
+                                    this.updates.inventories = this.inventories;
+
+                                }
+
+                            }
 
                             this.updateStats();
 
-                            return item;
+                            this.updates.hand = this.hand;
+                            this.updates.equipment = this.equipment;
+
+                            return this.hand;
 
                         }
 

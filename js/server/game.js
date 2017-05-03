@@ -214,13 +214,13 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                         
                         case 'equipItem':
 
-                            this.equipItem(hero, data.itemId, data.slot);
+                            hero.equip(data.slot, data.itemId);
 
                             break;
                         
                         case 'unequipItem':
 
-                            this.unequipItem(hero, data.itemId, data.moveToInventory);
+                            hero.unequip(data.itemId, data.moveToInventory);
 
                             break;
                         
@@ -490,7 +490,7 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                         if (typeof row != 'undefined') {
                             
                             placeResult = inventory.place(item, row, col);
-
+                            
                             if (placeResult !== false) {
 
                                 result.success = true;
@@ -529,71 +529,6 @@ module.exports = function(utils, settings, skills, mapFactory, itemFactory) {
                     }
 
                     return result;
-
-                }, 
-
-                equipItem: function(creature, itemId, slot, moveToInventory, row, col) {
-
-                    var grabItemResult;
-
-                    if (itemId) {
-
-                        grabItemResult = this.grabItemFromInventory(creature, creature.inventories[0].id, itemId);
-
-                        row = grabItemResult.row;
-                        col = grabItemResult.col;
-            
-                        moveToInventory = true;
-
-                    }
-
-                    if (creature.equip(creature.hand, (slot || creature.hand.slots[0]))) {
-
-                        if (creature.hand != null && moveToInventory) {
-                           
-                            this.addItemToInventory(creature, creature.inventories[0].id, row, col);
-
-                            creature.hand = null;
-
-                            creature.updates.inventories = creature.inventories;
-
-                        }
-
-                        creature.updates.hand = creature.hand;
-                        creature.updates.equipment = creature.equipment;
-
-                    }
-
-                }, 
-
-                unequipItem: function(creature, itemId, moveToInventory) {
-
-                    var item = creature.unequip(itemId), 
-                        addToInventoryResult;
-                    
-                    // get the slot we talk about and see if it isn't empty
-                    if (item) {
-
-                        creature.hand = item;
-
-                        if (moveToInventory) {
-
-                            addToInventoryResult = this.addItemToInventory(creature, creature.inventories[0].id);
-
-                            if (addToInventoryResult.success) {
-
-                                creature.hand = null;
-
-                                creature.updates.inventories = creature.inventories;
-
-                            } 
-
-                        }
-
-                        creature.updates.hand = creature.hand;
-                        creature.updates.equipment = creature.equipment;
-
-                    }
 
                 }, 
 

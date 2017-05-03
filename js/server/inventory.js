@@ -89,7 +89,7 @@ module.exports = function(utils) {
             var items = [],
                 endRowIndex = Math.min(row + height, this.grid.length), 
                 endColIndex = Math.min(col + width, this.grid[0].length),  
-                i, j, k, found;
+                i, j;
 
             for (i = row; i < endRowIndex; i++) {
 
@@ -146,7 +146,7 @@ module.exports = function(utils) {
         this.place = function(item, row, col) {
 
             var items = this.itemsInSection(row, col, item.inventoryWidth, item.inventoryHeight);
-    
+            
             // if the section is empty we just place the item
             if (items.length == 0) {
 

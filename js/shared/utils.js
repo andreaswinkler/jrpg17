@@ -348,7 +348,7 @@
 
                 for (j = 0; j < grid[i].length; j++) {
 
-                    if (grid[i][j] == el) {
+                    if (grid[i][j] === el) {
 
                         grid[i][j] = null;
 
