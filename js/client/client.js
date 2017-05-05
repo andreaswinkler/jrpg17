@@ -166,6 +166,65 @@ window.$G = {
 
     }, 
 
+    onUpdate: function(updates) {
+
+        updates.forEach(function(update) {
+
+            var creature;
+
+            if (update.type == 'map') {
+
+                // we process the update only if it regards 
+                // our current map
+                if (update.map.key == $G.hero.map.key) {
+
+                    $.extend($G.hero.map, update.map);
+
+                }
+
+            } else {
+
+                // get the creature the update was meant for
+                creature = $G.map.creatures.find(function(i) { return update.id == i.id });
+
+                if (creature) {
+
+                    // apply the update
+                    $.extend(creature, update);
+
+                    // inventories come packed, extract!
+                    if (update.inventories) {
+
+                        $G.expandInventories(creature.inventories);
+
+                    }
+
+                    // handle hero specific stuff here
+                    if (creature === $G.hero) {
+
+                        // the hero has switched maps
+                        if ($G.hero.newMap) {
+
+                            $G.onMapChanged($G.hero.newMap);
+                            $G.hero.newMap = null;
+
+                        }
+
+                        UI.statsBar.update($G.hero);
+                        UI.inventoryScreen.update($G.hero.inventories[0]);
+                        UI.equipmentScreen.update($G.hero.equipment);
+                        UI.handUpdate($G.hero.hand);
+
+                    }
+                
+                }
+
+            }
+
+        });
+
+    }, 
+
     gameScreen: function(game, map) {
 
         this.game = game;
@@ -176,68 +235,7 @@ window.$G = {
         Events.on('input', Net.input, Net);
         Events.on('input', this.input, this);
 
-        Net.on('update', function(data) {
-
-            var heroUpdated = false, 
-                i, j;
-
-            for (i = 0; i < data.length; i++) {
-
-                if (data[i].type == 'map') {
-
-                    if (data[i].map.key == $G.hero.map.key) {
-
-                        $.extend($G.hero.map, data[i].map);
-
-                    }
-
-                } else {
-
-                    for (j = 0; j < $G.map.creatures.length; j++) {
-
-                        creature = $G.map.creatures[j];
-
-                        if (creature.id == data[i].id) {
-                            
-                            $.extend(creature, data[i]);
-
-                            if (data[i].inventories) {
-
-                                $G.expandInventories(creature.inventories);
-
-                            }
-
-                            if (creature === $G.hero) {
-
-                                if ($G.hero.newMap) {
-                                    
-                                    $G.onMapChanged($G.hero.newMap);
-                                    $G.hero.newMap = null;
-
-                                }
-
-                                heroUpdated = true;
-
-                            }
-
-                        }
-
-                    }
-                
-                }
-
-            }
-
-            if (heroUpdated) {
-
-                UI.statsBar.update($G.hero);
-                UI.inventoryScreen.update($G.hero.inventories[0]);
-                UI.equipmentScreen.update($G.hero.equipment);
-                UI.handUpdate($G.hero.hand);
-
-            }
-
-        });
+        Net.on('update', this.onUpdate);
 
         $G.GameLoop.loop();
 

@@ -843,6 +843,13 @@ var UI = {
 
         this.characterWindow.toggle();
 
+        if (!this.characterWindow.active()) {
+
+            this.itemOverlay.hide();
+            this.comparisonItemOverlay.hide();
+
+        }
+
     }, 
 
     onMapLoaded: function(map) {
