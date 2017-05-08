@@ -1,0 +1,79 @@
+{
+    "normalMeleeAttack": {
+        "name": "Normal Attack",
+        "type": "meleeSingleTarget",  
+        "requiresWeapon": true, 
+        "damageMultiplier": 1, 
+        "flavor": "physical", 
+        "range": "weapon",
+        "manaCost": 0, 
+        "cooldown": 0, 
+        "preAnimationDurationMS": 500, 
+        "postAnimationDurationMS": 500
+    },
+    "bashAttack": {
+        "name": "Bash", 
+        "type": "meleeSingleTarget", 
+        "requiresWeapon": true, 
+        "damageMultiplier": 2, 
+        "flavor": "physical", 
+        "range": "weapon", 
+        "manaCost": 10,
+        "cooldown": 0, 
+        "preAnimationDurationMS": 500, 
+        "postAnimationDurationMS": 500
+    },
+    "normalRangedAttack": {
+        "name": "Normal Attack", 
+        "type": "singleProjectile",
+        "deferredType": "meleeSingleTarget",  
+        "requiresWeapon": true, 
+        "damageMultiplier": 1, 
+        "flavor": "physical", 
+        "range": 1000, 
+        "manaCost": 0, 
+        "cooldown": 0, 
+        "preAnimationDurationMS": 500, 
+        "postAnimationDurationMS": 500
+    }, 
+    "criticalShot": {
+        "name": "Critical Shot", 
+        "type": "singleProjectile", 
+        "deferredType": "meleeSingleTarget",  
+        "requiresWeapon": true, 
+        "damageMultiplier": 3, 
+        "flavor": "physical", 
+        "range": 1000, 
+        "manaCost": 30, 
+        "cooldown": 0, 
+        "preAnimationDurationMS": 1000, 
+        "postAnimationDurationMS": 1000
+    }, 
+    "fireball": {
+        "name": "Fireball", 
+        "type": "singleProjectile", 
+        "deferredType": "meleeSingleTarget",  
+        "requiresWeapon": true, 
+        "damageMultiplier": 1.25, 
+        "dotDamageMultiplier": 3, 
+        "dotDurationMS": 3000,
+        "flavor": "fire", 
+        "range": 1000, 
+        "manaCost": 20, 
+        "cooldown": 0, 
+        "preAnimationDurationMS": 1000, 
+        "postAnimationDurationMS": 1000
+    }, 
+    "teleport": {
+        "name": "Teleport", 
+        "type": "teleport", 
+        "requiresWeapon": false, 
+        "damageMultiplier": 1, 
+        "flavor": "arcane", 
+        "range": 1000, 
+        "manaCost": 25, 
+        "cooldown": 30, 
+        "preAnimationDurationMS": 500, 
+        "postAnimationDurationMS": 500
+    }
+}

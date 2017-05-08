@@ -47,12 +47,73 @@ module.exports = function(utils, settings) {
 
         },
 
+        createProjectile: function(source, data) {
+
+            var data = utils.assign(data);
+            
+            data.type = data.deferredType;
+
+            return {
+                x: source.x, 
+                y: source.y, 
+                source: source, 
+                data: data, 
+                speed: data.skill.projectileSpeed, 
+                moveTo: function(x, y, range) {
+                    components.Movement.moveTo(this, x, y, range);
+                }
+            };
+
+        }, 
+
+        applyDamageToSingleTarget: function(target, damage, flavor, source, skill) {
+
+            var result = utils.hitDamage(target, damage, flavor, source.level);
+            target.hurt(result.damage);
+
+            if (result.reflectedDamage) {
+
+                result = utils.hitDamage(source, result.reflectedDamage, 'physical', target.level);
+                source.hurt(result.damage);
+
+            }
+
+        }, 
+
+        // perform a hit against a target
+        apply_meleeSingleTarget: function(creature, data) {
+
+            this.applyDamageToSingleTarget(data.enemy, data.damage.damage, data.damage.flavor, creature);
+
+            if (data.skill.dotDamageMultiplier) {
+
+                data.enemy.applyDot(data.damage.damage * data.skill.dotDamageMultiplier, data.skill.dotDamageDurationMS, data.damage.flavor, creature);
+
+            }
+            
+        }, 
+
+        // send a single projectile towards the target
+        apply_singleProjectile: function(creature, data) {
+
+            var projectile = this.createProjectile(creature, data);
+
+            projectile.moveTo(data.x, data.y, data.skill.range);
+
+            creature.launchProjectile(projectile);
+
+        }, 
+
+        // re-position the creature to the target position
+        apply_teleport: function(creature, data) {
+
+            creature.setPosition(data.x, data.y);
+
+        }, 
+
         apply: function(creature, data) {
 
-            var enemy = data.enemy, 
-                result = utils.hitDamage(data.enemy, data.damage.damage, data.damage.flavor, creature.level);
-
-            enemy.hurt(result.damage);
+            this['apply_' + data.skill.type](creature, data);
 
         }, 
 

@@ -81,6 +81,22 @@
         "skill3": null, 
         "skill4": null, 
         "skill5": null, 
+        "skillPoints": {
+            "available": 0, 
+            "bashAttack": 0, 
+            "teleport": 0
+        }, 
+        "statPoints": {
+            "available": 0, 
+            "strength": 0, 
+            "dexterity": 0, 
+            "vitality": 0, 
+            "intelligence": 0, 
+            "movementSpeed": 0, 
+            "criticalHits": 0, 
+            "lifeRegeneration": 0, 
+            "manaRegeneration": 0
+        }, 
         "xp": 0, 
         "healthPotion": {
             "cooldown": 60, 

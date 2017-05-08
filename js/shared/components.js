@@ -10,17 +10,20 @@
 
         Movement: {
 
-            moveTo: function(e, x, y) {
+            moveTo: function(e, x, y, range) {
 
                 var distance = utils.distance(e.x, e.y, x, y);
 
                 e.movementTarget = {
+                    originX: e.x, 
+                    originY: e.y, 
                     x: x, 
                     y: y, 
                     dx: (x - e.x) / distance, 
                     dy: (y - e.y) / distance, 
                     infinite: false, 
                     ignoreObstacles: false, 
+                    range: range, 
                     e: e, 
                     update: function(ticks) {
                             
@@ -33,6 +36,12 @@
                             this.e.y = targetY;
 
                             if (utils.distance(this.e.x, this.e.y, this.x, this.y) < 10) {
+
+                                this.stop();
+
+                            }
+
+                            if (this.range && utils.distance(this.originX, this.originY, this.x, this.y) > this.range) {
 
                                 this.stop();
 

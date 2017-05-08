@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(utils, settings, blueprints, components, Inventory, itemFactory) {
+module.exports = function(utils, settings, blueprints, components, Inventory, itemFactory, skills) {
 
     return {
     
@@ -16,6 +16,8 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
             creature.game = game;
             creature.droppedItems = [];
             creature.inputs = [];
+            creature.projectiles = [];
+            creature.dots = [];
 
             if (creature.balance == null) {
                 creature.balance = 0;
@@ -31,7 +33,33 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             };
 
+            creature.setPosition = function(x, y) {
+
+                this.x = x;
+                this.y = y;
+
+                this.updates.x = this.x;
+                this.updates.y = this.y;
+
+            };
+
+            creature.applyDot = function(damage, duration, flavor, source) {
+
+                this.dots.push({
+                    damage: damage, 
+                    damagePerTick: damage / duration, 
+                    duration: duration, 
+                    flavor: flavor, 
+                    source: source
+                });
+
+                this.updates.dots = this.dots;
+
+            };
+
             creature.update = function(ticks) {
+
+                var projectile, enemy, dot, damage, i;
 
                 // handle channeling
                 if (this.channeling) {
@@ -70,11 +98,112 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                 }
 
                 // healthpotion cooldown
-                if (this.healthpotion) {
+                if (this.healthPotion && this.healthPotion.cooldown_current) {
 
                     utils.cooldown(this.healthpotion, ticks);
 
                 }
+
+                // skills
+                if (this.scheduledSkill) {
+
+                    skills.update(this, this.scheduledSkill, ticks);
+                
+                }
+
+                if (this.skill0 && this.skill0.cooldown_current) {
+
+                    utils.cooldown(this.skill0, ticks);
+
+                }
+
+                if (this.skill1 && this.skill1.cooldown_current) {
+
+                    utils.cooldown(this.skill1, ticks);
+
+                }
+
+                if (this.skill2 && this.skill2.cooldown_current) {
+
+                    utils.cooldown(this.skill2, ticks);
+
+                }
+
+                if (this.skill3 && this.skill3.cooldown_current) {
+
+                    utils.cooldown(this.skill3, ticks);
+
+                }
+
+                if (this.skill4 && this.skill4.cooldown_current) {
+
+                    utils.cooldown(this.skill4, ticks);
+
+                }
+
+                if (this.skill5 && this.skill5.cooldown_current) {
+
+                    utils.cooldown(this.skill5, ticks);
+
+                }
+
+                // projectiles
+                for (i = this.projectiles.length; i--;) {
+
+                    projectile = this.projectiles[i];
+
+                    if (projectile.movementTarget) {
+
+                        projectile.movementTarget.update(ticks);
+
+                        enemy = this.enemy(projectile.x, projectile.y);
+
+                        if (enemy) {
+
+                            projectile.data.enemy = enemy;
+
+                            skills.apply(projectile.source, projectile.data);
+
+                            projectile.movementTarget = null;
+
+                        }
+
+                        if (!projectile.movementTarget) {
+
+                            this.projectiles.splice(i, 1);
+                            this.updates.projectiles = this.projectiles;
+
+                        }
+
+                    }
+
+                }
+
+                // dots
+                for (i = this.dots.length; i--;) {
+
+                    dot = this.dots[i];
+                    damage = Math.min(dot.damagePerTick * ticks, dot.damage);
+
+                    this.hurt(dot.damagePerTick * ticks);
+
+                    dot.damage -= damage;
+
+                    if (dot.damage <= 0) {
+
+                        this.dots.splice(i, 1);
+                        this.updates.dots = this.dots;
+
+                    }
+
+                }
+
+            };
+
+            creature.launchProjectile = function(projectile) {
+
+                this.projectiles.push(projectile);
+                this.updates.projectiles = this.projectiles;
 
             };
 
@@ -187,6 +316,21 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             }
 
+            if (creature.healthPotion) {
+
+                creature.useHealthPotion = function() {
+
+                    if (this.healthPotion && !this.healthPotion.cooldown_current) {
+
+                        this.healPercent(this.healthPotion.healPercent);
+                        this.healthPotion.cooldown_current = this.healthPotion.cooldown * 1000;
+
+                    }
+
+                }
+
+            }
+
             if (creature.inventories) {
             
                 inventories = creature.inventories;
@@ -236,7 +380,188 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 };
 
+                creature.addItemToInventory = function(inventoryId, row, col) {
+
+                    var inventory = this.inventory(inventoryId), 
+                        placeResult;
+
+                    if (this.hand && inventory) {
+
+                        if (typeof row != 'undefined') {
+
+                            placeResult = inventory.place(this.hand, row, col);
+
+                            if (placeResult !== false) {
+
+                                if (placeResult !== true) {
+
+                                    this.hand = placeResult;
+
+                                } else {
+
+                                    this.hand = null;
+
+                                }
+
+                            }
+
+                        } else {
+
+                            if (inventory.add(this.hand).success) {
+
+                                this.hand = null;
+
+                            }
+
+                        }
+
+                        this.updates.hand = this.hand;
+                        this.updates.inventories = this.inventories;
+
+                    }
+
+                };
+
+                creature.grabItem = function(itemId) {
+
+                    var i;
+
+                    for (i = 0; i < this.inventories.length; i++) {
+
+                        this.grabItemFromInventory(this.inventories[i].id, itemId);
+
+                        if (this.hand) {
+
+                            return this.hand;
+
+                        }
+
+                    }
+
+                    return null;
+
+                };
+
+                creature.grabItemFromInventory = function(inventoryId, itemId) {
+
+                    var inventory = this.inventory(inventoryId);
+
+                    if (inventory) {
+
+                        grabResult = inventory.grabItem(itemId, this.hand);
+
+                        if (grabResult.item) {
+
+                            this.hand = grabResult.item;
+
+                            this.updates.hand = this.hand,
+                            this.updates.inventories = this.inventories;
+
+                        }
+
+                    }
+
+                };
+
+                creature.buyItem = function(itemId) {
+
+                    var item = creature.activeNpc.grabItem(itemId);
+
+                    if (item && this.pay(item.buyValue)) {
+
+                        this.hand = creature.activeNpc.hand;
+                        creature.activeNpc.hand = null;
+
+                        this.addItemToInventory(this.inventories[0].id);
+
+                        this.updates.inventories = this.inventories;
+                        this.updates.hand = this.hand;
+
+                    }
+
+                };
+
+                creature.sellItem = function(itemId) {
+
+                    this.grabItemFromInventory(this.inventories[0].id, itemId);
+
+                    if (this.hand) {
+
+                        this.earn(this.hand.sellValue);
+
+                        this.hand = null;
+
+                        this.updates.inventories = this.inventories;
+
+                    }
+
+                };
+
+                creature.pickUp = function(x, y) {
+
+                    var droppedItem = utils.findByHitTest(this.droppedItems, x, y), 
+                        result;
+                    
+                    if (droppedItem) {
+
+                        if (droppedItem.item.isGold) {
+
+                            this.earn(droppedItem.item.amount);
+
+                        } else if (droppedItem.item.isHealthGlobe) {
+
+                            this.healPercent(settings.healthPotionHealPercent);
+
+                        } else {
+
+                            this.hand = droppedItem.item;
+                            this.addItemToInventory(this.inventories[0].id);
+
+                        }
+
+                        // remove the dropped item from the list
+                        utils.arrayRemove(this.droppedItems, droppedItem);
+
+                        this.updates.hand = this.hand;
+                        this.updates.droppedItems = this.droppedItems;
+
+                        return true;
+
+                    }
+
+                    return false;
+
+                };
+
             }
+
+            creature.spendMana = function(amount) {
+
+                if (this.mana >= amount) {
+
+                    this.mana -= amount;
+
+                    this.updates.mana = this.mana;
+
+                    return true;
+
+                }
+
+                return false;
+
+            };
+
+            creature.useSkill = function(skillSlot, x, y) {
+
+                var skill = this[skillSlot];
+
+                if (!this.scheduledSkill && utils.skillReady(skill) && this.spendMana(skill.manaCost)) {
+
+                    return skills.invoke(this, skill, x, y);
+
+                }
+
+            };
 
             if (creature.equipment) {
 

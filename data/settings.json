@@ -26,6 +26,7 @@
     "equipmentDropChance": 0.25, 
     "equipmentSalvageChance": 0.75, 
     "townPortalChannelDurationMS": 3000, 
+    "healthPotionHealPercent": 20, 
     "salvageResults": {
         "normal": {
             "normal": 1

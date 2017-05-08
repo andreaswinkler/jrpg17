@@ -11,10 +11,10 @@ var app = require('http').createServer(),
     skills = require('./../js/server/skills.js')(utils), 
     components = require('./../js/shared/components.js'), 
     itemFactory = require('./../js/server/itemFactory.js')(utils, settings, items), 
-    creatureFactory = require('./../js/server/creatureFactory.js')(utils, settings, creatures, components, inventory, itemFactory),
+    creatureFactory = require('./../js/server/creatureFactory.js')(utils, settings, creatures, components, inventory, itemFactory, skills),
     mapFactory = require('./../js/server/mapFactory.js')(fs, utils, settings, creatureFactory),  
     player = require('./../js/server/player.js')(fs, utils, creatureFactory), 
-    game = require('./../js/server/game.js')(utils, settings, skills, mapFactory, itemFactory), 
+    game = require('./../js/server/game.js')(utils, settings, mapFactory, itemFactory), 
     server = require('./../js/server/server.js')(utils, settings, player, game);
 
 app.listen(1337);
