@@ -1,8 +1,10 @@
 "use strict";
 
-module.exports = function(utils, settings) {
+module.exports = function(utils, settings, blueprints) {
 
     return {
+
+        blueprints: blueprints, 
 
         update: function(creature, ticks) {
 
@@ -10,15 +12,15 @@ module.exports = function(utils, settings) {
                 ticksRemaining = ticks;
 
             if (scheduledSkill) {
-
+                
                 if (scheduledSkill.stage == 'pre') {
-
+                    
                     ticksRemaining = ticks - scheduledSkill.preAnimationMS;
-
+                    
                     scheduledSkill.preAnimationMS = Math.max(0, scheduledSkill.preAnimationMS - ticks);
-
+                    
                     if (scheduledSkill.preAnimationMS == 0) {
-
+                        
                         scheduledSkill.stage = 'active';
 
                     }
@@ -26,13 +28,15 @@ module.exports = function(utils, settings) {
                 }
 
                 if (scheduledSkill.stage == 'active') {
-
+                    console.log('apply skill');
                     this.apply(creature, scheduledSkill);
+
+                    scheduledSkill.stage = 'post';
 
                 }
 
-                if (scheduledSkill.stage = 'post' && ticksRemaining) {
-
+                if (scheduledSkill.stage == 'post' && ticksRemaining) {
+                    
                     scheduledSkill.postAnimationMS = Math.max(0, scheduledSkill.postAnimationMS - ticksRemaining);
 
                     if (scheduledSkill.postAnimationMS == 0) {
@@ -61,6 +65,10 @@ module.exports = function(utils, settings) {
                 speed: data.skill.projectileSpeed, 
                 moveTo: function(x, y, range) {
                     components.Movement.moveTo(this, x, y, range);
+                }, 
+                packFields: ['x', 'y'], 
+                pack: function() {
+                    return utils.pack(this);
                 }
             };
 
@@ -106,27 +114,27 @@ module.exports = function(utils, settings) {
 
         // re-position the creature to the target position
         apply_teleport: function(creature, data) {
-
+            console.log('teleport');
             creature.setPosition(data.x, data.y);
 
         }, 
 
         apply: function(creature, data) {
-
+            console.log('apply', data.skill.type);
             this['apply_' + data.skill.type](creature, data);
 
         }, 
 
         invoke: function(creature, skill, x, y) {
-
-            var weapon, distance, enemies, enemy;
+            console.log('invoke skill');
+            var weapon, distance, enemies, enemy, range;
 
             if (skill.requiresWeapon) {
 
                 weapon = creature.weapon();
 
                 if (!weapon) {
-
+                    console.log('err no weapon');
                     return false;
 
                 }
@@ -142,20 +150,26 @@ module.exports = function(utils, settings) {
             }
 
             distance = utils.distance(creature.x, creature.y, x, y);
-
+            
             if (distance > range) {
-
+                console.log('err out of range: ', creature.x, creature.y, x, y, distance, range);
                 return false;
 
             }
 
-            enemy = creature.enemy(x, y);
+            if (skill.requiresWeapon) {
 
-            if (!enemy) {
+                enemy = creature.enemy(x, y);
 
-                return false;
+                if (!enemy) {
+                    console.log('err no enemy');
+                    return false;
 
+                }
+            
             }
+
+            console.log('skill invoked');
 
             // schedule the attack
             creature.scheduledSkill = { 

@@ -76,7 +76,18 @@
             "flavor": "physical", 
             "range": "weapon"
         }, 
-        "skill1": null, 
+        "skill1": {
+            "name": "Bash", 
+            "type": "meleeSingleTarget", 
+            "requiresWeapon": true, 
+            "damageMultiplier": 2, 
+            "flavor": "physical", 
+            "range": "weapon", 
+            "manaCost": 10,
+            "cooldown": 0, 
+            "preAnimationDurationMS": 500, 
+            "postAnimationDurationMS": 500
+        }, 
         "skill2": null, 
         "skill3": null, 
         "skill4": null, 

@@ -283,6 +283,30 @@ module.exports = function(utils, settings, mapFactory, itemFactory) {
                             this.townPortal(hero);
 
                             break;
+                        
+                        case '1':
+
+                            hero.useSkill('skill2', x, y);
+
+                            break;
+                        
+                        case '2':
+
+                            hero.useSkill('skill3', x, y);
+
+                            break;
+                        
+                        case '3':
+
+                            hero.useSkill('skill4', x, y);
+
+                            break;
+                        
+                        case '4':
+
+                            hero.useSkill('skill5', x, y);
+
+                            break;
 
                     }
 

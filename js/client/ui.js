@@ -722,6 +722,61 @@ var UI = {
 
     }, 
 
+    Globe: function(container, field) {
+
+        this.field = field;
+
+        this.e = $('<div class="ui-globe ui-globe-' + field + ' positioned"></div>').appendTo(container);
+        this.eCurrent = $('<div class="ui-globe-current"></div>').appendTo(this.e);
+        this.eValue = $('<div class="ui-globe-value"></div>').appendTo(this.e);
+
+        this.update = function(current, total) {
+
+            var percent = Math.floor(current / total * 100);
+            
+            this.eCurrent.css('height', percent + '%');
+            this.eValue.html(Math.floor(current));
+
+        };
+
+    }, 
+
+    Bar: function(container) {
+
+        this.e = $('<div class="ui-bar positioned"></div>').appendTo(container);
+        this.eCurrent = $('<div class="ui-bar-current"></div>').appendTo(this.e);
+        this.eValue = $('<div class="ui-bar-value"></div>').appendTo(this.e);
+
+        this.update = function(current, total) {
+            
+            var percent = Math.floor(current / total * 100);
+
+            this.eCurrent.css('width', percent + '%');
+            this.eValue.html(current + ' / ' + total);
+
+        };
+
+    }, 
+
+    Controls: function(container) {
+
+        this.e = $('<div class="ui-controls positioned"></div>').appendTo(container);
+        
+        this.lifeGlobe = new UI.Globe(this.e, 'life');
+        this.manaGlobe = new UI.Globe(this.e, 'mana');
+
+        this.xpBar = new UI.Bar(this.e);
+
+        this.update = function(hero) {
+
+            this.lifeGlobe.update(hero.life, hero.maxLife_current);
+            this.manaGlobe.update(hero.mana, hero.maxMana_current);
+            this.xpBar.update(hero.xp_current, $G.settings.xpPerLevel[hero.level + 1]);
+
+        };
+
+    }, 
+
     init: function(container) {
 
         this.container = container;
@@ -733,7 +788,7 @@ var UI = {
         this.renderer = IsometricRenderer;
         this.renderer.init($('<div class="ui-stage positioned fullscreen" />').appendTo(this.container), $G.settings.tileSize);
 
-        this.characterWindow = new UI.Window(this.container, { align: 'right', width: '45%' });
+        this.characterWindow = new UI.Window(this.container, { align: 'right', width: '45%', title: 'The Hero' });
         this.statsBar = new UI.StatsBar(this.characterWindow.eContent);
         this.equipmentScreen = new UI.EquipmentScreen(this.characterWindow.eContent);
         this.inventoryScreen = new UI.InventoryScreen(this.characterWindow.eContent, 'inventory');
@@ -745,7 +800,7 @@ var UI = {
 
         this.menu = new UI.Menu(this.container);
 
-        this.vendorWindow = new UI.Window(this.container, { align: 'left', width: '45%', name: 'Vendor' });
+        this.vendorWindow = new UI.Window(this.container, { align: 'left', width: '45%', title: 'Vendor' });
         this.vendorWindow.update = function(vendor) {
 
             var tabs = '';
@@ -788,6 +843,8 @@ var UI = {
             });
 
         };
+
+        this.controls = new UI.Controls(this.container);
 
         this.itemOverlay.hide();
         this.comparisonItemOverlay.hide();

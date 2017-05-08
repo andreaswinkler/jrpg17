@@ -214,6 +214,7 @@ window.$G = {
                         UI.inventoryScreen.update($G.hero.inventories[0]);
                         UI.equipmentScreen.update($G.hero.equipment);
                         UI.handUpdate($G.hero.hand);
+                        UI.controls.update($G.hero);
 
                     }
                 
@@ -236,6 +237,8 @@ window.$G = {
         Events.on('input', this.input, this);
 
         Net.on('update', this.onUpdate);
+
+        UI.controls.update($G.hero);
 
         $G.GameLoop.loop();
 

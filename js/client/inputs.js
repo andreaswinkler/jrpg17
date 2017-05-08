@@ -273,7 +273,7 @@ var Inputs = {
             .unbind(Inputs.onInput)
             .keydown(Inputs.onInput)
             .click(Inputs.onInput)
-            .bind('contextmenu', Inputs.prevent)
+            .bind('contextmenu', Inputs.onInput)
             .mousemove(Inputs.onMouseMove);
 
     }, 
@@ -288,23 +288,24 @@ var Inputs = {
 
     onMouseMove: function(event) {
         
-        $G.mouseX = event.pageX;
-        $G.mouseY = event.pageY;
+        $G.mouseX = event.offsetX;
+        $G.mouseY = event.offsetY;
 
         UI.onMouseMove($G.mouseX, $G.mouseY);
 
     }, 
 
     onInput: function(event) {
-
+        
         var worldPosition = UI.renderer.isometricToCartesian(
-                event.offsetX - UI.renderer.offset.x, 
-                event.offsetY - UI.renderer.offset.y), 
+                (event.offsetX || $G.mouseX) - UI.renderer.offset.x, 
+                (event.offsetY || $G.mouseY) - UI.renderer.offset.y), 
             key;
  
         switch (event.type) {
 
             case 'click':
+            case 'contextmenu':
 
                 key = ['', 'mouseLeft', 'mouseMiddle', 'mouseRight'][event.which];
 

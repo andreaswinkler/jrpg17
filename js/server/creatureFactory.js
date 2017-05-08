@@ -18,14 +18,19 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
             creature.inputs = [];
             creature.projectiles = [];
             creature.dots = [];
+            creature.life = creature.maxLife_current;
+            creature.mana = creature.maxMana_current;
 
             if (creature.balance == null) {
                 creature.balance = 0;
             }
 
             creature.balance = 1000;
+            
+            creature.skill1 = skills.blueprints.bashAttack;
+            creature.skill2 = skills.blueprints.teleport;
 
-            creature.excludeFields = ['map', 'game', 'inputs', 'movementTarget', 'updates'];
+            creature.excludeFields = ['map', 'game', 'inputs', 'movementTarget', 'updates', 'scheduledSkill'];
             
             creature.pack = function() {
 
@@ -57,6 +62,35 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             };
 
+            creature.calculateXp = function() {
+
+                var i;
+
+                for (i = settings.xpPerLevel.length; i--;) {
+
+                    if (this.xp >= settings.xpPerLevel[i]) {
+
+                        this.level = i;
+                        this.xp_current = this.xp - settings.xpPerLevel[i];
+
+                    }
+
+                }
+
+            };
+
+            creature.gainXp = function(amount) {
+
+                this.xp += amount;
+                
+                this.calculateXp();
+
+                this.updates.level = this.level;
+                this.updates.xp = this.xp;
+                this.updates.xp_current = this.xp_current;
+
+            };
+
             creature.update = function(ticks) {
 
                 var projectile, enemy, dot, damage, i;
@@ -66,7 +100,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                     this.channeling.duration -= ticks;
 
-                    if (this.channeling.duration <= 0) {
+                    if (this.channelling.duration <= 0) {
 
                         this.channelling.action(this);
 
@@ -107,7 +141,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                 // skills
                 if (this.scheduledSkill) {
 
-                    skills.update(this, this.scheduledSkill, ticks);
+                    skills.update(this, ticks);
                 
                 }
 
@@ -554,7 +588,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
             creature.useSkill = function(skillSlot, x, y) {
 
                 var skill = this[skillSlot];
-
+                
                 if (!this.scheduledSkill && utils.skillReady(skill) && this.spendMana(skill.manaCost)) {
 
                     return skills.invoke(this, skill, x, y);
@@ -720,6 +754,8 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                 }
 
             }
+
+            creature.calculateXp();
 
             return creature;
 

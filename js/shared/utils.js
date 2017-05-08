@@ -91,7 +91,7 @@
 
         skillReady: function(skill) {
 
-            return skill && skill.cooldown_current == 0;
+            return skill && !skill.cooldown_current;
 
         }, 
 
