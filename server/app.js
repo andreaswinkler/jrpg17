@@ -6,14 +6,13 @@ var app = require('http').createServer(),
     creatures = require('./../data/creatures.json'), 
     items = require('./../data/items.json'), 
     settings = require('./../data/settings.json'), 
-    log = require('./../js/shared/log.js'), 
     utils = require('./../js/shared/utils.js'), 
     inventory = require('./../js/server/inventory.js')(utils),
     skillBlueprints = require('./../data/skills.json'),  
     components = require('./../js/shared/components.js'), 
     skills = require('./../js/server/skills.js')(utils, settings, skillBlueprints, components), 
     itemFactory = require('./../js/server/itemFactory.js')(utils, settings, items), 
-    creatureFactory = require('./../js/server/creatureFactory.js')(utils, settings, creatures, components, inventory, itemFactory, skills, log),
+    creatureFactory = require('./../js/server/creatureFactory.js')(utils, settings, creatures, components, inventory, itemFactory, skills),
     mapFactory = require('./../js/server/mapFactory.js')(fs, utils, settings, creatureFactory),  
     player = require('./../js/server/player.js')(fs, utils, creatureFactory), 
     game = require('./../js/server/game.js')(utils, settings, mapFactory, itemFactory), 
@@ -114,6 +113,12 @@ io.on('connection', function(client) {
     client.on('buyItem', function(data) {
 
         client.hero.inputs.push({ key: 'buyItem', data: data });
+
+    });
+
+    client.on('resurrect', function(data) {
+
+        client.hero.inputs.push({ key: 'resurrect', data: data });
 
     });
 

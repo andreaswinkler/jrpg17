@@ -143,7 +143,7 @@ var IsometricRenderer =  {
     // put the correct map section on the screen
     updateStaticContent: function(map, hero) {
 
-        var offset = this.tileSize * 5, 
+        var offset = this.tileSize * 6, 
             tiles = Utils.gridElements(map.grid, hero.x - offset, hero.y - offset, hero.x + offset, hero.y + offset, this.tileSize);
             
         this.staticLayerBack.clear();

@@ -216,6 +216,12 @@ window.$G = {
                         UI.handUpdate($G.hero.hand);
                         UI.controls.update($G.hero);
 
+                        if ($G.hero.isDead) {
+
+                            UI.resurrectMenu.show();
+
+                        }
+
                     }
                 
                 }

@@ -235,6 +235,12 @@ module.exports = function(utils, settings, mapFactory, itemFactory) {
                             hero.buyItem(data.itemId);
 
                             break;
+                        
+                        case 'resurrect':
+
+                            hero.resurrect();
+
+                            break;
 
                         case 'mouseLeft':
 

@@ -52,8 +52,8 @@
         "rank": "normal", 
         "inventories": null, 
         "equipment": null, 
-        "minDmg": 10, 
-        "maxDmg": 10, 
+        "minDmg": 5, 
+        "maxDmg": 5, 
         "aggroRange": 500, 
         "aggroBehavior": "active", 
         "attackSpeed": 0.5, 
@@ -67,7 +67,7 @@
             "flavor": "physical", 
             "range": 500, 
             "manaCost": 0, 
-            "cooldown": 0, 
+            "cooldown": 5000, 
             "preAnimationDurationMS": 500, 
             "postAnimationDurationMS": 500
         }, 
@@ -157,7 +157,7 @@
         }, 
         "xp": 0, 
         "healthPotion": {
-            "cooldown": 60, 
+            "cooldown": 60000, 
             "healPercent": 0.6
         }
     }   

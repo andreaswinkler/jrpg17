@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(utils, settings, blueprints, components, Inventory, itemFactory, skills, log) {
+module.exports = function(utils, settings, blueprints, components, Inventory, itemFactory, skills) {
 
     return {
     
@@ -23,10 +23,6 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
             creature.isDead = false;
             creature.updates = {};
 
-            if (creature.id == 9) {
-                log.watch = creature;
-            }
-
             if (creature.balance == null) {
                 creature.balance = 0;
             }
@@ -44,13 +40,28 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             };
 
+            creature.set = function(key, value) {
+
+                this[key] = value;
+                this.updates[key] = this[key];
+
+            };
+
             creature.setPosition = function(x, y) {
 
-                this.x = x;
-                this.y = y;
+                this.set('x', x);
+                this.set('y', y);
 
-                this.updates.x = this.x;
-                this.updates.y = this.y;
+            };
+
+            creature.resurrect = function() {
+
+                if (this.isDead) {
+
+                    this.set('isDead', false);
+                    this.healPercent(100);
+
+                }
 
             };
 
@@ -76,8 +87,8 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                     if (this.xp >= settings.xpPerLevel[i]) {
 
-                        this.level = i + 1;
-                        this.xp_current = this.xp - settings.xpPerLevel[i];
+                        this.set('level', i + 1);
+                        this.set('xp_current', this.xp - settings.xpPerLevel[i]);
 
                     }
 
@@ -87,13 +98,8 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             creature.gainXp = function(amount) {
 
-                this.xp += amount;
-                
+                this.set('xp', this.xp + amount);
                 this.calculateXp();
-
-                this.updates.level = this.level;
-                this.updates.xp = this.xp;
-                this.updates.xp_current = this.xp_current;
 
             };
 
@@ -336,9 +342,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 if (amount <= this.balance) {
 
-                    this.balance -= amount;
-
-                    this.updates.balance = this.balance;
+                    this.set('balance', this.balance - amount);
 
                     return true;
 
@@ -350,9 +354,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             creature.earn = function(amount) {
 
-                this.balance += amount;
-
-                this.updates.balance = this.balance;
+                this.set('balance', this.balance + amount);
 
             };
 
@@ -364,32 +366,25 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             creature.hurt = function(value) {
 
-                this.life = Math.max(0, this.life - value);
+                this.set('life', Math.max(0, this.life - value));
 
                 if (this.life == 0) {
                     
-                    this.isDead = true;
-                    this.updates.isDead = this.isDead;
+                    this.set('isDead', true);
 
                 }
-
-                this.updates.life = this.life;
 
             };
 
             creature.heal = function(value) {
 
-                this.life = Math.min(this.maxLife_current, this.life + value);
-
-                this.updates.life = this.life;
+                this.set('life', Math.min(this.maxLife_current, this.life + value));
 
             };
 
             creature.restoreMana = function(value) {
 
-                this.mana = Math.min(this.maxMana_current, this.mana + value);
-
-                this.updates.mana = this.mana;
+                this.set('mana', Math.min(this.maxMana_current, this.mana + value));
 
             };
 
@@ -415,8 +410,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                 // update our position accordingly
                 pos = this.map.entrance(oldMapKey);
 
-                this.x = pos.x;
-                this.y = pos.y;
+                this.setPosition(pos.x, pos.y);
 
             };
 
@@ -437,7 +431,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                     if (this.healthPotion && !this.healthPotion.cooldown_current) {
 
                         this.healPercent(this.healthPotion.healPercent);
-                        this.healthPotion.cooldown_current = this.healthPotion.cooldown * 1000;
+                        this.healthPotion.cooldown_current = this.healthPotion.cooldown;
 
                     }
 
@@ -509,11 +503,12 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                                 if (placeResult !== true) {
 
-                                    this.hand = placeResult;
+                                    this.set('hand', placeResult);
 
                                 } else {
 
-                                    this.hand = null;
+                                    this.set('hand', null);
+
 
                                 }
 
@@ -523,13 +518,12 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                             if (inventory.add(this.hand).success) {
 
-                                this.hand = null;
+                                this.set('hand', null);
 
                             }
 
                         }
 
-                        this.updates.hand = this.hand;
                         this.updates.inventories = this.inventories;
 
                     }
@@ -566,9 +560,8 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                         if (grabResult.item) {
 
-                            this.hand = grabResult.item;
+                            this.set('hand', grabResult.item);
 
-                            this.updates.hand = this.hand,
                             this.updates.inventories = this.inventories;
 
                         }
@@ -603,7 +596,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                         this.earn(this.hand.sellValue);
 
-                        this.hand = null;
+                        this.set('hand', null);
 
                         this.updates.inventories = this.inventories;
 
@@ -653,9 +646,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 if (this.mana >= amount) {
 
-                    this.mana -= amount;
-
-                    this.updates.mana = this.mana;
+                    this.set('mana', this.mana - amount);
 
                     return true;
 
@@ -783,10 +774,9 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                     this.droppedItems.push({ item: this.hand, x: x, y: y, width: 20, height: 20 });
 
                     // empty the creatures hand
-                    this.hand = null;
+                    this.set('hand', null);
 
                     this.updates.droppedItems = this.droppedItems;
-                    this.updates.hand = this.hand;
 
                 }
 
@@ -799,7 +789,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 for (i = 0; i < settings.attributes.length; i++) {
 
-                    this[settings.attributes[i] + '_current'] = this[settings.attributes[i]] || 0;
+                    this.set(settings.attributes[i] + '_current', this[settings.attributes[i]] || 0);
 
                 }
 
@@ -815,7 +805,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                                 for (i = 0; i < settings.attributes.length; i++) {
 
-                                    this[settings.attributes[i] + '_current'] += item[settings.attributes[i]] || 0;
+                                    this.set(settings.attributes[i] + '_current', this[settings.attributes[i] + '_current'] + item[settings.attributes[i]] || 0);
 
                                 }       
 
@@ -827,19 +817,19 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                 
                 }
 
-                this.maxLife_current += this.vitality_current * 10;
-                this.lifePerSecond_current += this.vitality_current / 10;
-                this.manaPerSecond_current += this.intelligence_current / 10;
+                this.set('maxLife_current', this.maxLife_current + this.vitality_current * 10);
+                this.set('lifePerSecond_current', this.lifePerSecond_current + this.vitality_current / 10);
+                this.set('manaPerSecond_current', this.manaPerSecond_current + this.intelligence_current / 10);
 
                 if (!this.life) {
 
-                    this.life = this.maxLife_current;
+                    this.set('life', this.maxLife_current);
 
                 }
 
                 if (!this.mana) {
 
-                    this.mana = this.maxMana_current;
+                    this.set('mana', this.maxMana_current);
 
                 }
 

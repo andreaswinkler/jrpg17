@@ -190,6 +190,12 @@ module.exports = function(utils, settings, blueprints, components) {
                 enemy: enemy
             };
             
+            if (skill.cooldown) {
+
+                skill.cooldown_current = skill.cooldown;
+
+            }
+
             return true;
 
         }

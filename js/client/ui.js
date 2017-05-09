@@ -681,38 +681,39 @@ var UI = {
 
     }, 
 
-    Menu: function(container) {
+    Menu: function(container, options) {
 
         this.e = $('<div class="ui-menu positioned"><ul /></div>').appendTo(container);
 
-        this.e.find('ul').append('<li data-key="leave">Leave Game</li><li data-key="resume">Resume</li>');
+        options.forEach(function(option) {
+
+            var li = $('<li>' + option.name + '</li>').appendTo(this.e.find('ul'));
+
+            li.get(0).action = option.action;
+            li.get(0).menu = this;
+
+        }, this);
 
         this.e.find('li').click(function(ev) {
 
-            var e = $(ev.target), 
-                key = e.attr('data-key');
-            
-            switch (key) {
-
-                case 'leave':
-
-                    Net.emit('leaveGame', {});
-                    document.location.href = document.location.href;
-
-                    break;
-                
-                case 'resume':
-
-                    e.closest('.ui-menu').removeClass('visible');
-
-                    break;
-
-            }
+            ev.target.action($(ev.target), ev.target.menu);
 
             ev.preventDefault();
             return false;
-
+        
         });
+
+        this.close = function() {
+
+            this.e.removeClass('visible');
+
+        };
+
+        this.show = function() {
+
+            this.e.addClass('visible');
+
+        };
 
         this.toggle = function() {
 
@@ -798,7 +799,14 @@ var UI = {
 
         this.droppedItemOverlay = new UI.DroppedItemOverlay(this.container);
 
-        this.menu = new UI.Menu(this.container);
+        this.menu = new UI.Menu(this.container, [
+            { name: 'Leave Game', action: function(e) { Net.emit('leaveGame', {}); document.location.href = document.location.href; }}, 
+            { name: 'Resume Game', action: function(e, menu) { menu.close(); }}
+        ]);
+
+        this.resurrectMenu = new UI.Menu(this.container, [
+            { name: 'Resurrect at Corpse', action: function(e, menu) { Net.emit('resurrect'); menu.close(); }}
+        ]);
 
         this.vendorWindow = new UI.Window(this.container, { align: 'left', width: '45%', title: 'Vendor' });
         this.vendorWindow.update = function(vendor) {

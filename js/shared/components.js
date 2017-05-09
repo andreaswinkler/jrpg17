@@ -4,8 +4,7 @@
 
     var isModule = typeof module !== 'undefined' && typeof module.exports !== 'undefined', 
         utils = isModule ? require('./utils.js') : window.Utils, 
-        settings = isModule ? require('./../../data/settings.json') : window.settings, 
-        log = isModule ? require('./log.js') : window.Log;
+        settings = isModule ? require('./../../data/settings.json') : window.settings;
         
     var components = {
 
