@@ -212,13 +212,29 @@ var IsometricRenderer =  {
     // render a single element to the dynamic layer
     renderElement: function(element) {
 
-        var isoCoordinates = this.cartesianToIsometric(element.x, element.y);
-        
-        this.dynamicLayer.draw(
-            Assets.get(element.asset), 
-            Math.floor(isoCoordinates.x + this.offset.x - (element.width / 2)), 
-            Math.floor(isoCoordinates.y + this.offset.y - element.height + (element.width / 4))
-        );
+        var isoCoordinates = this.cartesianToIsometric(element.x, element.y), 
+            x = Math.floor(isoCoordinates.x + this.offset.x - (element.width / 2)), 
+            y = Math.floor(isoCoordinates.y + this.offset.y - element.height + (element.width / 4));
+
+        this.dynamicLayer.draw(Assets.get(element.asset), x, y);
+
+        if (element.isDead) {
+
+            this.dynamicLayer.text('X', x, y + 40, '40px Arial');
+
+        }
+
+        if (!element.isDead && element.life) {
+
+            this.dynamicLayer.drawBar(x, y, element.width, 10, 'rgba(210,0,0,1)', element.life, element.maxLife_current);
+
+        }
+
+        if (element.projectiles) {
+            
+            element.projectiles.forEach(this.renderElement, this);
+
+        }
 
     }
 
@@ -260,6 +276,13 @@ var IsometricRenderLayer = function(width, height) {
 
     };
 
+    this.drawBar = function(x, y, width, height, fillStyle, current, total) {
+
+        this.drawRect(x, y, width, height, 'rgba(0,0,0,1)');
+        this.drawRect(x + 1, y + 1, (width - 2) * (current / total), height - 2, fillStyle);
+
+    };
+
     this.drawCircle = function(x, y, radius, fillStyle) {
 
         this.ctx.fillStyle = fillStyle;
@@ -270,9 +293,9 @@ var IsometricRenderLayer = function(width, height) {
 
     };
 
-    this.text = function(text, x, y) {
+    this.text = function(text, x, y, fontStyle) {
 
-        this.ctx.font = "10px Arial";
+        this.ctx.font = fontStyle || "10px Arial";
 
         if (text.indexOf('\n')) {
 

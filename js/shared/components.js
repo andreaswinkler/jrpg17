@@ -3,8 +3,9 @@
 (function() {
 
     var isModule = typeof module !== 'undefined' && typeof module.exports !== 'undefined', 
-        utils = isModule ? require('./utils.js'): window.Utils, 
-        settings = isModule ? require('./../../data/settings.json') : window.settings;
+        utils = isModule ? require('./utils.js') : window.Utils, 
+        settings = isModule ? require('./../../data/settings.json') : window.settings, 
+        log = isModule ? require('./log.js') : window.Log;
         
     var components = {
 
@@ -29,20 +30,20 @@
                             
                         var targetX = ~~(this.e.x + (this.dx * this.e.speed * ticks)), 
                             targetY = ~~(this.e.y + (this.dy * this.e.speed * ticks));
-                            
+                        
                         if (this.ignoreObstacles || utils.tileIsWalkable(this.e.map, targetX, targetY)) {
 
                             this.e.x = targetX;
                             this.e.y = targetY;
 
-                            if (utils.distance(this.e.x, this.e.y, this.x, this.y) < 10) {
-
+                            if (utils.distance(this, this.e) < 10) {
+                                
                                 this.stop();
 
                             }
 
                             if (this.range && utils.distance(this.originX, this.originY, this.x, this.y) > this.range) {
-
+                                
                                 this.stop();
 
                             }

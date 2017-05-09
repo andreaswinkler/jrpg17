@@ -4,12 +4,20 @@
         {
             "creature": "betaVendorNpc", 
             "x": 3700, 
-            "y": 2304
+            "y": 2304, 
+            "amount": 1
         }, 
         {
             "interactable": "chest", 
             "x": 3700, 
-            "y": 2450
+            "y": 2450, 
+            "amount": 1
+        }, 
+        {
+            "creature": "hystrix", 
+            "x": 3700, 
+            "y": 2304, 
+            "amount": 3
         }   
     ], 
     "exits": [

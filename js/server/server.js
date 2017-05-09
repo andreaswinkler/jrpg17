@@ -26,7 +26,7 @@ module.exports = function(utils, settings, player, game) {
         
         // the time in ms we wait before starting a new loop
         // let's do 10fps at the beginning [fps = 1000 / msLoop]
-        msLoop: 100,  
+        msLoop: 33,  
         
         games: [], 
 

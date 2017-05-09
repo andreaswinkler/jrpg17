@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(utils, settings, blueprints, components, Inventory, itemFactory, skills) {
+module.exports = function(utils, settings, blueprints, components, Inventory, itemFactory, skills, log) {
 
     return {
     
@@ -20,6 +20,12 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
             creature.dots = [];
             creature.life = creature.maxLife_current;
             creature.mana = creature.maxMana_current;
+            creature.isDead = false;
+            creature.updates = {};
+
+            if (creature.id == 9) {
+                log.watch = creature;
+            }
 
             if (creature.balance == null) {
                 creature.balance = 0;
@@ -30,7 +36,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
             creature.skill1 = skills.blueprints.bashAttack;
             creature.skill2 = skills.blueprints.teleport;
 
-            creature.excludeFields = ['map', 'game', 'inputs', 'movementTarget', 'updates', 'scheduledSkill'];
+            creature.excludeFields = ['map', 'game', 'inputs', 'movementTarget', 'updates', 'scheduledSkill', 'aggroTarget'];
             
             creature.pack = function() {
 
@@ -70,7 +76,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                     if (this.xp >= settings.xpPerLevel[i]) {
 
-                        this.level = i;
+                        this.level = i + 1;
                         this.xp_current = this.xp - settings.xpPerLevel[i];
 
                     }
@@ -110,25 +116,62 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 }
 
-                // handle movement
-                if (this.movementTarget) {
+                // handle aggro
+                if (!this.aggroTarget && this.aggroBehavior == 'active') {
+                    
+                    this.aggroTarget = this.nearestEnemy(this.aggroRange);
+    
+                }
+
+                if (this.aggroTarget) {
+
+                    if (this.aggroTarget.isDead || !utils.inRange(this, this.aggroTarget, this.aggroRange)) {
+                        
+                        this.aggroTarget = null;
+
+                    } else {
+
+                        if (!this.scheduledSkill) {
+
+                            if (utils.inRange(this, this.aggroTarget, this.skill0.range)) {
+                               
+                                this.useSkill('skill0', this.aggroTarget.x, this.aggroTarget.y);
+
+                            } else {
+                            
+                                this.moveTo(this.aggroTarget.x, this.aggroTarget.y);
+
+                            }
+                        
+                        }
+
+                    }
+
+                }
+
+                if (!this.isDead) {
+
+                    // handle movement
+                    if (this.movementTarget) {
+                                    
+                        this.movementTarget.update(ticks);
+
+                    }
+
+                    // life per second
+                    if (this.life < this.maxLife_current) {
+
+                        this.heal(this.lifePerSecond_current / 1000 * ticks);
                                 
-                    this.movementTarget.update(ticks);
+                    }
 
-                }
+                    // mana per second
+                    if (this.mana < this.maxMana_current) {
 
-                // life per second
-                if (this.life < this.maxLife_current) {
-
-                    this.heal(this.lifePerSecond_current / 1000 * ticks);
-                            
-                }
-
-                // mana per second
-                if (this.mana < this.maxMana_current) {
-
-                    this.restoreMana(this.manaPerSecond_current / 1000 * ticks);
-                            
+                        this.restoreMana(this.manaPerSecond_current / 1000 * ticks);
+                                
+                    }
+                
                 }
 
                 // healthpotion cooldown
@@ -140,7 +183,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 // skills
                 if (this.scheduledSkill) {
-
+                    
                     skills.update(this, ticks);
                 
                 }
@@ -185,6 +228,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                 for (i = this.projectiles.length; i--;) {
 
                     projectile = this.projectiles[i];
+                    projectile.updates = {};
 
                     if (projectile.movementTarget) {
 
@@ -195,7 +239,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                         if (enemy) {
 
                             projectile.data.enemy = enemy;
-
+                            
                             skills.apply(projectile.source, projectile.data);
 
                             projectile.movementTarget = null;
@@ -205,9 +249,10 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                         if (!projectile.movementTarget) {
 
                             this.projectiles.splice(i, 1);
-                            this.updates.projectiles = this.projectiles;
 
                         }
+
+                        this.updates.projectiles = this.projectiles;
 
                     }
 
@@ -241,14 +286,49 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             };
 
+            creature.enemies = function() {
+
+                return this.map.creatures.filter(function(creature) {
+
+                    return !creature.isDead && creature.faction != 'neutral' && creature.faction != this.faction;
+            
+                }, this);
+
+            };
+
             creature.enemy = function(x, y) {
 
-                return this.map.creatures.find(function(creature) { 
-                    
-                    return creature.faction != this.faction && 
-                           utils.hitTest(creature.x, creature.y, creature.width, creature.height, x, y, x + 1, y + 1) 
-                
-                }, this);
+                return this.enemies().find(function(enemy) {
+
+                    return utils.hitTest(enemy.x, enemy.y, enemy.width, enemy.height, x, y, x + 1, y + 1);
+
+                });
+
+            };
+
+            creature.nearestEnemy = function(range) {
+
+                var enemies = this.enemies(), 
+                    nearestEnemy, shortestDistance, distance;
+
+                for (i = 0; i < enemies.length; i++) {
+
+                    distance = utils.distance(this, enemies[i]);
+
+                    if (distance <= range) {
+
+                        if (!nearestEnemy || distance < shortestDistance) {
+
+                            shortestDistance = distance;
+                            nearestEnemy = enemies[i];
+
+                        } 
+                        
+                    }
+
+                }
+
+                return nearestEnemy;
 
             };
 
@@ -287,13 +367,13 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                 this.life = Math.max(0, this.life - value);
 
                 if (this.life == 0) {
-
+                    
                     this.isDead = true;
+                    this.updates.isDead = this.isDead;
 
                 }
 
                 this.updates.life = this.life;
-                this.updates.isDead = this.isDead;
 
             };
 
@@ -697,16 +777,33 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 };
 
-                // update stats based on equipment
-                creature.updateStats = function() {
+                creature.dropItem = function(x, y) {
 
-                    var item, i;
+                    // move an item from the creatures hand to the dropped items list
+                    this.droppedItems.push({ item: this.hand, x: x, y: y, width: 20, height: 20 });
 
-                    for (i = 0; i < settings.attributes.length; i++) {
+                    // empty the creatures hand
+                    this.hand = null;
 
-                        this[settings.attributes[i] + '_current'] = this[settings.attributes[i]] || 0;
+                    this.updates.droppedItems = this.droppedItems;
+                    this.updates.hand = this.hand;
 
-                    }
+                }
+
+            }
+            
+            // update stats based on equipment
+            creature.updateStats = function() {
+
+                var item, i;
+
+                for (i = 0; i < settings.attributes.length; i++) {
+
+                    this[settings.attributes[i] + '_current'] = this[settings.attributes[i]] || 0;
+
+                }
+
+                if (this.equipment) {
 
                     for (key in this.equipment) {
 
@@ -727,34 +824,38 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
                         }
 
                     }
+                
+                }
 
-                    this.maxLife_current += this.vitality_current * 10;
-                    this.lifePerSecond_current += this.vitality_current / 10;
-                    this.manaPerSecond_current += this.intelligence_current / 10;
+                this.maxLife_current += this.vitality_current * 10;
+                this.lifePerSecond_current += this.vitality_current / 10;
+                this.manaPerSecond_current += this.intelligence_current / 10;
 
-                }, 
+                if (!this.life) {
 
-                creature.weapon = function() {
+                    this.life = this.maxLife_current;
+
+                }
+
+                if (!this.mana) {
+
+                    this.mana = this.maxMana_current;
+
+                }
+
+            }, 
+
+            creature.weapon = function() {
+
+                if (this.equipment) {
 
                     return this.equipment.mainHand;
 
                 }
 
-                creature.dropItem = function(x, y) {
-
-                    // move an item from the creatures hand to the dropped items list
-                    this.droppedItems.push({ item: this.hand, x: x, y: y, width: 20, height: 20 });
-
-                    // empty the creatures hand
-                    this.hand = null;
-
-                    this.updates.droppedItems = this.droppedItems;
-                    this.updates.hand = this.hand;
-
-                }
-
             }
 
+            creature.updateStats();
             creature.calculateXp();
 
             return creature;

@@ -771,7 +771,7 @@ var UI = {
 
             this.lifeGlobe.update(hero.life, hero.maxLife_current);
             this.manaGlobe.update(hero.mana, hero.maxMana_current);
-            this.xpBar.update(hero.xp_current, $G.settings.xpPerLevel[hero.level + 1]);
+            this.xpBar.update(hero.xp_current, $G.settings.xpPerLevel[hero.level]);
 
         };
 

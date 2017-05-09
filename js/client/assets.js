@@ -23,6 +23,18 @@ var Assets = {
             'color': 'rgba(100,0,55,1)', 
             'block': true
         },
+        'hystrix': {
+            'width': 40, 
+            'height': 40, 
+            'color': 'rgba(0,99,0,1)', 
+            'block': true
+        },
+        'projectile': {
+            'color': 'rgba(0,255,255,1)', 
+            'block': true, 
+            'height': 5, 
+            'width': 5
+        }, 
         'tile_F': {
             'color': 'rgba(200,200,200,1)', 
             'tile': true

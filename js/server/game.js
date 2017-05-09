@@ -41,8 +41,6 @@ module.exports = function(utils, settings, mapFactory, itemFactory) {
 
                     var i, input;
 
-                    creature.updates = {};
-                    
                     // process all inputs we got since the last loop
                     for (i = creature.inputs.length; i--;) {
 
@@ -109,6 +107,8 @@ module.exports = function(utils, settings, mapFactory, itemFactory) {
                                 updatesList[mapKey].push(utils.pack(creature.updates));
 
                             }
+
+                            creature.updates = {};
 
                         }
 

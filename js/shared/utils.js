@@ -6,10 +6,25 @@
     var utils = {
 
         // calculate the distance between two positions in pixels
-        distance: function(x, y, x2, y2) {
+        distance: function() {
             
-            return Math.sqrt((x2 - x) * (x2 - x) + (y2 - y) * (y2 - y));  
+            if (arguments.length == 2) {
+
+                return this.distance(arguments[0].x, arguments[0].y, arguments[1].x, arguments[1].y);
+
+            } else {
+
+                return Math.sqrt((arguments[2] - arguments[0]) * (arguments[2] - arguments[0]) + (arguments[3] - arguments[1]) * (arguments[3] - arguments[1]));  
             
+            }
+            
+        }, 
+
+        // in range
+        inRange: function(obj1, obj2, range) {
+
+            return this.distance(obj1, obj2) <= range;
+
         }, 
             
         // calculate the angle between the given vector and the x-axis
@@ -162,10 +177,10 @@
                 }
 
                 // handle armor
-                damage *= target.armor_current / (50 * sourceLevel + target.armor_current);
+                damage *= 1 - (target.armor_current / (50 * sourceLevel + target.armor_current));
 
                 // handle resistances
-                damage *= resistance / (5 * sourceLevel + resistance);
+                damage *= 1 - (resistance / (5 * sourceLevel + resistance));
 
                 result.damage = damage;
             

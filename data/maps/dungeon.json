@@ -4,7 +4,8 @@
         {
             "interactable": "chest", 
             "x": 1650, 
-            "y": 1650
+            "y": 1650, 
+            "amount": 1
         }    
     ], 
     "exits": [

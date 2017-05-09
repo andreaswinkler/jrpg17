@@ -16,7 +16,7 @@ module.exports = function(fs, utils, settings, creatureFactory) {
             
             blueprint.spawnPoints.forEach(function(spawnPoint) {
 
-                var interactable, creature;
+                var interactable, creature, i;
 
                 if (spawnPoint.interactable) {
 
@@ -39,16 +39,20 @@ module.exports = function(fs, utils, settings, creatureFactory) {
 
                 } else if (spawnPoint.creature) {
 
-                    creature = creatureFactory.create(spawnPoint.creature, { level: 1 }, game);
+                    for (i = 0; i < spawnPoint.amount; i++) {
 
-                    creature.x = spawnPoint.x;
-                    creature.y = spawnPoint.y;
+                        creature = creatureFactory.create(spawnPoint.creature, { level: 1 }, game);
 
-                    creatures.push(creature);
-                   
-                    if (creature.type == 'npc') {
+                        creature.x = spawnPoint.x + (i * 10);
+                        creature.y = spawnPoint.y + (i * 10);
 
-                        npcs.push(creature);
+                        creatures.push(creature);
+                    
+                        if (creature.type == 'npc') {
+
+                            npcs.push(creature);
+
+                        }
 
                     }
 
@@ -59,7 +63,7 @@ module.exports = function(fs, utils, settings, creatureFactory) {
             map = {
                 name: key, 
                 key: key, 
-                creatures: creatures, 
+                creatures: [], 
                 interactables: [],
                 npcs: npcs, 
                 grid: grid, 
@@ -159,6 +163,12 @@ module.exports = function(fs, utils, settings, creatureFactory) {
             interactables.forEach(function(interactable) {
 
                 map.addInteractable(interactable);
+
+            }, this);
+
+            creatures.forEach(function(creature) {
+
+                map.addCreature(creature);
 
             }, this);
 

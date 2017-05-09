@@ -1,13 +1,13 @@
 "use strict";
 
-module.exports = function(utils, settings, blueprints) {
+module.exports = function(utils, settings, blueprints, components) {
 
     return {
 
         blueprints: blueprints, 
 
         update: function(creature, ticks) {
-
+            
             var scheduledSkill = creature.scheduledSkill, 
                 ticksRemaining = ticks;
 
@@ -28,7 +28,7 @@ module.exports = function(utils, settings, blueprints) {
                 }
 
                 if (scheduledSkill.stage == 'active') {
-                    console.log('apply skill');
+                    
                     this.apply(creature, scheduledSkill);
 
                     scheduledSkill.stage = 'post';
@@ -53,20 +53,22 @@ module.exports = function(utils, settings, blueprints) {
 
         createProjectile: function(source, data) {
 
-            var data = utils.assign(data);
-            
-            data.type = data.deferredType;
+            data.type = data.skill.deferredType;
 
             return {
                 x: source.x, 
                 y: source.y, 
                 source: source, 
                 data: data, 
-                speed: data.skill.projectileSpeed, 
+                speed: data.skill.projectileSpeed,
+                asset: 'projectile',  
+                width: 5, 
+                height: 5, 
+                map: source.map, 
                 moveTo: function(x, y, range) {
                     components.Movement.moveTo(this, x, y, range);
                 }, 
-                packFields: ['x', 'y'], 
+                packFields: ['x', 'y', 'width', 'height', 'asset'], 
                 pack: function() {
                     return utils.pack(this);
                 }
@@ -75,8 +77,9 @@ module.exports = function(utils, settings, blueprints) {
         }, 
 
         applyDamageToSingleTarget: function(target, damage, flavor, source, skill) {
-
+         
             var result = utils.hitDamage(target, damage, flavor, source.level);
+            
             target.hurt(result.damage);
 
             if (result.reflectedDamage) {
@@ -90,9 +93,9 @@ module.exports = function(utils, settings, blueprints) {
 
         // perform a hit against a target
         apply_meleeSingleTarget: function(creature, data) {
-
-            this.applyDamageToSingleTarget(data.enemy, data.damage.damage, data.damage.flavor, creature);
-
+            
+            this.applyDamageToSingleTarget(data.enemy, data.damage.damage, data.damage.flavor, creature, data.skill);
+ 
             if (data.skill.dotDamageMultiplier) {
 
                 data.enemy.applyDot(data.damage.damage * data.skill.dotDamageMultiplier, data.skill.dotDamageDurationMS, data.damage.flavor, creature);
@@ -120,15 +123,15 @@ module.exports = function(utils, settings, blueprints) {
         }, 
 
         apply: function(creature, data) {
-            console.log('apply', data.skill.type);
-            this['apply_' + data.skill.type](creature, data);
+            
+            this['apply_' + data.type](creature, data);
 
         }, 
 
         invoke: function(creature, skill, x, y) {
-            console.log('invoke skill');
-            var weapon, distance, enemies, enemy, range;
-
+            
+            var weapon, distance, enemies, enemy, range, speed;
+     
             if (skill.requiresWeapon) {
 
                 weapon = creature.weapon();
@@ -139,7 +142,12 @@ module.exports = function(utils, settings, blueprints) {
 
                 }
 
+                speed = creature.attackSpeed_current;
                 range = weapon.range;
+
+            } else {
+
+                speed = 1;
 
             }
 
@@ -169,20 +177,19 @@ module.exports = function(utils, settings, blueprints) {
             
             }
 
-            console.log('skill invoked');
-
             // schedule the attack
             creature.scheduledSkill = { 
-                skill: skill,  
+                skill: skill, 
+                type: skill.type,  
                 stage: 'pre', 
-                preAnimationMS: skill.preAnimationDurationMS / creature.attackSpeed_current, 
-                postAnimationMS: skill.postAnimationDurationMS / creature.attackSpeed_current, 
+                preAnimationMS: skill.preAnimationDurationMS / speed, 
+                postAnimationMS: skill.postAnimationDurationMS / speed, 
                 x: x, 
                 y: y, 
                 damage: utils.damage(creature, skill), 
                 enemy: enemy
             };
-
+            
             return true;
 
         }
