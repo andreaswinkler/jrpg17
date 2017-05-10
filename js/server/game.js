@@ -375,6 +375,7 @@ module.exports = function(utils, settings, mapFactory, itemFactory) {
                     
                     if (interactable) {
 
+                        console.log('interact with ' + interactable.name);
                         interactable.interact(creature);
 
                         creature.updates.droppedItems = creature.droppedItems;

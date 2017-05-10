@@ -43,8 +43,7 @@ module.exports = function(fs, utils, settings, creatureFactory) {
 
                         creature = creatureFactory.create(spawnPoint.creature, { level: 1 }, game);
 
-                        creature.x = spawnPoint.x + (i * 10);
-                        creature.y = spawnPoint.y + (i * 10);
+                        creature.setPosition(spawnPoint.x + (i * 10), spawnPoint.y + (i * 10));
 
                         creatures.push(creature);
                     

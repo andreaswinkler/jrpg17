@@ -22,6 +22,7 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
             creature.mana = creature.maxMana_current;
             creature.isDead = false;
             creature.updates = {};
+            creature.halfWidth = creature.width;
 
             if (creature.balance == null) {
                 creature.balance = 0;
@@ -29,10 +30,20 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
             creature.balance = 1000;
             
-            creature.skill1 = skills.blueprints.bashAttack;
-            creature.skill2 = skills.blueprints.teleport;
+            if (creature.type == 'hero') {
+                creature.skill0 = utils.assign(skills.blueprints.normalMeleeAttack);
+                creature.skill1 = utils.assign(skills.blueprints.bashAttack);
+                creature.skill2 = utils.assign(skills.blueprints.teleport);
+            }
 
-            creature.excludeFields = ['map', 'game', 'inputs', 'movementTarget', 'updates', 'scheduledSkill', 'aggroTarget'];
+            creature.hitBox = {
+                x: creature.x - creature.halfWidth, 
+                y: creature.y - creature.height, 
+                width: creature.width, 
+                height: creature.height
+            };
+
+            creature.excludeFields = ['map', 'game', 'inputs', 'movementTarget', 'updates', 'scheduledSkill', 'aggroTarget', 'halfWidth', 'hitBox'];
             
             creature.pack = function() {
 
@@ -51,6 +62,11 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 this.set('x', x);
                 this.set('y', y);
+
+                this.hitBox.x = this.x - this.halfWidth;
+                this.hitBox.y = this.y - this.height;
+
+                this.updates.hitBox = this.hitBox;
 
             };
 
@@ -122,40 +138,40 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
 
                 }
 
-                // handle aggro
-                if (!this.aggroTarget && this.aggroBehavior == 'active') {
-                    
-                    this.aggroTarget = this.nearestEnemy(this.aggroRange);
-    
-                }
+                if (!this.isDead) {
 
-                if (this.aggroTarget) {
-
-                    if (this.aggroTarget.isDead || !utils.inRange(this, this.aggroTarget, this.aggroRange)) {
+                    // handle aggro
+                    if (!this.aggroTarget && this.aggroBehavior == 'active') {
                         
-                        this.aggroTarget = null;
+                        this.aggroTarget = this.nearestEnemy(this.aggroRange);
+        
+                    }
 
-                    } else {
+                    if (this.aggroTarget) {
 
-                        if (!this.scheduledSkill) {
-
-                            if (utils.inRange(this, this.aggroTarget, this.skill0.range)) {
-                               
-                                this.useSkill('skill0', this.aggroTarget.x, this.aggroTarget.y);
-
-                            } else {
+                        if (this.aggroTarget.isDead || !utils.inRange(this, this.aggroTarget, this.aggroRange)) {
                             
-                                this.moveTo(this.aggroTarget.x, this.aggroTarget.y);
+                            this.aggroTarget = null;
 
+                        } else {
+
+                            if (!this.scheduledSkill) {
+
+                                if (utils.inRange(this, this.aggroTarget, this.skill0.range)) {
+                                
+                                    this.useSkill('skill0', this.aggroTarget.x, this.aggroTarget.y);
+
+                                } else {
+                                
+                                    this.moveTo(this.aggroTarget.x, this.aggroTarget.y);
+
+                                }
+                            
                             }
-                        
+
                         }
 
                     }
-
-                }
-
-                if (!this.isDead) {
 
                     // handle movement
                     if (this.movementTarget) {
@@ -657,9 +673,9 @@ module.exports = function(utils, settings, blueprints, components, Inventory, it
             };
 
             creature.useSkill = function(skillSlot, x, y) {
-
-                var skill = this[skillSlot];
                 
+                var skill = this[skillSlot];
+            
                 if (!this.scheduledSkill && utils.skillReady(skill) && this.spendMana(skill.manaCost)) {
 
                     return skills.invoke(this, skill, x, y);

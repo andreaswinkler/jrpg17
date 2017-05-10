@@ -16,7 +16,7 @@
         {
             "creature": "hystrix", 
             "x": 3700, 
-            "y": 2304, 
+            "y": 2004, 
             "amount": 3
         }   
     ], 
@@ -24,7 +24,7 @@
         {
             "destinationMapKey": "dungeon", 
             "asset": "portal", 
-            "x": 3750, 
+            "x": 3950, 
             "y": 2304
         }
     ], 

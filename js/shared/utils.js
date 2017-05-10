@@ -625,7 +625,7 @@
 
         findByHitTest: function(arr, x, y) {
 
-            return arr.find(function(el) { return utils.hitTest(el, x, y); });
+            return arr.find(function(el) { return utils.hitTest(el.hitBox || el, x, y); });
 
         }, 
 

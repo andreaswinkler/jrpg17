@@ -27,13 +27,11 @@ var IsometricRenderer =  {
         this.halfTileSize = this.tileSize / 2;
         this.quarterTileSize = this.tileSize / 4;
         
-        this.staticLayerBack = new IsometricRenderLayer(this.width, this.height);
+        this.staticLayer = new IsometricRenderLayer(this.width, this.height);
         this.dynamicLayer = new IsometricRenderLayer(this.width, this.height);
-        this.staticLayerFront = new IsometricRenderLayer(this.width, this.height);
 
-        container.append(this.staticLayerBack.canvas);
+        container.append(this.staticLayer.canvas);
         container.append(this.dynamicLayer.canvas);
-        container.append(this.staticLayerFront.canvas);
 
     }, 
 
@@ -146,8 +144,7 @@ var IsometricRenderer =  {
         var offset = this.tileSize * 6, 
             tiles = Utils.gridElements(map.grid, hero.x - offset, hero.y - offset, hero.x + offset, hero.y + offset, this.tileSize);
             
-        this.staticLayerBack.clear();
-        this.staticLayerFront.clear();
+        this.staticLayer.clear();
         
         tiles.forEach(this.renderTile, this);
 
@@ -184,14 +181,11 @@ var IsometricRenderer =  {
 
     renderTile: function(tile) {
         
-        var heroIsoCoordinates = this.cartesianToIsometric($G.hero.x, $G.hero.y), 
-            isoCoordinates = this.cartesianToIsometric(tile.x, tile.y), 
-            front = tile.y > $G.hero.y, 
-            layer = front ? this.staticLayerFront : this.staticLayerBack;
+        var isoCoordinates = this.cartesianToIsometric(tile.x, tile.y);
           
         if (tile.t != '') {
             
-            layer.draw(
+            this.staticLayer.draw(
                 Assets.get('tile_' + tile.t), 
                 isoCoordinates.x - this.tileSize + this.offset.x, 
                 isoCoordinates.y + this.offset.y
@@ -199,7 +193,7 @@ var IsometricRenderer =  {
         
         } else {
             
-            layer.draw(
+            this.staticLayer.draw(
                 Assets.get('wall'), 
                 isoCoordinates.x - this.tileSize + this.offset.x, 
                 isoCoordinates.y + this.offset.y - 40
@@ -211,7 +205,7 @@ var IsometricRenderer =  {
 
     // render a single element to the dynamic layer
     renderElement: function(element) {
-
+        
         var isoCoordinates = this.cartesianToIsometric(element.x, element.y), 
             x = Math.floor(isoCoordinates.x + this.offset.x - (element.width / 2)), 
             y = Math.floor(isoCoordinates.y + this.offset.y - element.height + (element.width / 4));

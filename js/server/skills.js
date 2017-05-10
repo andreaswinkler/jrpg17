@@ -129,7 +129,7 @@ module.exports = function(utils, settings, blueprints, components) {
         }, 
 
         invoke: function(creature, skill, x, y) {
-            
+            console.log('invoke', skill.name);
             var weapon, distance, enemies, enemy, range, speed;
      
             if (skill.requiresWeapon) {
@@ -173,6 +173,8 @@ module.exports = function(utils, settings, blueprints, components) {
                     console.log('err no enemy');
                     return false;
 
+                } else {
+                    console.log('enemy found', enemy.name);
                 }
             
             }
